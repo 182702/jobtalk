@@ -4,9 +4,9 @@ import { createClient } from "@/lib/supabase/server";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: { default: "JobTalk", template: "%s · JobTalk" },
+  title: { default: "VoiceBill Pro", template: "%s · VoiceBill Pro" },
   description: "Talk through the job. Get the invoice.",
-  appleWebApp: { capable: true, title: "JobTalk", statusBarStyle: "default" },
+  appleWebApp: { capable: true, title: "VoiceBill Pro", statusBarStyle: "default" },
 };
 
 export const viewport: Viewport = {
@@ -31,7 +31,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <header className="topbar">
           <div className="in">
             <Link className="logo" href={user ? "/invoices" : "/"}>
-              Job<span>Talk</span>
+              VoiceBill<span>Pro</span>
             </Link>
             <nav>
               {user ? (

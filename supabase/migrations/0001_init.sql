@@ -1,4 +1,4 @@
--- JobTalk schema. Run in the Supabase SQL editor or with `supabase db push`.
+-- VoiceBill Pro schema. Run in the Supabase SQL editor or with `supabase db push`.
 -- All money is stored as integer cents. Tax rates are stored as basis points
 -- (825 = 8.25%). Quantities are numeric with two decimals (2.5 hours).
 

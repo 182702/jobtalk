@@ -75,7 +75,7 @@ export function InvoiceView({ invoice, profile }: { invoice: InvoiceWithItems; p
           <div className="pre">{profile.payment_instructions}</div>
         </div>
       )}
-      <div className="foot">Made with JobTalk</div>
+      <div className="foot">Made with VoiceBill Pro</div>
     </div>
   );
 }

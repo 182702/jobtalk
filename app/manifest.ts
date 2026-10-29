@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "JobTalk",
-    short_name: "JobTalk",
+    name: "VoiceBill Pro",
+    short_name: "VoiceBill",
     description: "Talk through the job. Get the invoice.",
     start_url: "/new",
     display: "standalone",

@@ -1,6 +1,6 @@
-# JobTalk
+# VoiceBill Pro
 
-Voice note to invoice for contractors. A contractor records or types what they did, and JobTalk turns it into an invoice with labor, parts, and tax that they can review, email as a PDF or link, and track as paid or unpaid.
+Voice note to invoice for contractors. A contractor records or types what they did, and VoiceBill Pro turns it into an invoice with labor, parts, and tax that they can review, email as a PDF or link, and track as paid or unpaid.
 
 Stack: Next.js 16 (App Router), Supabase (Postgres, auth, logo storage), Anthropic API, Stripe subscriptions, Resend email, pdf-lib.
 
@@ -62,13 +62,13 @@ npm run build
 Create an API key at platform.claude.com and set `ANTHROPIC_API_KEY`. The parser uses `claude-opus-5-5` at low effort (set `ANTHROPIC_MODEL` to override). Server-side refusal fallback is turned on (`fallbacks: "default"`), so if a safety classifier declines a note, the API retries it on a fallback model instead of failing.
 
 ### 3. Stripe
-1. Create a Product "JobTalk Solo" with a recurring price of $24/month. Put its price id in `STRIPE_PRICE_SOLO`.
+1. Create a Product "VoiceBill Pro Solo" with a recurring price of $24/month. Put its price id in `STRIPE_PRICE_SOLO`.
 2. Developers → Webhooks: add an endpoint at `https://yourdomain.com/api/stripe/webhook` for `checkout.session.completed`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`. Put the signing secret in `STRIPE_WEBHOOK_SECRET`.
 3. Settings → Billing → Customer portal: turn it on and allow cancellation.
 4. Local testing: `stripe listen --forward-to localhost:3000/api/stripe/webhook`.
 
 ### 4. Resend
-Verify your domain in Resend, create an API key (`RESEND_API_KEY`), and set `EMAIL_FROM`, for example `Rivera via JobTalk <invoices@yourdomain.com>`. Replies go to the contractor's own email.
+Verify your domain in Resend, create an API key (`RESEND_API_KEY`), and set `EMAIL_FROM`, for example `Rivera via VoiceBill Pro <invoices@yourdomain.com>`. Replies go to the contractor's own email.
 
 ### 5. Vercel
 Import the repo, add every variable from `.env.example`, and set `NEXT_PUBLIC_APP_URL` to your domain.

@@ -9,7 +9,7 @@ export default function PrivacyPage() {
       <h2>What we collect</h2>
       <p>Your account email and password (stored hashed by our auth provider), your business settings and logo, the job notes you record or type, and the invoices you create, including your customers&apos; names and email addresses.</p>
       <h2>How we use it</h2>
-      <p>To run JobTalk: turning job notes into invoices, emailing invoices you choose to send, and billing your subscription. We don&apos;t sell your data or use it for advertising.</p>
+      <p>To run VoiceBill Pro: turning job notes into invoices, emailing invoices you choose to send, and billing your subscription. We don&apos;t sell your data or use it for advertising.</p>
       <h2>Who processes it</h2>
       <ul>
         <li>Supabase: database, login, and file storage.</li>
@@ -19,7 +19,7 @@ export default function PrivacyPage() {
         <li>Vercel: hosts the app.</li>
       </ul>
       <h2>Voice</h2>
-      <p>Speech is turned into text by your browser&apos;s built-in speech recognition, which may use your browser maker&apos;s servers. JobTalk stores the text, not audio.</p>
+      <p>Speech is turned into text by your browser&apos;s built-in speech recognition, which may use your browser maker&apos;s servers. VoiceBill Pro stores the text, not audio.</p>
       <h2>Invoice links</h2>
       <p>Each invoice has a private link that anyone holding it can open. Share it only with your customer.</p>
       <h2>Your choices</h2>

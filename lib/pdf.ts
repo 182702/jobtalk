@@ -69,7 +69,7 @@ async function loadLogo(doc: PDFDocument, path: string | null): Promise<PDFImage
 export async function renderInvoicePdf(inv: InvoiceWithItems, profile: Profile): Promise<Uint8Array> {
   const doc = await PDFDocument.create();
   doc.setTitle(`Invoice ${invoiceLabel(inv.number)} - ${businessName(profile)}`);
-  doc.setCreator("JobTalk");
+  doc.setCreator("VoiceBill Pro");
   const regular = await doc.embedFont(StandardFonts.Helvetica);
   const bold = await doc.embedFont(StandardFonts.HelveticaBold);
   const logo = await loadLogo(doc, profile.logo_path);
@@ -182,7 +182,7 @@ export async function renderInvoicePdf(inv: InvoiceWithItems, profile: Profile):
 
   // Footer on every page.
   for (const p of doc.getPages()) {
-    const s = "Made with JobTalk";
+    const s = "Made with VoiceBill Pro";
     p.drawText(s, { x: (PAGE_W - regular.widthOfTextAtSize(s, 8)) / 2, y: M - 20, size: 8, font: regular, color: MUTE });
   }
 

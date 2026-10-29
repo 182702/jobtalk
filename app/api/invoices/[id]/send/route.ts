@@ -42,7 +42,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 ${profile.payment_instructions ? `<p><b>How to pay</b><br>${escapeHtml(profile.payment_instructions).replace(/\n/g, "<br>")}</p>` : ""}
 <p>The PDF is attached.</p>
 <p>Thanks,<br>${escapeHtml(biz)}</p>
-<p style="color:#6b6a64;font-size:12px">Made with JobTalk</p></div>`;
+<p style="color:#6b6a64;font-size:12px">Made with VoiceBill Pro</p></div>`;
 
   let sendError: unknown;
   try {

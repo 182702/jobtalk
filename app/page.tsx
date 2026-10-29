@@ -12,7 +12,7 @@ export default function Landing() {
           Get the invoice.
         </h1>
         <p className={s.lead}>
-          Finish a job, hit record, and say what you did. JobTalk turns your voice note into labor hours, parts, and tax, ready to send.
+          Finish a job, hit record, and say what you did. VoiceBill Pro turns your voice note into labor hours, parts, and tax, ready to send.
         </p>
         <div className="btns" style={{ maxWidth: 420 }}>
           <Link className="btn" href="/signup">Try it free</Link>
@@ -98,7 +98,7 @@ export default function Landing() {
       </section>
 
       <footer className={s.foot}>
-        <span>© {new Date().getFullYear()} JobTalk</span>
+        <span>© {new Date().getFullYear()} VoiceBill Pro</span>
         <Link href="/privacy">Privacy</Link>
         <Link href="/terms">Terms</Link>
       </footer>
