@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Space_Grotesk } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import "./globals.css";
@@ -62,6 +63,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           </div>
         </header>
         {children}
+        <Analytics />
       </body>
     </html>
   );
