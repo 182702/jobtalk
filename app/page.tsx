@@ -1,108 +1,166 @@
+import { Space_Grotesk } from "next/font/google";
 import Link from "next/link";
-import { WaitlistForm } from "@/components/WaitlistForm";
+import { createClient } from "@/lib/supabase/server";
+import { FREE_NOTES_PER_MONTH } from "@/lib/plans";
 import s from "./landing.module.css";
 
-export default function Landing() {
+const display = Space_Grotesk({ subsets: ["latin"], weight: ["500", "600", "700"], variable: "--font-display" });
+
+function Icon({ d }: { d: string }) {
   return (
-    <div className={s.wrap}>
-      <header className={s.hero}>
-        <h1>
-          Talk through the job.
-          <br />
-          Get the invoice.
-        </h1>
-        <p className={s.lead}>
-          Finish a job, hit record, and say what you did. VoiceBill Pro turns your voice note into labor hours, parts, and tax, ready to send.
-        </p>
-        <div className="btns" style={{ maxWidth: 420 }}>
-          <Link className="btn" href="/signup">Try it free</Link>
-          <a className="btn alt" href="#join">Join the waitlist</a>
+    <span className={s.icon}>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d={d} />
+      </svg>
+    </span>
+  );
+}
+
+const WAVE = [10, 18, 26, 14, 22, 28, 12, 20, 24, 10, 16, 26, 18, 12, 22, 14];
+
+export default async function Landing() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  return (
+    <div className={`${s.page} ${display.variable} landing`}>
+      <div className={s.wrap}>
+        <nav className={s.nav}>
+          <Link href="/" className={s.brand}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/brand/icon.png" alt="" />
+            <span>
+              VoiceBill<em>Pro</em>
+            </span>
+          </Link>
+          <div className={s.navLinks}>
+            {user ? (
+              <Link className={`${s.btn} ${s.small}`} href="/invoices">Open app</Link>
+            ) : (
+              <>
+                <Link className={`${s.btnGhost} ${s.small}`} href="/login">Log in</Link>
+                <Link className={`${s.btn} ${s.small}`} href="/signup">Start free</Link>
+              </>
+            )}
+          </div>
+        </nav>
+
+        <header className={s.hero}>
+          <h1>Talk through the job — get the invoice before you leave the driveway.</h1>
+          <p className={s.lead}>
+            Hit record and say what you did. VoiceBill Pro turns your voice note into labor, parts and tax, then emails a clean PDF invoice to your customer.
+          </p>
+          <div className={s.heroBtns}>
+            <Link className={s.btn} href={user ? "/new" : "/signup"}>{user ? "New invoice" : "Start free"}</Link>
+            {!user && <Link className={s.btnGhost} href="/login">Log in</Link>}
+          </div>
+          <p className={s.fine}>{FREE_NOTES_PER_MONTH} free job notes a month · then $24/month · cancel anytime</p>
+        </header>
+
+        <div className={`${s.card} ${s.math}`}>
+          <p className={s.eyebrow}>How the math works</p>
+          <h2>Hours × Rate + Parts + Tax = Total due</h2>
+          <p>Every number comes from what you say. If you don&apos;t say a price, it&apos;s flagged — never guessed.</p>
         </div>
-        <p className="muted small">Built for plumbers, electricians, HVAC techs, handymen, and anyone who bills by the job.</p>
-      </header>
 
-      <section className={s.section}>
-        <h2>How it works</h2>
-        <div className={`${s.steps} ${s.steps3}`}>
-          <div className="card"><span className={s.num}>1</span><b style={{ display: "block" }}>Record</b><p className="muted" style={{ margin: 0 }}>Talk the way you normally would, in the truck or on site. No forms.</p></div>
-          <div className="card"><span className={s.num}>2</span><b style={{ display: "block" }}>Review</b><p className="muted" style={{ margin: 0 }}>Hours, parts, and prices are pulled out and the math is done. Fix anything in a tap.</p></div>
-          <div className="card"><span className={s.num}>3</span><b style={{ display: "block" }}>Send</b><p className="muted" style={{ margin: 0 }}>Email a clean PDF invoice to your customer, or copy the text into a message.</p></div>
-        </div>
-      </section>
-
-      <section className={s.section}>
-        <h2>From a voice note to numbers</h2>
-        <div className={s.steps}>
-          <div className="card">
-            <div className={s.label}>What you say</div>
-            <p className={s.quote}>
-              “Replaced the water heater at the Alvarez place. Two and a half hours at eighty-five an hour. Forty-gallon heater, three hundred eighty dollars, and two shutoff valves at twelve each.”
-            </p>
+        <section className={`${s.section} ${s.center}`}>
+          <p className={s.eyebrow}>Why VoiceBill Pro</p>
+          <h2 className={s.h2}>Everything you need to get paid</h2>
+          <div className={s.grid3} style={{ textAlign: "left" }}>
+            <div className={`${s.card} ${s.feature}`}>
+              <Icon d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3zM19 10v2a7 7 0 0 1-14 0v-2M12 19v3" />
+              <h3>Talk, don&apos;t type</h3>
+              <p>Say it the way you&apos;d tell a buddy, in the truck or on site. No forms, no spreadsheets.</p>
+            </div>
+            <div className={`${s.card} ${s.feature}`}>
+              <Icon d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" />
+              <h3>Prices never guessed</h3>
+              <p>Your hourly and tax rates fill in automatically. Anything you didn&apos;t price shows in red before it goes out.</p>
+            </div>
+            <div className={`${s.card} ${s.feature}`}>
+              <Icon d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z" />
+              <h3>Send in one tap</h3>
+              <p>Email a PDF with your logo and payment details, or copy a text version. See what&apos;s paid and what&apos;s owed.</p>
+            </div>
           </div>
-          <div className="card">
-            <div className={s.label}>What you get</div>
-            <table>
-              <tbody>
-                <tr><td>Labor · 2.5 h × $85.00</td><td className="n">$212.50</td></tr>
-                <tr><td>40-gallon water heater</td><td className="n">$380.00</td></tr>
-                <tr><td>Shutoff valve · 2 × $12.00</td><td className="n">$24.00</td></tr>
-                <tr><td>Subtotal</td><td className="n">$616.50</td></tr>
-                <tr><td>Tax (8.25%)</td><td className="n">$50.86</td></tr>
-                <tr className="grand"><td>Total due</td><td className="n">$667.36</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <p className="muted small">Example for illustration. Your rates and tax rate apply.</p>
-      </section>
+        </section>
 
-      <section className={s.section}>
-        <h2>Why you’ll like it</h2>
-        <ul className={s.checks}>
-          <li>No more writing invoices at night. Do it in two minutes while the job is fresh.</li>
-          <li>Never forget a part or an hour you could have billed.</li>
-          <li>Nothing is guessed. If you don’t say a price, it’s flagged in red for you to fill in.</li>
-          <li>Set your hourly rate, tax rate, logo, and payment details once.</li>
-          <li>See what’s paid and what’s still owed at a glance.</li>
-        </ul>
-      </section>
-
-      <section className={s.section} id="pricing">
-        <h2>Simple pricing</h2>
-        <div className={s.plans}>
-          <div className="card">
-            <b>Free</b>
-            <div className={s.price}>$0</div>
-            <ul><li>5 job notes a month</li><li>Hours, parts, and tax</li><li>Email and PDF invoices</li></ul>
-            <Link className="btn alt" href="/signup" style={{ width: "100%", marginTop: 14 }}>Start free</Link>
+        <section className={s.section}>
+          <p className={s.eyebrow}>See it in action</p>
+          <h2 className={s.demoTitle}>Turn a 30-second voice note into a ready-to-send invoice</h2>
+          <div className={`${s.card} ${s.demo}`}>
+            <div className={s.panel}>
+              <div className={s.recRow}>
+                <span className={s.mic} aria-hidden="true">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round">
+                    <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3zM19 10v2a7 7 0 0 1-14 0v-2M12 19v3" />
+                  </svg>
+                </span>
+                <span className={s.wave} aria-hidden="true">
+                  {WAVE.map((h, i) => (
+                    <i key={i} style={{ height: h }} />
+                  ))}
+                </span>
+              </div>
+              <p className={s.quote}>
+                “Replaced the water heater at the Alvarez place. Two and a half hours at eighty-five. Forty-gallon heater, three eighty. Two shutoff valves at twelve each, plus the expansion tank.”
+              </p>
+            </div>
+            <div className={s.panel}>
+              <div className={s.invHead}>
+                <b>Invoice #0012 · Alvarez</b>
+                <span className={s.pill}>Ready</span>
+              </div>
+              <table className={s.inv}>
+                <tbody>
+                  <tr><td>Labor · 2.5 h × $85.00</td><td>$212.50</td></tr>
+                  <tr><td>40-gallon water heater</td><td>$380.00</td></tr>
+                  <tr><td>Shutoff valve · 2 × $12.00</td><td>$24.00</td></tr>
+                  <tr><td>Expansion tank</td><td className={s.flag}>Add price</td></tr>
+                  <tr className={s.sub}><td>Subtotal</td><td>$616.50</td></tr>
+                  <tr className={s.sub}><td>Tax (8.25%)</td><td>$50.86</td></tr>
+                  <tr className={s.total}><td>Total due</td><td>$667.36</td></tr>
+                </tbody>
+              </table>
+            </div>
           </div>
-          <div className={`card ${s.pop}`}>
-            <b>Solo</b>
-            <div className={s.price}>$24<small>/month</small></div>
-            <ul><li>Unlimited job notes</li><li>Your logo on invoices</li><li>Paid and unpaid tracking</li></ul>
-            <Link className="btn" href="/signup" style={{ width: "100%", marginTop: 14 }}>Get Solo</Link>
-          </div>
-          <div className="card">
-            <b>Crew</b>
-            <div className={s.price}>Later</div>
-            <ul><li>Everything in Solo</li><li>Add your team</li><li>Coming after launch</li></ul>
-            <a className="btn alt" href="#join" style={{ width: "100%", marginTop: 14 }}>Notify me</a>
-          </div>
-        </div>
-      </section>
+          <p className={s.caption}>The expansion tank had no price in the note, so it&apos;s flagged for you to fill in. Nothing is made up.</p>
+        </section>
 
-      <section className={`${s.section} ${s.cta}`} id="join">
-        <h2>Be first in line</h2>
-        <p className={s.lead} style={{ margin: "0 auto 20px" }}>Leave your email and we’ll reach out as new features land.</p>
-        <WaitlistForm />
-      </section>
+        <section className={s.section}>
+          <div className={`${s.card} ${s.price}`}>
+            <p className={s.eyebrow}>Pricing</p>
+            <h2>One plan. Everything included.</h2>
+            <div className={s.amount}>
+              $24<small> / month</small>
+            </div>
+            <p className={s.fine} style={{ marginTop: 4 }}>Start with {FREE_NOTES_PER_MONTH} free job notes a month. Cancel anytime.</p>
+            <ul className={s.checks}>
+              <li>Unlimited voice or typed job notes</li>
+              <li>Labor, parts and tax calculated for you</li>
+              <li>PDF invoices with your logo, emailed in one tap</li>
+              <li>Paid / unpaid tracking and total outstanding</li>
+              <li>Your rates, tax and payment details saved</li>
+            </ul>
+            <Link className={s.btn} href={user ? "/billing" : "/signup"}>{user ? "Go to billing" : "Start free"}</Link>
+          </div>
+        </section>
 
-      <footer className={s.foot}>
-        <span>© {new Date().getFullYear()} VoiceBill Pro</span>
-        <Link href="/privacy">Privacy</Link>
-        <Link href="/terms">Terms</Link>
-        <Link href="/support">Support</Link>
-      </footer>
+        <section className={s.cta}>
+          <h2>Stop writing invoices at night.</h2>
+          <p className={s.lead}>Built for plumbers, electricians, HVAC techs, handymen, and anyone who bills by the job.</p>
+          <Link className={s.btn} href={user ? "/new" : "/signup"}>{user ? "New invoice" : "Try it free"}</Link>
+        </section>
+
+        <footer className={s.foot}>
+          <span>© {new Date().getFullYear()} VoiceBill Pro</span>
+          <Link href="/privacy">Privacy</Link>
+          <Link href="/terms">Terms</Link>
+          <Link href="/support">Support</Link>
+        </footer>
+      </div>
     </div>
   );
 }

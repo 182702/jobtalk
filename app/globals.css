@@ -150,3 +150,7 @@ input.miss { border-color: var(--danger); background: var(--danger-bg); }
   body { background: #fff; color: #000; }
   .card { border: 0; padding: 0; }
 }
+
+/* The landing page brings its own dark nav and background. */
+body:has(.landing) { background: #06102a; }
+body:has(.landing) .topbar { display: none; }
