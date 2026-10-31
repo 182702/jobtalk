@@ -158,3 +158,11 @@ body:has(.landing) .topbar { display: none; }
   .topbar nav { gap: 12px; }
 }
 .doc-head > div:last-child { margin-left: auto; }
+
+/* Owner dashboard status tags */
+.tag-ok { background: rgba(110, 231, 183, 0.15); color: var(--ok); border: 1px solid rgba(110, 231, 183, 0.35); }
+.tag-warm { background: rgba(255, 179, 71, 0.15); color: #ffc163; border: 1px solid rgba(255, 179, 71, 0.35); }
+.tag-cold { background: rgba(156, 173, 214, 0.12); color: var(--mute); border: 1px solid var(--line); }
+.tag-paid { background: var(--accent); color: var(--onacc); }
+.adminRow small + small { margin-top: 2px; }
+.item > span:first-child { min-width: 0; overflow-wrap: anywhere; }

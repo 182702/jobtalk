@@ -2,7 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 // Pages that need a signed-in user.
-const PROTECTED = ["/new", "/invoices", "/settings", "/billing"];
+const PROTECTED = ["/new", "/invoices", "/settings", "/billing", "/admin"];
 
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
