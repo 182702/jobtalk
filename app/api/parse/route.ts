@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { isAdminEmail } from "@/lib/admin";
 import { getPlan, getUser } from "@/lib/auth";
 import { parseJobNote, ParseError } from "@/lib/parse-note";
 import { AI_LIMIT_PER_DAY, AI_LIMIT_PER_MINUTE, FREE_NOTES_PER_MONTH, MAX_NOTE_CHARS } from "@/lib/plans";
@@ -36,7 +37,8 @@ export async function POST(request: Request) {
   const plan = await getPlan(supabase, user.id);
   const { data: used, error: usageError } = await admin.rpc("consume_note", {
     p_user: user.id,
-    p_limit: plan === "solo" ? null : FREE_NOTES_PER_MONTH,
+    // Owner accounts (ADMIN_EMAILS) are unlimited for testing and demos.
+    p_limit: plan === "solo" || isAdminEmail(user.email) ? null : FREE_NOTES_PER_MONTH,
   });
   if (usageError) return NextResponse.json({ error: "Something went wrong. Try again." }, { status: 500 });
   if (used === null) {

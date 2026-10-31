@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { NewInvoice } from "@/components/NewInvoice";
 import { requireProfile } from "@/lib/auth";
+import { isAdminEmail } from "@/lib/admin";
 import { getUsage } from "@/lib/usage";
 
 export const metadata = { title: "New invoice" };
@@ -8,6 +9,7 @@ export const metadata = { title: "New invoice" };
 export default async function NewPage() {
   const { supabase, profile } = await requireProfile();
   const usage = await getUsage(supabase, profile.id);
+  if (isAdminEmail(profile.email)) usage.plan = "solo"; // owner: unlimited, hide the free-plan counter
   const needsSetup = !profile.business_name;
 
   return (
