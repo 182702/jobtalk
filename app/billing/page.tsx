@@ -1,6 +1,7 @@
 import { BillingButton } from "@/components/BillingButtons";
 import { requireProfile } from "@/lib/auth";
 import { SOLO_PRICE_LABEL } from "@/lib/plans";
+import { stripeIsTestMode } from "@/lib/stripe";
 import { getUsage } from "@/lib/usage";
 
 export const metadata = { title: "Billing" };
@@ -18,6 +19,9 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
   return (
     <main>
       <h1>Billing</h1>
+      {stripeIsTestMode() && (
+        <div className="warn">Stripe is in test mode. Payments use test cards only and no real money is charged.</div>
+      )}
       {success && usage.plan !== "solo" && (
         <div className="card">Thanks! Your payment is processing. This page updates within a minute; refresh to check.</div>
       )}
