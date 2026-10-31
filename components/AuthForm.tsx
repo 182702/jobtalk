@@ -28,7 +28,10 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
         options: { emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}` },
       });
       if (error) setError(error.message);
-      else if (data.session) router.replace(next);
+      else if (data.session) {
+        router.replace(next);
+        router.refresh();
+      }
       else setSent(true); // email confirmation required
     } else {
       const { error } = await supabase.auth.signInWithPassword({ email, password });

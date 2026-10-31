@@ -41,6 +41,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                   <Link className="btn small" href="/new">
                     + New
                   </Link>
+                  <form action="/auth/signout" method="post" className="navOut">
+                    <button type="submit" className="linkish">Log out</button>
+                  </form>
                 </>
               ) : (
                 <>

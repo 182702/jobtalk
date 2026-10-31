@@ -154,3 +154,9 @@ input.miss { border-color: var(--danger); background: var(--danger-bg); }
 /* The landing page brings its own dark nav and background. */
 body:has(.landing) { background: #06102a; }
 body:has(.landing) .topbar { display: none; }
+
+/* Log out in the top bar; on narrow phones it lives on the Settings page instead. */
+.linkish { background: none; border: 0; padding: 0; color: var(--mute); font-weight: 500; font-size: 15px; cursor: pointer; }
+.linkish:hover { color: var(--ink); }
+.navOut { display: none; }
+@media (min-width: 520px) { .navOut { display: block; } }
