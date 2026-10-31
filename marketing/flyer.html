@@ -1,0 +1,79 @@
+<!doctype html><html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+@page { size: Letter; margin: 0; }
+* { box-sizing: border-box; }
+body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: #0b1a3f; }
+.page { width: 8.5in; height: 11in; position: relative; overflow: hidden; background: #fff; }
+.top { background: linear-gradient(160deg, #06102a 0%, #0f2560 100%); color: #eaf0ff; padding: 0.42in 0.6in 0.38in; }
+.brand { display: flex; align-items: center; gap: 14px; font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 30px; letter-spacing: -0.5px; }
+.brand b { color: #ff7a2f; }
+h1 { font-family: "Space Grotesk", sans-serif; font-size: 44px; line-height: 1.04; letter-spacing: -1.5px; margin: 0.24in 0 12px; }
+h1 span { color: #ff7a2f; }
+.lead { font-size: 17px; line-height: 1.45; color: #c7d3f2; margin: 0; max-width: 6.6in; }
+.demo { display: flex; gap: 16px; align-items: stretch; margin: 0.24in 0.6in 0; }
+.say, .inv { flex: 1; border-radius: 16px; padding: 16px 18px; }
+.say { background: #fff4ec; border: 2px solid #ffd2b8; font-size: 16px; line-height: 1.45; }
+.say .lbl, .inv .lbl { font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 700; margin-bottom: 8px; color: #b34a0e; }
+.inv { background: #f2f5fc; border: 2px solid #d6def0; font-size: 14.5px; }
+.inv .lbl { color: #4a5a85; }
+.inv table { width: 100%; border-collapse: collapse; }
+.inv td { padding: 4px 0; border-bottom: 1px solid #dfe5f2; }
+.inv td:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+.inv tr.t td { border: 0; font-weight: 800; font-size: 17px; padding-top: 8px; }
+.arrow { align-self: center; font-size: 34px; color: #e8590c; font-weight: 800; }
+.feats { display: flex; gap: 14px; margin: 0.22in 0.6in 0; }
+.feat { flex: 1; }
+.feat b { display: block; font-family: "Space Grotesk", sans-serif; font-size: 18px; margin-bottom: 4px; }
+.feat p { margin: 0; font-size: 14px; line-height: 1.4; color: #3d4b70; }
+.cta { display: flex; align-items: center; gap: 26px; margin: 0.24in 0.6in 0; padding: 14px 20px; border-radius: 18px; border: 3px solid #e8590c; }
+.qr { width: 1.45in; height: 1.45in; flex: none; }
+.qr svg { width: 100%; height: 100%; }
+.cta h2 { font-family: "Space Grotesk", sans-serif; font-size: 27px; margin: 0 0 4px; letter-spacing: -0.5px; }
+.cta .url { font-size: 22px; font-weight: 800; color: #e8590c; margin: 0 0 8px; }
+.cta p { margin: 0; font-size: 15px; color: #3d4b70; line-height: 1.45; }
+.foot { position: absolute; left: 0.6in; right: 0.6in; bottom: 1.6in; font-size: 12.5px; color: #6a7899; display: flex; justify-content: space-between; }
+.tabs { position: absolute; left: 0; right: 0; bottom: 0; height: 1.45in; display: flex; border-top: 2px dashed #9aa6c2; }
+.tab { flex: 1 1 0; min-width: 0; position: relative; border-left: 2px dashed #9aa6c2; }
+.tab:first-child { border-left: 0; }
+.tab span { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%) rotate(-90deg); white-space: nowrap; font-size: 13px; font-weight: 800; color: #0b1a3f; text-align: center; line-height: 1.3; }
+.tab span i { font-style: normal; color: #e8590c; display: block; font-size: 10.5px; font-weight: 700; }
+</style></head><body><div class="page">
+<div class="top">
+  <div class="brand"><svg viewBox="0 0 64 64" width="56" height="56"><rect width="64" height="64" rx="14" fill="#e8590c"/><rect x="25" y="12" width="14" height="26" rx="7" fill="#fff"/><path d="M18 30a14 14 0 0 0 28 0" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/><path d="M32 44v8M24 52h16" stroke="#fff" stroke-width="4" stroke-linecap="round"/></svg><div>VoiceBill<b>Pro</b></div></div>
+  <h1>Do your invoice<br>before you leave<br><span>the driveway.</span></h1>
+  <p class="lead">Say what you did into your phone. VoiceBill Pro turns it into a ready-to-send invoice with labor, parts and tax. No typing at night.</p>
+</div>
+<div class="demo">
+  <div class="say"><div class="lbl">🎙 You say</div>"Two hours labor at eighty-five. Forty-gallon water heater, three eighty. Two shutoff valves at twelve each."</div>
+  <div class="arrow">→</div>
+  <div class="inv"><div class="lbl">You send</div><table>
+    <tr><td>Labor · 2 h × $85</td><td>$170.00</td></tr>
+    <tr><td>40-gal water heater</td><td>$380.00</td></tr>
+    <tr><td>Shutoff valve · 2 × $12</td><td>$24.00</td></tr>
+    <tr class="t"><td>Total due</td><td>$574.00</td></tr></table></div>
+</div>
+<div class="feats">
+  <div class="feat"><b>Talk, don't type</b><p>In the truck or on site. Takes about 30 seconds.</p></div>
+  <div class="feat"><b>Prices never guessed</b><p>Anything you didn't price is flagged in red.</p></div>
+  <div class="feat"><b>Send in one tap</b><p>Email a PDF with your logo. Track paid and unpaid.</p></div>
+</div>
+<div class="cta">
+  <div class="qr"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 25" shape-rendering="crispEdges"><path fill="#ffffff" d="M0 0h25v25H0z"/><path stroke="#0b1a3f" d="M0 0.5h7m2 0h4m1 0h1m1 0h1m1 0h7M0 1.5h1m5 0h1m5 0h1m2 0h1m2 0h1m5 0h1M0 2.5h1m1 0h3m1 0h1m1 0h2m2 0h1m2 0h2m1 0h1m1 0h3m1 0h1M0 3.5h1m1 0h3m1 0h1m1 0h1m1 0h5m3 0h1m1 0h3m1 0h1M0 4.5h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h3m1 0h1M0 5.5h1m5 0h1m1 0h2m3 0h1m1 0h1m2 0h1m5 0h1M0 6.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M8 7.5h3m1 0h1m2 0h2M0 8.5h1m1 0h5m2 0h1m1 0h1m1 0h2m3 0h5M1 9.5h1m1 0h2m2 0h2m1 0h1m1 0h2m2 0h1m2 0h1m3 0h1M0 10.5h1m2 0h1m2 0h1m2 0h9m2 0h2m1 0h2M1 11.5h2m1 0h2m1 0h1m2 0h1m1 0h1m1 0h2m1 0h1m1 0h1m4 0h1M1 12.5h3m1 0h3m1 0h1m3 0h1m3 0h4m1 0h3M0 13.5h1m1 0h4m1 0h2m1 0h1m1 0h2m2 0h1m2 0h1m1 0h1m1 0h1M0 14.5h1m2 0h4m6 0h3m3 0h3m1 0h2M0 15.5h1m1 0h2m4 0h3m1 0h1m4 0h4m3 0h1M0 16.5h1m1 0h2m2 0h4m2 0h9m1 0h1M8 17.5h3m4 0h2m3 0h2M0 18.5h7m3 0h4m2 0h1m1 0h1m1 0h1m1 0h3M0 19.5h1m5 0h1m1 0h1m1 0h2m2 0h1m1 0h1m3 0h2m2 0h1M0 20.5h1m1 0h3m1 0h1m1 0h2m1 0h10m1 0h1M0 21.5h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h2m3 0h2m1 0h5M0 22.5h1m1 0h3m1 0h1m1 0h1m4 0h2m6 0h2m1 0h1M0 23.5h1m5 0h1m2 0h1m4 0h3m1 0h4m2 0h1M0 24.5h7m1 0h2m1 0h4m2 0h1m1 0h6"/></svg></div>
+  <div>
+    <h2>Scan to try it free</h2>
+    <div class="url">voicebillpro.com</div>
+    <p>Free for 5 invoices a month. No card needed.<br>Unlimited for $24/month. Cancel anytime.</p>
+  </div>
+</div>
+<div class="foot"><span>Built in Springdale, AR for plumbers, electricians, HVAC & handymen</span><span>support@voicebillpro.com</span></div>
+<div class="tabs"><div class="tab"><span>voicebillpro.com<i>Free invoice app</i></span></div>
+<div class="tab"><span>voicebillpro.com<i>Free invoice app</i></span></div>
+<div class="tab"><span>voicebillpro.com<i>Free invoice app</i></span></div>
+<div class="tab"><span>voicebillpro.com<i>Free invoice app</i></span></div>
+<div class="tab"><span>voicebillpro.com<i>Free invoice app</i></span></div>
+<div class="tab"><span>voicebillpro.com<i>Free invoice app</i></span></div>
+<div class="tab"><span>voicebillpro.com<i>Free invoice app</i></span></div>
+<div class="tab"><span>voicebillpro.com<i>Free invoice app</i></span></div>
+</div>
+</div></body></html>
