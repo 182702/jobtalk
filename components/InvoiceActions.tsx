@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { InvoiceEditor } from "@/components/InvoiceEditor";
 import { InvoiceView } from "@/components/InvoiceView";
+import { invoiceLang } from "@/lib/i18n";
 import { missingPriceCount } from "@/lib/invoice";
 import type { Draft, InvoiceWithItems, Profile } from "@/lib/types";
 
@@ -80,7 +81,7 @@ export function InvoiceActions({ invoice, profile, link, text }: { invoice: Invo
       <>
         {msg.err && <div className="warn">{msg.err}</div>}
         <InvoiceEditor
-          initial={{ ...invoice, items: invoice.line_items }}
+          initial={{ ...invoice, language: invoiceLang(invoice.language), items: invoice.line_items }}
           saveLabel="Save changes"
           onSave={save}
           onCancel={() => {

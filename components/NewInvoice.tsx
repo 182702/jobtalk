@@ -135,6 +135,7 @@ export function NewInvoice({ taxRateBps, usage }: { taxRateBps: number; usage: {
         notes: data.notes,
         original_note: text,
         tax_rate_bps: taxRateBps,
+        language: lang,
         items: data.items,
       });
     } catch {

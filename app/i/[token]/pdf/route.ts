@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { t } from "@/lib/i18n";
 import { invoiceLabel } from "@/lib/invoice";
 import { loadPublicInvoice } from "@/lib/load-invoice";
 import { renderInvoicePdf } from "@/lib/pdf";
@@ -10,7 +11,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ tok
   return new NextResponse(Buffer.from(pdf), {
     headers: {
       "Content-Type": "application/pdf",
-      "Content-Disposition": `attachment; filename="invoice-${invoiceLabel(found.invoice.number).slice(1)}.pdf"`,
+      "Content-Disposition": `attachment; filename="${t(found.invoice.language).pdfName}-${invoiceLabel(found.invoice.number).slice(1)}.pdf"`,
       "Cache-Control": "private, no-store",
       "X-Robots-Tag": "noindex",
     },

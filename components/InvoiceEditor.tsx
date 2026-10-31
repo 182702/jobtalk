@@ -47,6 +47,7 @@ export function InvoiceEditor({
   const [date, setDate] = useState(initial.issued_on);
   const [notes, setNotes] = useState(initial.notes);
   const [tax, setTax] = useState(initial.tax_rate_bps ? bpsToPercentString(initial.tax_rate_bps) : "");
+  const [language, setLanguage] = useState<"en" | "es">(initial.language);
   const [rows, setRows] = useState<Row[]>(() => initial.items.map(toRow));
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -70,6 +71,7 @@ export function InvoiceEditor({
       notes,
       original_note: initial.original_note,
       tax_rate_bps: taxBps,
+      language,
       items: items.map((i) => ({ ...i, description: i.description.trim() })),
     });
     setBusy(false);
@@ -98,6 +100,13 @@ export function InvoiceEditor({
           <label htmlFor="tax">Tax %</label>
           <input id="tax" inputMode="decimal" value={tax} onChange={(e) => setTax(e.target.value)} placeholder="0" />
         </div>
+      </div>
+      <div className="field">
+        <label htmlFor="ilang">Invoice language (what your customer sees)</label>
+        <select id="ilang" value={language} onChange={(e) => setLanguage(e.target.value === "es" ? "es" : "en")}>
+          <option value="en">English</option>
+          <option value="es">Español</option>
+        </select>
       </div>
 
       <div className="lines">

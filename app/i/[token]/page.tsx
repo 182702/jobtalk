@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { InvoiceView } from "@/components/InvoiceView";
+import { t } from "@/lib/i18n";
 import { businessName, invoiceLabel } from "@/lib/invoice";
 import { loadPublicInvoice } from "@/lib/load-invoice";
 
@@ -10,7 +11,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const found = await loadPublicInvoice((await params).token);
   if (!found) return { title: "Invoice" };
   return {
-    title: `Invoice ${invoiceLabel(found.invoice.number)} from ${businessName(found.profile)}`,
+    title: t(found.invoice.language).emailSubject(invoiceLabel(found.invoice.number), businessName(found.profile, t(found.invoice.language).yourBusiness)),
     robots: { index: false, follow: false },
   };
 }
@@ -22,10 +23,10 @@ export default async function PublicInvoicePage({ params }: Props) {
   if (!found) notFound();
 
   return (
-    <main>
+    <main lang={found.invoice.language === "es" ? "es" : "en"}>
       <InvoiceView invoice={found.invoice} profile={found.profile} />
       <div className="btns noprint">
-        <a className="btn alt" href={`/i/${token}/pdf`}>Download PDF</a>
+        <a className="btn alt" href={`/i/${token}/pdf`}>{t(found.invoice.language).downloadPdf}</a>
       </div>
     </main>
   );

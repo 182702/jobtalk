@@ -3,6 +3,7 @@ import { getUser } from "@/lib/auth";
 import { escapeHtml, resend } from "@/lib/email";
 import { appUrl, requireEnv } from "@/lib/env";
 import { businessName, invoiceLabel, invoiceText, missingPriceCount } from "@/lib/invoice";
+import { t } from "@/lib/i18n";
 import { loadInvoice } from "@/lib/load-invoice";
 import { formatCents } from "@/lib/money";
 import { renderInvoicePdf } from "@/lib/pdf";
@@ -31,18 +32,20 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
   const { data: profileRow } = await supabase.from("profiles").select("*").eq("id", user.id).single();
   const profile = profileRow as Profile;
-  const biz = businessName(profile);
+  const L = t(invoice.language);
+  const biz = businessName(profile, L.yourBusiness);
+  const num = invoiceLabel(invoice.number);
   const link = `${appUrl()}/i/${invoice.public_token}`;
   const pdf = await renderInvoicePdf(invoice, profile);
 
   const html = `<div style="font:16px/1.5 system-ui,sans-serif;color:#1c1c1a;max-width:560px">
-<p>Hi ${escapeHtml(invoice.customer_name || "there")},</p>
-<p>Here is invoice ${invoiceLabel(invoice.number)} from ${escapeHtml(biz)} for <b>${formatCents(invoice.total_cents)}</b>.</p>
-<p><a href="${link}" style="display:inline-block;background:#e8590c;color:#fff;padding:10px 16px;border-radius:8px;text-decoration:none;font-weight:600">View invoice</a></p>
-${profile.payment_instructions ? `<p><b>How to pay</b><br>${escapeHtml(profile.payment_instructions).replace(/\n/g, "<br>")}</p>` : ""}
-<p>The PDF is attached.</p>
-<p>Thanks,<br>${escapeHtml(biz)}</p>
-<p style="color:#6b6a64;font-size:12px">Made with VoiceBill Pro</p></div>`;
+<p>${escapeHtml(L.emailGreeting(invoice.customer_name))}</p>
+<p>${L.emailBody(num, escapeHtml(biz), formatCents(invoice.total_cents))}</p>
+<p><a href="${link}" style="display:inline-block;background:#e8590c;color:#fff;padding:10px 16px;border-radius:8px;text-decoration:none;font-weight:600">${L.viewInvoice}</a></p>
+${profile.payment_instructions ? `<p><b>${L.howToPay}</b><br>${escapeHtml(profile.payment_instructions).replace(/\n/g, "<br>")}</p>` : ""}
+<p>${L.emailAttached}</p>
+<p>${L.emailThanks}<br>${escapeHtml(biz)}</p>
+<p style="color:#6b6a64;font-size:12px">${L.madeWith}</p></div>`;
 
   let sendError: unknown;
   try {
@@ -50,10 +53,10 @@ ${profile.payment_instructions ? `<p><b>How to pay</b><br>${escapeHtml(profile.p
       from: requireEnv("EMAIL_FROM"),
       to: invoice.customer_email,
       replyTo: profile.email,
-      subject: `Invoice ${invoiceLabel(invoice.number)} from ${biz}`,
+      subject: L.emailSubject(num, biz),
       html,
       text: invoiceText(invoice, profile, link),
-      attachments: [{ filename: `invoice-${invoiceLabel(invoice.number).slice(1)}.pdf`, content: Buffer.from(pdf) }],
+      attachments: [{ filename: `${L.pdfName}-${num.slice(1)}.pdf`, content: Buffer.from(pdf) }],
     });
     sendError = error;
   } catch (err) {

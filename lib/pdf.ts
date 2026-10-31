@@ -2,6 +2,7 @@ import "server-only";
 import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFImage, type PDFPage } from "pdf-lib";
 import { businessName, formatDate, invoiceLabel, logoUrl } from "@/lib/invoice";
 import { bpsToPercentString, formatCents, formatQuantity, lineAmountCents } from "@/lib/money";
+import { t } from "@/lib/i18n";
 import type { InvoiceWithItems, Profile } from "@/lib/types";
 
 const PAGE_W = 612; // US Letter
@@ -68,7 +69,9 @@ async function loadLogo(doc: PDFDocument, path: string | null): Promise<PDFImage
 
 export async function renderInvoicePdf(inv: InvoiceWithItems, profile: Profile): Promise<Uint8Array> {
   const doc = await PDFDocument.create();
-  doc.setTitle(`Invoice ${invoiceLabel(inv.number)} - ${businessName(profile)}`);
+  const L = t(inv.language);
+  const biz = businessName(profile, L.yourBusiness);
+  doc.setTitle(`${L.invoice} ${invoiceLabel(inv.number)} - ${biz}`);
   doc.setCreator("VoiceBill Pro");
   const regular = await doc.embedFont(StandardFonts.Helvetica);
   const bold = await doc.embedFont(StandardFonts.HelveticaBold);
@@ -99,19 +102,19 @@ export async function renderInvoicePdf(inv: InvoiceWithItems, profile: Profile):
     headerX = M + w + 14;
   }
   y -= 18;
-  text(businessName(profile), headerX, 20, bold);
-  right("INVOICE", PAGE_W - M, 20, bold, ACCENT);
+  text(biz, headerX, 20, bold);
+  right(L.invoice.toUpperCase(), PAGE_W - M, 20, bold, ACCENT);
   y -= 18;
   text(profile.email, headerX, 10, regular, MUTE);
   right(invoiceLabel(inv.number), PAGE_W - M, 11, bold);
   y -= 14;
-  right(formatDate(inv.issued_on), PAGE_W - M, 10, regular, MUTE);
+  right(formatDate(inv.issued_on, L.dateLocale), PAGE_W - M, 10, regular, MUTE);
   y -= logo ? 34 : 26;
 
   // Bill to.
-  text("BILL TO", M, 9, bold, MUTE);
+  text(L.billTo.toUpperCase(), M, 9, bold, MUTE);
   y -= 15;
-  text(inv.customer_name || "Customer", M, 12, bold);
+  text(inv.customer_name || L.customer, M, 12, bold);
   if (inv.customer_email) {
     y -= 14;
     text(inv.customer_email, M, 10, regular, MUTE);
@@ -125,10 +128,10 @@ export async function renderInvoicePdf(inv: InvoiceWithItems, profile: Profile):
   const descW = colQty - M - 50;
 
   const header = () => {
-    text("ITEM", M, 9, bold, MUTE);
-    right("QTY", colQty, 9, bold, MUTE);
-    right("RATE", colRate, 9, bold, MUTE);
-    right("AMOUNT", colAmt, 9, bold, MUTE);
+    text(L.item.toUpperCase(), M, 9, bold, MUTE);
+    right(L.qty.toUpperCase(), colQty, 9, bold, MUTE);
+    right(L.rate.toUpperCase(), colRate, 9, bold, MUTE);
+    right(L.amount.toUpperCase(), colAmt, 9, bold, MUTE);
     y -= 8;
     rule();
     y -= 16;
@@ -153,15 +156,15 @@ export async function renderInvoicePdf(inv: InvoiceWithItems, profile: Profile):
   // Totals.
   ensure(80);
   const labelX = colRate - 60;
-  text("Subtotal", labelX, 11, regular, MUTE);
+  text(L.subtotal, labelX, 11, regular, MUTE);
   right(formatCents(inv.subtotal_cents), colAmt, 11);
   if (inv.tax_rate_bps > 0) {
     y -= 18;
-    text(`Tax (${bpsToPercentString(inv.tax_rate_bps)}%)`, labelX, 11, regular, MUTE);
+    text(`${L.tax} (${bpsToPercentString(inv.tax_rate_bps)}%)`, labelX, 11, regular, MUTE);
     right(formatCents(inv.tax_cents), colAmt, 11);
   }
   y -= 24;
-  text("Total due", labelX, 14, bold);
+  text(L.totalDue, labelX, 14, bold);
   right(formatCents(inv.total_cents), colAmt, 14, bold);
   y -= 36;
 
@@ -177,12 +180,12 @@ export async function renderInvoicePdf(inv: InvoiceWithItems, profile: Profile):
     }
     y -= 14;
   };
-  if (inv.notes) block("NOTES", inv.notes);
-  if (profile.payment_instructions) block("HOW TO PAY", profile.payment_instructions);
+  if (inv.notes) block(L.notes.toUpperCase(), inv.notes);
+  if (profile.payment_instructions) block(L.howToPay.toUpperCase(), profile.payment_instructions);
 
   // Footer on every page.
   for (const p of doc.getPages()) {
-    const s = "Made with VoiceBill Pro";
+    const s = L.madeWith;
     p.drawText(s, { x: (PAGE_W - regular.widthOfTextAtSize(s, 8)) / 2, y: M - 20, size: 8, font: regular, color: MUTE });
   }
 

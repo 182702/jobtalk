@@ -31,6 +31,7 @@ export type Invoice = {
   sent_at: string | null;
   paid_at: string | null;
   created_at: string;
+  language?: "en" | "es"; // absent on databases without the 0002 migration
 };
 
 export type InvoiceWithItems = Invoice & { line_items: LineItem[] };
@@ -43,5 +44,6 @@ export type Draft = {
   notes: string;
   original_note: string;
   tax_rate_bps: number;
+  language: "en" | "es";
   items: LineItem[];
 };

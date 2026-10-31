@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getUser } from "@/lib/auth";
+import { t } from "@/lib/i18n";
 import { invoiceLabel } from "@/lib/invoice";
 import { loadInvoice } from "@/lib/load-invoice";
 import { renderInvoicePdf } from "@/lib/pdf";
@@ -18,7 +19,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
   return new NextResponse(Buffer.from(pdf), {
     headers: {
       "Content-Type": "application/pdf",
-      "Content-Disposition": `inline; filename="invoice-${invoiceLabel(invoice.number).slice(1)}.pdf"`,
+      "Content-Disposition": `inline; filename="${t(invoice.language).pdfName}-${invoiceLabel(invoice.number).slice(1)}.pdf"`,
       "Cache-Control": "private, no-store",
     },
   });
