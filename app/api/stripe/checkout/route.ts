@@ -45,6 +45,9 @@ export async function POST() {
       success_url: `${appUrl()}/billing?success=1`,
       cancel_url: `${appUrl()}/billing`,
       allow_promotion_codes: true,
+      custom_text: {
+        submit: { message: "Unlimited job notes. Cancel any time from Billing in VoiceBill Pro. Questions? support@voicebillpro.com" },
+      },
     });
     return NextResponse.json({ url: session.url });
   } catch (err) {
