@@ -1,7 +1,7 @@
 import { Space_Grotesk } from "next/font/google";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { FREE_NOTES_PER_MONTH } from "@/lib/plans";
+import { FREE_NOTES_PER_MONTH, SOLO_TRIAL_DAYS } from "@/lib/plans";
 import s from "./landing.module.css";
 
 const display = Space_Grotesk({ subsets: ["latin"], weight: ["500", "600", "700"], variable: "--font-display" });
@@ -56,7 +56,7 @@ export default async function Landing() {
             <Link className={s.btn} href={user ? "/new" : "/signup"}>{user ? "New invoice" : "Start free"}</Link>
             {!user && <Link className={s.btnGhost} href="/login">Log in</Link>}
           </div>
-          <p className={s.fine}>{FREE_NOTES_PER_MONTH} free job notes a month · then $24/month · cancel anytime</p>
+          <p className={s.fine}>{FREE_NOTES_PER_MONTH} free job notes a month · {SOLO_TRIAL_DAYS}-day free trial of unlimited · cancel anytime</p>
         </header>
 
         <div className={`${s.card} ${s.math}`}>
@@ -136,7 +136,7 @@ export default async function Landing() {
             <div className={s.amount}>
               $24<small> / month</small>
             </div>
-            <p className={s.fine} style={{ marginTop: 4 }}>Start with {FREE_NOTES_PER_MONTH} free job notes a month. Cancel anytime.</p>
+            <p className={s.fine} style={{ marginTop: 4 }}>Start with a {SOLO_TRIAL_DAYS}-day free trial. Cancel anytime.</p>
             <ul className={s.checks}>
               <li>Unlimited voice or typed job notes</li>
               <li>Labor, parts and tax calculated for you</li>

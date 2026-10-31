@@ -9,7 +9,7 @@ export default function TermsPage() {
       <h2>The service</h2>
       <p>VoiceBill Pro helps you draft invoices from job notes. You are responsible for checking every invoice, including prices, quantities, and tax, before you send it. Extracted line items can be wrong.</p>
       <h2>Plans and billing</h2>
-      <p>The Free plan includes 5 job notes per calendar month. The Solo plan is $24 per month, billed in advance through Stripe, and renews until you cancel. Cancel any time from the Billing page; access continues to the end of the paid period. No refunds for partial months.</p>
+      <p>The Free plan includes 5 job notes per calendar month. The Solo plan is $24 per month, billed in advance through Stripe, and renews until you cancel. Your first Solo subscription starts with a 7-day free trial; a card is required, and you are not charged if you cancel before the trial ends. Cancel any time from the Billing page; access continues to the end of the paid period. No refunds for partial months.</p>
       <h2>Fair use</h2>
       <p>Don&apos;t misuse the service, including automated bulk requests, attempts to get around plan limits, or sending unwanted email to people who aren&apos;t your customers.</p>
       <h2>Your content</h2>

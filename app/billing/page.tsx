@@ -1,6 +1,6 @@
 import { BillingButton } from "@/components/BillingButtons";
 import { requireProfile } from "@/lib/auth";
-import { SOLO_PRICE_LABEL } from "@/lib/plans";
+import { SOLO_PRICE_LABEL, SOLO_TRIAL_DAYS } from "@/lib/plans";
 import { stripe, stripeIsTestMode } from "@/lib/stripe";
 import { getUsage } from "@/lib/usage";
 
@@ -44,12 +44,14 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
         <h2>{usage.plan === "solo" ? "Solo plan" : "Free plan"}</h2>
         {usage.plan === "solo" ? (
           <p className="muted">
-            Unlimited job notes. {sub?.status && sub.status !== "active" ? `Status: ${sub.status}. ` : ""}
+            Unlimited job notes. {sub?.status && !["active", "trialing"].includes(sub.status) ? `Status: ${sub.status}. ` : ""}
             {cancelsOn
               ? `Canceled: your plan stays active until ${cancelsOn.toLocaleDateString()}, then switches to Free. You won't be charged again.`
-              : sub?.current_period_end
-                ? `Renews ${new Date(sub.current_period_end).toLocaleDateString()}.`
-                : ""}
+              : sub?.status === "trialing" && sub.current_period_end
+                ? `Free trial until ${new Date(sub.current_period_end).toLocaleDateString()}, then ${SOLO_PRICE_LABEL}. Cancel before then and you won't be charged.`
+                : sub?.current_period_end
+                  ? `Renews ${new Date(sub.current_period_end).toLocaleDateString()}.`
+                  : ""}
           </p>
         ) : (
           <p className="muted">
@@ -63,7 +65,15 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
           </div>
         ) : (
           <div style={{ display: "grid", gap: 10 }}>
-            <BillingButton action="checkout" label={`Upgrade to Solo · ${SOLO_PRICE_LABEL}`} />
+            <BillingButton
+              action="checkout"
+              label={sub?.stripe_subscription_id ? `Upgrade to Solo · ${SOLO_PRICE_LABEL}` : `Start ${SOLO_TRIAL_DAYS}-day free trial of Solo`}
+            />
+            {!sub?.stripe_subscription_id && (
+              <p className="muted small" style={{ margin: 0, textAlign: "center" }}>
+                Then {SOLO_PRICE_LABEL}. You won&apos;t be charged if you cancel during the trial.
+              </p>
+            )}
             {sub?.stripe_subscription_id && <BillingButton action="portal" label="View past receipts" />}
           </div>
         )}
@@ -74,7 +84,7 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
           <b>Free</b> · 5 job notes a month
         </p>
         <p style={{ margin: 0 }}>
-          <b>Solo</b> · {SOLO_PRICE_LABEL}, unlimited job notes. Cancel any time.
+          <b>Solo</b> · {SOLO_PRICE_LABEL}, unlimited job notes. {SOLO_TRIAL_DAYS}-day free trial the first time. Cancel any time.
         </p>
       </div>
     </main>
