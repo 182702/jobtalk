@@ -5,7 +5,7 @@ export default function PrivacyPage() {
   return (
     <main>
       <h1>Privacy policy</h1>
-      <p className="muted small">Last updated October 31, 2026. Contact: <a href="mailto:isaacelanzo@gmail.com">isaacelanzo@gmail.com</a>.</p>
+      <p className="muted small">Last updated October 31, 2026. Contact: <a href="mailto:support@voicebillpro.com">support@voicebillpro.com</a>.</p>
       <h2>What we collect</h2>
       <p>Your account email and password (stored hashed by our auth provider), your business settings and logo, the job notes you record or type, and the invoices you create, including your customers&apos; names and email addresses.</p>
       <h2>How we use it</h2>
@@ -23,7 +23,7 @@ export default function PrivacyPage() {
       <h2>Invoice links</h2>
       <p>Each invoice has a private link that anyone holding it can open. Share it only with your customer.</p>
       <h2>Your choices</h2>
-      <p>You can edit or delete invoices at any time. To delete your account and data, email <a href="mailto:isaacelanzo@gmail.com">isaacelanzo@gmail.com</a>.</p>
+      <p>You can edit or delete invoices at any time. To delete your account and data, email <a href="mailto:support@voicebillpro.com">support@voicebillpro.com</a>.</p>
     </main>
   );
 }

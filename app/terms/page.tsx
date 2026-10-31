@@ -5,7 +5,7 @@ export default function TermsPage() {
   return (
     <main>
       <h1>Terms of service</h1>
-      <p className="muted small">Last updated October 31, 2026. VoiceBill Pro is operated by Isaac Elanzo, Springdale, Arkansas, USA. Contact: <a href="mailto:isaacelanzo@gmail.com">isaacelanzo@gmail.com</a>.</p>
+      <p className="muted small">Last updated October 31, 2026. VoiceBill Pro is operated by Isaac Elanzo, Springdale, Arkansas, USA. Contact: <a href="mailto:support@voicebillpro.com">support@voicebillpro.com</a>.</p>
       <h2>The service</h2>
       <p>VoiceBill Pro helps you draft invoices from job notes. You are responsible for checking every invoice, including prices, quantities, and tax, before you send it. Extracted line items can be wrong.</p>
       <h2>Plans and billing</h2>
