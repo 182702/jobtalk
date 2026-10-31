@@ -101,7 +101,7 @@ export default function Landing() {
         <span>© {new Date().getFullYear()} VoiceBill Pro</span>
         <Link href="/privacy">Privacy</Link>
         <Link href="/terms">Terms</Link>
-        <a href="mailto:support@voicebillpro.com">Contact</a>
+        <Link href="/support">Support</Link>
       </footer>
     </div>
   );
