@@ -53,7 +53,7 @@ p.sub { margin: 0 0 18px; color: var(--mute); }
 .muted { color: var(--mute); }
 .small { font-size: 13px; }
 
-.card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 16px; margin-bottom: 14px; backdrop-filter: blur(6px); }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 16px; margin-bottom: 14px; backdrop-filter: blur(6px); box-shadow: 0 0 24px rgba(47, 123, 255, 0.12); }
 
 label { display: block; font-size: 13px; color: var(--mute); margin: 0 0 4px; }
 .field { margin-bottom: 12px; }
@@ -72,7 +72,7 @@ button, .btn {
   cursor: pointer; background: var(--accent); color: var(--onacc); text-decoration: none;
 }
 button.alt, .btn.alt { background: rgba(255, 255, 255, 0.04); color: var(--ink); border: 1px solid var(--line); }
-button:not(.alt):not(.danger):not(.x):not(.linkish), .btn:not(.alt) { box-shadow: 0 6px 22px rgba(255, 122, 47, 0.22); }
+button:not(.alt):not(.danger):not(.x):not(.linkish), .btn:not(.alt) { background: linear-gradient(180deg, #ffb347 0%, #ff7a2f 55%, #f05f12 100%); box-shadow: 0 6px 24px rgba(255, 122, 47, 0.35), 0 0 16px rgba(255, 140, 50, 0.25); }
 button.danger { background: transparent; color: var(--danger); border: 1px solid var(--line); }
 button:disabled { opacity: 0.55; cursor: default; }
 .btn.small, button.small { padding: 7px 11px; font-size: 14px; }

@@ -53,12 +53,25 @@ export default async function Landing() {
             <Link className={s.btn} href={user ? "/new" : "/signup"}>{user ? "New invoice" : "Start free"}</Link>
             {!user && <Link className={s.btnGhost} href="/login">Log in</Link>}
           </div>
-          <p className={s.fine}>{FREE_NOTES_PER_MONTH} free job notes a month · then $24/month · cancel anytime</p>
+          <div className={s.perks}>
+            <div>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z" /></svg>
+              <span>{FREE_NOTES_PER_MONTH} free job notes a month</span>
+            </div>
+            <div>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /></svg>
+              <span>then $24/month</span>
+            </div>
+            <div>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="m5.6 5.6 12.8 12.8" /></svg>
+              <span>cancel anytime</span>
+            </div>
+          </div>
         </header>
 
         <div className={`${s.card} ${s.math}`}>
           <p className={s.eyebrow}>How the math works</p>
-          <h2>Hours × Rate + Parts + Tax = Total due</h2>
+          <h2>Hours × Rate + Parts + Tax = <b>Total due</b></h2>
           <p>Every number comes from what you say. If you don&apos;t say a price, it&apos;s flagged — never guessed.</p>
         </div>
 
