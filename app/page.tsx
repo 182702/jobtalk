@@ -1,10 +1,7 @@
-import { Space_Grotesk } from "next/font/google";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { FREE_NOTES_PER_MONTH } from "@/lib/plans";
 import s from "./landing.module.css";
-
-const display = Space_Grotesk({ subsets: ["latin"], weight: ["500", "600", "700"], variable: "--font-display" });
 
 function Icon({ d }: { d: string }) {
   return (
@@ -25,7 +22,7 @@ export default async function Landing() {
   } = await supabase.auth.getUser();
 
   return (
-    <div className={`${s.page} ${display.variable} landing`}>
+    <div className={`${s.page} landing`}>
       <div className={s.wrap}>
         <nav className={s.nav}>
           <Link href="/" className={s.brand}>

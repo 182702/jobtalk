@@ -1,22 +1,23 @@
 import type { Metadata, Viewport } from "next";
+import { Space_Grotesk } from "next/font/google";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import "./globals.css";
 
+const display = Space_Grotesk({ subsets: ["latin"], weight: ["500", "600", "700"], variable: "--font-display" });
+
 export const metadata: Metadata = {
   title: { default: "VoiceBill Pro", template: "%s · VoiceBill Pro" },
   description: "Talk through the job. Get the invoice.",
-  appleWebApp: { capable: true, title: "VoiceBill Pro", statusBarStyle: "default" },
+  appleWebApp: { capable: true, title: "VoiceBill Pro", statusBarStyle: "black-translucent" },
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f6f5f1" },
-    { media: "(prefers-color-scheme: dark)", color: "#161615" },
-  ],
+  themeColor: "#06102a",
+  colorScheme: "dark",
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
@@ -26,12 +27,16 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   } = await supabase.auth.getUser();
 
   return (
-    <html lang="en">
+    <html lang="en" className={display.variable}>
       <body>
         <header className="topbar">
-          <div className="in">
+          <div className={user ? "in authed" : "in"}>
             <Link className="logo" href={user ? "/invoices" : "/"}>
-              VoiceBill<span>Pro</span>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/brand/icon.png" alt="" />
+              <span className="logoText">
+                VoiceBill<span>Pro</span>
+              </span>
             </Link>
             <nav>
               {user ? (

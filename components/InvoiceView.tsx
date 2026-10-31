@@ -6,7 +6,7 @@ import type { InvoiceWithItems, Profile } from "@/lib/types";
 export function InvoiceView({ invoice, profile }: { invoice: InvoiceWithItems; profile: Profile }) {
   const logo = logoUrl(profile.logo_path);
   return (
-    <div className="card">
+    <div className="card paper">
       <div className="doc-head">
         <div>
           {/* eslint-disable-next-line @next/next/no-img-element */}

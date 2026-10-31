@@ -7,8 +7,11 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "Talk through the job. Get the invoice.",
     start_url: "/new",
     display: "standalone",
-    background_color: "#f6f5f1",
-    theme_color: "#e8590c",
-    icons: [{ src: "/icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any" }],
+    background_color: "#06102a",
+    theme_color: "#06102a",
+    icons: [
+      { src: "/icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any" },
+      { src: "/brand/icon.png", sizes: "512x512", type: "image/png", purpose: "any" },
+    ],
   };
 }
