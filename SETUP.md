@@ -73,6 +73,21 @@ Verify your domain in Resend, create an API key (`RESEND_API_KEY`), and set `EMA
 ### 5. Vercel
 Import the repo, add every variable from `.env.example`, and set `NEXT_PUBLIC_APP_URL` to your domain.
 
+## Switching Stripe from test to live
+1. Activate the Stripe account (business details, bank account, phone verification).
+2. In live mode, copy the product (or recreate it) and note the live `price_...` ID.
+3. Create a live secret key (`sk_live_...`). It is shown once: paste it straight into Vercel.
+4. Create a live webhook to `https://www.voicebillpro.com/api/stripe/webhook` (use `www`, Stripe does not follow redirects) with `checkout.session.completed` and `customer.subscription.created/updated/deleted`, and copy its `whsec_...` secret.
+5. Save the live customer portal settings with cancellations on.
+6. In Vercel, **edit** (not add) `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` and `STRIPE_PRICE_SOLO`.
+7. Clear test-mode customer ids so upgrades don't reference customers that only exist in test mode:
+   ```sql
+   update public.subscriptions
+   set plan = 'free', stripe_customer_id = null, stripe_subscription_id = null,
+       status = null, current_period_end = null;
+   ```
+8. Redeploy.
+
 ## Before launch
 - Buy the domain and point it at Vercel.
 - Fill in the bracketed parts of `app/privacy` and `app/terms` and have them reviewed.
