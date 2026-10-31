@@ -7,7 +7,10 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 export const maxDuration = 60;
 
-const body = z.object({ note: z.string().trim().min(1).max(MAX_NOTE_CHARS) });
+const body = z.object({
+  note: z.string().trim().min(1).max(MAX_NOTE_CHARS),
+  language: z.enum(["en", "es"]).default("en"),
+});
 
 export async function POST(request: Request) {
   const { supabase, user } = await getUser();
@@ -46,7 +49,7 @@ export async function POST(request: Request) {
   const { data: profile } = await supabase.from("profiles").select("hourly_rate_cents").eq("id", user.id).single();
 
   try {
-    const result = await parseJobNote(input.data.note, profile?.hourly_rate_cents ?? 0);
+    const result = await parseJobNote(input.data.note, profile?.hourly_rate_cents ?? 0, input.data.language);
     if (!result.items.length) throw new ParseError("No line items found.");
     return NextResponse.json({ ...result, notes_used: used, plan });
   } catch (err) {

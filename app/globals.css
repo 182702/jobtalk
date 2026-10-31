@@ -166,3 +166,9 @@ body:has(.landing) .topbar { display: none; }
 .tag-paid { background: var(--accent); color: var(--onacc); }
 .adminRow small + small { margin-top: 2px; }
 .item > span:first-child { min-width: 0; overflow-wrap: anywhere; }
+
+/* English / Español switch on the job note */
+.langRow { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 8px; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.seg button { background: transparent !important; box-shadow: none !important; color: var(--mute); border: 0; border-radius: 0; padding: 7px 12px; font-size: 14px; font-weight: 600; }
+.seg button.on { background: var(--accent) !important; color: var(--onacc); }

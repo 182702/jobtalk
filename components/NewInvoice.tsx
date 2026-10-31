@@ -25,6 +25,14 @@ function getRecognition(): (new () => Recognition) | null {
   return (w.SpeechRecognition || w.webkitSpeechRecognition || null) as (new () => Recognition) | null;
 }
 
+type Lang = "en" | "es";
+const LANG_KEY = "voicebill:lang";
+const SPEECH_LANG: Record<Lang, string> = { en: "en-US", es: "es-US" };
+const PLACEHOLDER: Record<Lang, string> = {
+  en: "Replaced water heater for Dana Smith. 3 hours labor at $85, 40-gallon heater $450, $40 disposal fee.",
+  es: "Cambié el calentador de agua para Dana Smith. 3 horas de trabajo a $85, calentador de 40 galones $450, $40 de desecho.",
+};
+
 function today(): string {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
@@ -41,9 +49,27 @@ export function NewInvoice({ taxRateBps, usage }: { taxRateBps: number; usage: {
   const [upgrade, setUpgrade] = useState(false);
   const [draft, setDraft] = useState<Draft | null>(null);
   const [used, setUsed] = useState(usage.used);
+  const [lang, setLang] = useState<Lang>("en");
   const rec = useRef<Recognition | null>(null);
 
   useEffect(() => setMicSupported(!!getRecognition()), []);
+  // Remember the contractor's language; first time, follow the phone's language.
+  useEffect(() => {
+    let saved: string | null = null;
+    try {
+      saved = localStorage.getItem(LANG_KEY);
+    } catch {}
+    if (saved === "en" || saved === "es") setLang(saved);
+    else if (navigator.language?.toLowerCase().startsWith("es")) setLang("es");
+  }, []);
+
+  function chooseLang(l: Lang) {
+    if (recording) rec.current?.stop();
+    setLang(l);
+    try {
+      localStorage.setItem(LANG_KEY, l);
+    } catch {}
+  }
   useEffect(() => () => rec.current?.stop(), []);
 
   function toggleMic() {
@@ -56,7 +82,7 @@ export function NewInvoice({ taxRateBps, usage }: { taxRateBps: number; usage: {
     if (!SR) return;
     try {
       const r = new SR();
-      r.lang = navigator.language || "en-US";
+      r.lang = SPEECH_LANG[lang];
       r.continuous = true;
       r.interimResults = true;
       r.onresult = (e) => {
@@ -94,7 +120,7 @@ export function NewInvoice({ taxRateBps, usage }: { taxRateBps: number; usage: {
     if (!text) return setError("Add a job note first.");
     setBusy(true);
     try {
-      const res = await fetch("/api/parse", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ note: text }) });
+      const res = await fetch("/api/parse", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ note: text, language: lang }) });
       const data = await res.json();
       if (!res.ok) {
         setError(data.error || "Something went wrong.");
@@ -132,23 +158,33 @@ export function NewInvoice({ taxRateBps, usage }: { taxRateBps: number; usage: {
 
   return (
     <div className="card">
-      <label htmlFor="note">Job note</label>
+      <div className="langRow">
+        <label htmlFor="note" style={{ margin: 0 }}>{lang === "es" ? "Nota del trabajo" : "Job note"}</label>
+        <div className="seg" role="group" aria-label="Voice and invoice language">
+          <button type="button" className={lang === "en" ? "on" : ""} aria-pressed={lang === "en"} onClick={() => chooseLang("en")}>
+            English
+          </button>
+          <button type="button" className={lang === "es" ? "on" : ""} aria-pressed={lang === "es"} onClick={() => chooseLang("es")}>
+            Español
+          </button>
+        </div>
+      </div>
       <textarea
         id="note"
         value={interim ? `${note} ${interim}`.trim() : note}
         onChange={(e) => setNote(e.target.value)}
         readOnly={recording}
         maxLength={MAX_NOTE_CHARS}
-        placeholder="Replaced water heater for Dana Smith. 3 hours labor at $85, 40-gallon heater $450, $40 disposal fee."
+        placeholder={PLACEHOLDER[lang]}
       />
       <div className="btns">
         {micSupported && (
           <button type="button" className={recording ? "rec" : "alt"} onClick={toggleMic} aria-pressed={recording}>
-            {recording ? "■ Stop" : "🎙 Speak"}
+            {recording ? (lang === "es" ? "■ Parar" : "■ Stop") : lang === "es" ? "🎙 Hablar" : "🎙 Speak"}
           </button>
         )}
         <button type="button" onClick={makeInvoice} disabled={busy || recording}>
-          {busy ? "Working…" : "Make invoice"}
+          {busy ? (lang === "es" ? "Trabajando…" : "Working…") : lang === "es" ? "Hacer factura" : "Make invoice"}
         </button>
       </div>
       {!micSupported && <p className="muted small">Voice input isn&apos;t supported in this browser. Type the note, or use your keyboard&apos;s mic button.</p>}
