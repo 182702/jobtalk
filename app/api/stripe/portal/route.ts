@@ -11,9 +11,14 @@ export async function POST() {
   const { data: sub } = await supabase.from("subscriptions").select("stripe_customer_id").eq("user_id", user.id).maybeSingle();
   if (!sub?.stripe_customer_id) return NextResponse.json({ error: "No billing account yet." }, { status: 400 });
 
-  const session = await stripe().billingPortal.sessions.create({
-    customer: sub.stripe_customer_id,
-    return_url: `${appUrl()}/billing`,
-  });
-  return NextResponse.json({ url: session.url });
+  try {
+    const session = await stripe().billingPortal.sessions.create({
+      customer: sub.stripe_customer_id,
+      return_url: `${appUrl()}/billing`,
+    });
+    return NextResponse.json({ url: session.url });
+  } catch (err) {
+    console.error("portal failed", err);
+    return NextResponse.json({ error: "Billing management is unavailable right now. Try again in a moment." }, { status: 502 });
+  }
 }

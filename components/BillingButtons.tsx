@@ -11,11 +11,11 @@ export function BillingButton({ action, label }: { action: "checkout" | "portal"
     setError("");
     try {
       const res = await fetch(`/api/stripe/${action}`, { method: "POST" });
-      const data = await res.json();
-      if (!res.ok || !data.url) throw new Error(data.error);
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.url) throw new Error(data.error || "Billing is unavailable right now.");
       window.location.href = data.url;
     } catch (e) {
-      setError((e as Error).message || "Billing is unavailable right now.");
+      setError((e as Error).message);
       setBusy(false);
     }
   }
