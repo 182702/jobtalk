@@ -13,7 +13,11 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState(params.get("error") ? "That link didn't work. Try again." : "");
+  const [error, setError] = useState(
+    params.get("error")
+      ? "That link couldn't sign you in on this device. If you were confirming your email, it's confirmed: just log in below. (Links work best on the same phone or browser you signed up on.)"
+      : "",
+  );
   const [sent, setSent] = useState(false);
 
   async function submit(e: React.FormEvent) {

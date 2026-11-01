@@ -42,5 +42,5 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   // Skip static files, the Stripe webhook (raw body), and public invoice links.
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|icon|manifest|api/stripe/webhook|i/).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|icon|manifest|robots.txt|sitemap.xml|brand/|api/stripe/webhook|i/).*)"],
 };

@@ -18,6 +18,13 @@ async function syncSubscription(sub: Stripe.Subscription) {
   }
   if (!userId) throw new Error(`No user for Stripe customer ${customerId}`);
 
+  // An event about an old, ended subscription can arrive after the customer has
+  // subscribed again. Don't let it overwrite the newer, active one.
+  if (!ACTIVE.has(sub.status)) {
+    const current = await stripe().subscriptions.list({ customer: customerId, status: "all", limit: 10 });
+    if (current.data.some((s) => s.id !== sub.id && ACTIVE.has(s.status))) return;
+  }
+
   const periodEnd = sub.items.data[0]?.current_period_end;
   const { error } = await admin.from("subscriptions").upsert({
     user_id: userId,
