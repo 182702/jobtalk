@@ -6,6 +6,7 @@ export type Profile = {
   hourly_rate_cents: number;
   tax_rate_bps: number;
   payment_instructions: string;
+  signup_notified_at?: string | null; // absent before the 0004 migration
 };
 
 export type LineItem = {

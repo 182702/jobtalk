@@ -1,4 +1,6 @@
 import { redirect } from "next/navigation";
+import { after } from "next/server";
+import { notifyIfNewSignup } from "@/lib/notify-signup";
 import { createClient } from "@/lib/supabase/server";
 import type { Profile } from "@/lib/types";
 
@@ -11,6 +13,8 @@ export async function requireProfile(): Promise<{ supabase: Awaited<ReturnType<t
   if (!user) redirect("/login");
   const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single();
   if (!profile) redirect("/login");
+  // First time a new account opens the app: email the owner (after the page is sent).
+  if ((profile as Profile).signup_notified_at === null) after(() => notifyIfNewSignup(profile as Profile));
   return { supabase, profile: profile as Profile };
 }
 
