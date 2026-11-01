@@ -13,6 +13,8 @@ export type LineItem = {
   description: string;
   quantity: number;
   rate_cents: number;
+  /** Set by the parser when the price came from the contractor's saved prices. Not stored. */
+  price_from?: "saved";
 };
 
 export type Invoice = {

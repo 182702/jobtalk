@@ -182,3 +182,5 @@ body:has(.landing) .topbar { display: none; }
 .fbMoods button { flex: 1; background: rgba(255, 255, 255, 0.04) !important; box-shadow: none !important; color: var(--ink); border: 1px solid var(--line); padding: 9px 6px; font-size: 14px; }
 .fbMoods button.on { border-color: var(--accent); background: rgba(255, 122, 47, 0.15) !important; }
 main { padding-bottom: 72px; }
+
+.savedTag { margin-top: 8px; font-size: 13px; color: #8ec5ff; }

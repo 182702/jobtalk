@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getUser } from "@/lib/auth";
 import { draftSchema, draftToRpcPayload } from "@/lib/invoice";
+import { rememberPrices } from "@/lib/price-list";
 
 export async function POST(request: Request) {
   const { supabase, user } = await getUser();
@@ -15,5 +16,6 @@ export async function POST(request: Request) {
     console.error("create_invoice failed", error);
     return NextResponse.json({ error: "Couldn't save the invoice. Try again." }, { status: 500 });
   }
+  await rememberPrices(supabase, user.id, items);
   return NextResponse.json({ id });
 }

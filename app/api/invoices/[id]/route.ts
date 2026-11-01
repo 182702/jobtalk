@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getUser } from "@/lib/auth";
 import { draftSchema, draftToRpcPayload } from "@/lib/invoice";
+import { rememberPrices } from "@/lib/price-list";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -17,6 +18,7 @@ export async function PUT(request: Request, { params }: Ctx) {
   const { invoice, items } = draftToRpcPayload(draft.data);
   const { error } = await supabase.rpc("update_invoice", { p_id: id, p_invoice: invoice, p_items: items });
   if (error) return NextResponse.json({ error: "Couldn't save the invoice." }, { status: 404 });
+  await rememberPrices(supabase, user.id, items);
   return NextResponse.json({ id });
 }
 

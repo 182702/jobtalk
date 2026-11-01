@@ -1,11 +1,14 @@
 import Link from "next/link";
+import { SavedPrices } from "@/components/SavedPrices";
 import { PasswordForm, SettingsForm } from "@/components/SettingsForm";
 import { requireProfile } from "@/lib/auth";
+import { loadPriceList } from "@/lib/price-list";
 
 export const metadata = { title: "Settings" };
 
 export default async function SettingsPage() {
-  const { profile } = await requireProfile();
+  const { supabase, profile } = await requireProfile();
+  const prices = await loadPriceList(supabase, 300);
   return (
     <main>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
@@ -16,6 +19,7 @@ export default async function SettingsPage() {
       </div>
       <p className="sub">{profile.email}</p>
       <SettingsForm profile={profile} />
+      <SavedPrices initial={prices.map(({ id, name, rate_cents }) => ({ id, name, rate_cents }))} />
       <div className="card">
         <h2>Plan</h2>
         <p className="muted" style={{ margin: "0 0 10px" }}>See usage, upgrade, update your card, or cancel your subscription.</p>

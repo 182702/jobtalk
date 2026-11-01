@@ -3,6 +3,7 @@ import { z } from "zod";
 import { isAdminEmail } from "@/lib/admin";
 import { getPlan, getUser } from "@/lib/auth";
 import { parseJobNote, ParseError } from "@/lib/parse-note";
+import { loadPriceList } from "@/lib/price-list";
 import { AI_LIMIT_PER_DAY, AI_LIMIT_PER_MINUTE, FREE_NOTES_PER_MONTH, MAX_NOTE_CHARS } from "@/lib/plans";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -51,7 +52,8 @@ export async function POST(request: Request) {
   const { data: profile } = await supabase.from("profiles").select("hourly_rate_cents").eq("id", user.id).single();
 
   try {
-    const result = await parseJobNote(input.data.note, profile?.hourly_rate_cents ?? 0, input.data.language);
+    const savedPrices = await loadPriceList(supabase);
+    const result = await parseJobNote(input.data.note, profile?.hourly_rate_cents ?? 0, input.data.language, savedPrices);
     if (!result.items.length) throw new ParseError("No line items found.");
     return NextResponse.json({ ...result, notes_used: used, plan });
   } catch (err) {

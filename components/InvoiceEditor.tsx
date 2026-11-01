@@ -14,7 +14,7 @@ import {
 import type { Draft } from "@/lib/types";
 
 // Text state for each editable line, so partial input like "12." isn't lost.
-type Row = { key: number; description: string; quantity: string; rate: string };
+type Row = { key: number; description: string; quantity: string; rate: string; fromSaved: boolean };
 
 let nextKey = 1;
 function toRow(i: Draft["items"][number]): Row {
@@ -23,6 +23,7 @@ function toRow(i: Draft["items"][number]): Row {
     description: i.description,
     quantity: formatQuantity(i.quantity),
     rate: i.rate_cents ? centsToDollarString(i.rate_cents) : "",
+    fromSaved: i.price_from === "saved",
   };
 }
 
@@ -128,7 +129,7 @@ export function InvoiceEditor({
                     inputMode="decimal"
                     className={noPrice ? "miss" : ""}
                     value={r.rate}
-                    onChange={(e) => update(r.key, { rate: e.target.value })}
+                    onChange={(e) => update(r.key, { rate: e.target.value, fromSaved: false })}
                     placeholder="0.00"
                     aria-invalid={noPrice}
                   />
@@ -138,6 +139,7 @@ export function InvoiceEditor({
                   ✕
                 </button>
               </div>
+              {r.fromSaved && <div className="savedTag">💾 Price from your saved prices. Check it&apos;s still right.</div>}
             </div>
           );
         })}
