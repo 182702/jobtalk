@@ -172,3 +172,13 @@ body:has(.landing) .topbar { display: none; }
 .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
 .seg button { background: transparent !important; box-shadow: none !important; color: var(--mute); border: 0; border-radius: 0; padding: 7px 12px; font-size: 14px; font-weight: 600; }
 .seg button.on { background: var(--accent) !important; color: var(--onacc); }
+
+/* Feedback button + sheet */
+.fbBtn { position: fixed; right: 14px; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); z-index: 30;
+  padding: 9px 14px; font-size: 14px; border-radius: 99px; }
+.fbBackdrop { position: fixed; inset: 0; z-index: 40; background: rgba(2, 6, 20, 0.6); display: flex; align-items: flex-end; justify-content: center; padding: 12px; }
+.fbSheet { width: 100%; max-width: 480px; margin: 0 0 env(safe-area-inset-bottom, 0px); background: #0b1a3f; }
+.fbMoods { display: flex; gap: 8px; margin-bottom: 10px; }
+.fbMoods button { flex: 1; background: rgba(255, 255, 255, 0.04) !important; box-shadow: none !important; color: var(--ink); border: 1px solid var(--line); padding: 9px 6px; font-size: 14px; }
+.fbMoods button.on { border-color: var(--accent); background: rgba(255, 122, 47, 0.15) !important; }
+main { padding-bottom: 72px; }

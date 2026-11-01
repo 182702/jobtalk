@@ -45,12 +45,15 @@ export default async function AdminPage() {
   if (!user || !isAdminEmail(user.email)) notFound();
 
   const admin = createAdminClient();
-  const [usersRes, profilesRes, subsRes, invoicesRes] = await Promise.all([
+  const [usersRes, profilesRes, subsRes, invoicesRes, feedbackRes] = await Promise.all([
     admin.auth.admin.listUsers({ perPage: 1000 }),
     admin.from("profiles").select("id, business_name"),
     admin.from("subscriptions").select("user_id, plan"),
     admin.from("invoices").select("user_id, created_at, sent_at").limit(50000),
+    admin.from("feedback").select("id, email, page, mood, message, created_at").order("created_at", { ascending: false }).limit(50),
   ]);
+  const feedback = feedbackRes.data ?? [];
+  const MOOD: Record<string, string> = { happy: "😀", meh: "😐", unhappy: "😞" };
 
   const business = new Map((profilesRes.data ?? []).map((p) => [p.id as string, (p.business_name as string) || ""]));
   const plans = new Map((subsRes.data ?? []).map((s) => [s.user_id as string, s.plan === "solo" ? "solo" : "free"] as const));
@@ -102,6 +105,31 @@ export default async function AdminPage() {
             <b>{s.value}</b>
           </div>
         ))}
+      </div>
+
+      <div className="card">
+        <h2>Feedback ({feedback.length})</h2>
+        {feedbackRes.error ? (
+          <p className="muted small" style={{ margin: 0 }}>Feedback isn&apos;t set up yet: run the 0003_feedback.sql update in Supabase.</p>
+        ) : feedback.length === 0 ? (
+          <p className="muted small" style={{ margin: 0 }}>No feedback yet. It shows up here when someone taps 💬 Feedback.</p>
+        ) : (
+          <div className="list">
+            {feedback.map((f) => (
+              <div key={f.id as number} className="item" style={{ alignItems: "flex-start" }}>
+                <span>
+                  <span className="pre">{f.message as string}</span>
+                  <small>
+                    {(f.mood && MOOD[f.mood as string]) || ""} {f.email as string} · {ago(new Date(f.created_at as string))} · {f.page as string}
+                  </small>
+                </span>
+                <a className="btn alt small" href={`mailto:${f.email}?subject=${encodeURIComponent("Re: your VoiceBill Pro feedback")}`}>
+                  Reply
+                </a>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {nudge.length > 0 && (
