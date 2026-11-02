@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { InvoiceEditor } from "@/components/InvoiceEditor";
 import { InvoiceView } from "@/components/InvoiceView";
+import { LocalTime } from "@/components/LocalTime";
 import { invoiceLang } from "@/lib/i18n";
 import { missingPriceCount } from "@/lib/invoice";
 import type { Draft, InvoiceWithItems, Profile } from "@/lib/types";
@@ -117,7 +118,7 @@ export function InvoiceActions({ invoice, profile, link, text }: { invoice: Invo
           <a className="btn alt small" href={`/api/invoices/${invoice.id}/pdf`} target="_blank" rel="noopener">PDF</a>
           <button type="button" className="alt small" onClick={() => setEditing(true)}>Edit</button>
         </div>
-        {invoice.sent_at && <p className="muted small" style={{ marginBottom: 0 }}>Last sent {new Date(invoice.sent_at).toLocaleString()}</p>}
+        {invoice.sent_at && <p className="muted small" style={{ marginBottom: 0 }}>Last sent <LocalTime iso={invoice.sent_at} /></p>}
         {msg.err && <div className="err" role="alert">{msg.err}</div>}
         {msg.ok && <div className="okmsg">{msg.ok}</div>}
       </div>

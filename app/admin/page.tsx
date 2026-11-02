@@ -27,7 +27,7 @@ function ago(d: Date | null): string {
   if (days <= 0) return "today";
   if (days === 1) return "yesterday";
   if (days < 30) return `${days}d ago`;
-  return d.toLocaleDateString();
+  return d.toLocaleDateString("en-US", { timeZone: "America/Chicago" });
 }
 
 function status(r: Row): { label: string; cls: string } {

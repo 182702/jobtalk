@@ -1,4 +1,5 @@
 import { BillingButton } from "@/components/BillingButtons";
+import { LocalTime } from "@/components/LocalTime";
 import { requireProfile } from "@/lib/auth";
 import { SOLO_PRICE_LABEL } from "@/lib/plans";
 import { stripe, stripeIsTestMode } from "@/lib/stripe";
@@ -45,11 +46,16 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
         {usage.plan === "solo" ? (
           <p className="muted">
             Unlimited job notes. {sub?.status && sub.status !== "active" ? `Status: ${sub.status}. ` : ""}
-            {cancelsOn
-              ? `Canceled: your plan stays active until ${cancelsOn.toLocaleDateString()}, then switches to Free. You won't be charged again.`
-              : sub?.current_period_end
-                ? `Renews ${new Date(sub.current_period_end).toLocaleDateString()}.`
-                : ""}
+            {cancelsOn ? (
+              <>
+                Canceled: your plan stays active until <LocalTime iso={cancelsOn.toISOString()} dateOnly />, then switches to Free. You won&apos;t be
+                charged again.
+              </>
+            ) : sub?.current_period_end ? (
+              <>
+                Renews <LocalTime iso={sub.current_period_end} dateOnly />.
+              </>
+            ) : null}
           </p>
         ) : (
           <p className="muted">
