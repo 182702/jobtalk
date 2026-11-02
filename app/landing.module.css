@@ -117,3 +117,4 @@
 .perks > div { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 0 10px; font-size: 13px; color: var(--l-mute); text-align: center; }
 .perks > div + div { border-left: 1px solid var(--l-line); }
 .perks svg { width: 26px; height: 26px; fill: none; stroke: #5ab0ff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 6px rgba(47, 123, 255, 0.8)); }
+.pillWarn { display: inline-block; font-size: 12px; padding: 3px 10px; border-radius: 99px; background: rgba(255, 107, 107, 0.14); color: #ff9b9b; border: 1px solid rgba(255, 107, 107, 0.35); white-space: nowrap; }

@@ -121,7 +121,7 @@ export default async function Landing() {
             <div className={s.panel}>
               <div className={s.invHead}>
                 <b>Invoice #0012 · Alvarez</b>
-                <span className={s.pill}>Ready</span>
+                <span className={s.pillWarn}>1 price missing</span>
               </div>
               <table className={s.inv}>
                 <tbody>
@@ -129,14 +129,14 @@ export default async function Landing() {
                   <tr><td>40-gallon water heater</td><td>$380.00</td></tr>
                   <tr><td>Shutoff valve · 2 × $12.00</td><td>$24.00</td></tr>
                   <tr><td>Expansion tank</td><td className={s.flag}>Add price</td></tr>
-                  <tr className={s.sub}><td>Subtotal</td><td>$616.50</td></tr>
-                  <tr className={s.sub}><td>Tax (8.25%)</td><td>$50.86</td></tr>
-                  <tr className={s.total}><td>Total due</td><td>$667.36</td></tr>
+                  <tr className={s.sub}><td>Subtotal so far</td><td>$616.50</td></tr>
+                  <tr className={s.sub}><td>Tax (8.25%)</td><td>—</td></tr>
+                  <tr className={s.total}><td>Total due</td><td className={s.flag}>Add tank price</td></tr>
                 </tbody>
               </table>
             </div>
           </div>
-          <p className={s.caption}>The expansion tank had no price in the note, so it&apos;s flagged for you to fill in. Nothing is made up.</p>
+          <p className={s.caption}>The expansion tank had no price in the note, so it&apos;s flagged. You fill it in before sending, and the app warns you if a price is still missing. Nothing is made up.</p>
         </section>
 
         <section className={s.section}>
