@@ -184,3 +184,4 @@ body:has(.landing) .topbar { display: none; }
 main { padding-bottom: 72px; }
 
 .savedTag { margin-top: 8px; font-size: 13px; color: #8ec5ff; }
+.pill.missing { background: var(--danger-bg); color: var(--danger); border: 1px solid rgba(255, 107, 107, 0.35); margin-left: 0; }

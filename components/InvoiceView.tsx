@@ -4,9 +4,11 @@ import { t } from "@/lib/i18n";
 import type { InvoiceWithItems, Profile } from "@/lib/types";
 
 /** Read-only invoice layout, shared by the contractor view and the customer link. */
-export function InvoiceView({ invoice, profile }: { invoice: InvoiceWithItems; profile: Profile }) {
+export function InvoiceView({ invoice, profile, holdTotal = false }: { invoice: InvoiceWithItems; profile: Profile; holdTotal?: boolean }) {
   const logo = logoUrl(profile.logo_path);
   const s = t(invoice.language);
+  // Contractor's view: while a price is missing, don't present a final total.
+  const missing = holdTotal ? invoice.line_items.filter((i) => !(i.rate_cents > 0)).length : 0;
   return (
     <div className="card paper">
       <div className="doc-head">
@@ -54,18 +56,24 @@ export function InvoiceView({ invoice, profile }: { invoice: InvoiceWithItems; p
       <table className="tot">
         <tbody>
           <tr>
-            <td>{s.subtotal}</td>
+            <td>{missing > 0 ? "Subtotal so far" : s.subtotal}</td>
             <td className="n">{formatCents(invoice.subtotal_cents)}</td>
           </tr>
           {invoice.tax_rate_bps > 0 && (
             <tr>
               <td>{s.tax} ({bpsToPercentString(invoice.tax_rate_bps)}%)</td>
-              <td className="n">{formatCents(invoice.tax_cents)}</td>
+              <td className="n">{missing > 0 ? "—" : formatCents(invoice.tax_cents)}</td>
             </tr>
           )}
           <tr className="grand">
             <td>{s.totalDue}</td>
-            <td className="n">{formatCents(invoice.total_cents)}</td>
+            {missing > 0 ? (
+              <td className="n" style={{ color: "var(--danger)", fontSize: 16 }}>
+                {missing} price{missing === 1 ? "" : "s"} missing
+              </td>
+            ) : (
+              <td className="n">{formatCents(invoice.total_cents)}</td>
+            )}
           </tr>
         </tbody>
       </table>

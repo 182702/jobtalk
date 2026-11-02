@@ -5,7 +5,7 @@ import { formatCents } from "@/lib/money";
 
 export const metadata = { title: "Invoices" };
 
-type Row = { id: string; number: number; customer_name: string; issued_on: string; status: "paid" | "unpaid"; total_cents: number };
+type Row = { id: string; number: number; customer_name: string; issued_on: string; status: "paid" | "unpaid"; total_cents: number; line_items: { rate_cents: number }[] };
 
 export default async function InvoicesPage({ searchParams }: { searchParams: Promise<{ show?: string }> }) {
   const { show } = await searchParams;
@@ -15,7 +15,7 @@ export default async function InvoicesPage({ searchParams }: { searchParams: Pro
   // Totals always cover every invoice; the filter only changes the list.
   const { data } = await supabase
     .from("invoices")
-    .select("id, number, customer_name, issued_on, status, total_cents")
+    .select("id, number, customer_name, issued_on, status, total_cents, line_items(rate_cents)")
     .order("number", { ascending: false })
     .limit(500);
   const all = (data ?? []) as Row[];
@@ -62,7 +62,11 @@ export default async function InvoicesPage({ searchParams }: { searchParams: Pro
                   </small>
                 </span>
                 <span style={{ whiteSpace: "nowrap" }}>
-                  {formatCents(i.total_cents)}
+                  {(i.line_items ?? []).some((l) => !(l.rate_cents > 0)) ? (
+                    <span className="pill missing">Price missing</span>
+                  ) : (
+                    formatCents(i.total_cents)
+                  )}
                   <span className={`pill ${i.status}`}>{i.status === "paid" ? "Paid" : "Unpaid"}</span>
                 </span>
               </Link>

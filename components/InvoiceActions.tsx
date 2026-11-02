@@ -41,7 +41,9 @@ export function InvoiceActions({ invoice, profile, link, text }: { invoice: Invo
     }
     let confirmMissingPrices = false;
     if (missing > 0) {
-      confirmMissingPrices = window.confirm(`${missing} line${missing === 1 ? " has" : "s have"} no price. Send anyway?`);
+      confirmMissingPrices = window.confirm(
+        `${missing} line${missing === 1 ? " has" : "s have"} no price, so the total isn't final yet. Your customer will see $0.00 for ${missing === 1 ? "it" : "them"}. Send anyway?`,
+      );
       if (!confirmMissingPrices) return;
     }
     const { res, data } = await call("send", `/api/invoices/${invoice.id}/send`, { method: "POST", body: JSON.stringify({ confirmMissingPrices }) });
@@ -119,7 +121,7 @@ export function InvoiceActions({ invoice, profile, link, text }: { invoice: Invo
         {msg.err && <div className="err" role="alert">{msg.err}</div>}
         {msg.ok && <div className="okmsg">{msg.ok}</div>}
       </div>
-      <InvoiceView invoice={invoice} profile={profile} />
+      <InvoiceView invoice={invoice} profile={profile} holdTotal />
       {invoice.original_note && (
         <details className="card noprint">
           <summary className="muted">Original job note</summary>

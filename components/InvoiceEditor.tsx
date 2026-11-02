@@ -153,18 +153,24 @@ export function InvoiceEditor({
       <table className="tot" style={{ marginTop: 12 }}>
         <tbody>
           <tr>
-            <td>Subtotal</td>
+            <td>{missing > 0 ? "Subtotal so far" : "Subtotal"}</td>
             <td className="n">{formatCents(totals.subtotal_cents)}</td>
           </tr>
           {taxBps > 0 && (
             <tr>
               <td>Tax ({bpsToPercentString(taxBps)}%)</td>
-              <td className="n">{formatCents(totals.tax_cents)}</td>
+              <td className="n">{missing > 0 ? "—" : formatCents(totals.tax_cents)}</td>
             </tr>
           )}
           <tr className="grand">
             <td>Total due</td>
-            <td className="n">{formatCents(totals.total_cents)}</td>
+            {missing > 0 ? (
+              <td className="n" style={{ color: "var(--danger)", fontSize: 16 }}>
+                {missing} price{missing === 1 ? "" : "s"} missing
+              </td>
+            ) : (
+              <td className="n">{formatCents(totals.total_cents)}</td>
+            )}
           </tr>
         </tbody>
       </table>
