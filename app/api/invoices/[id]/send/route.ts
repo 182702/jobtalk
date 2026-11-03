@@ -8,24 +8,25 @@ import { loadInvoice } from "@/lib/load-invoice";
 import { formatCents } from "@/lib/money";
 import { renderInvoicePdf } from "@/lib/pdf";
 import type { Profile } from "@/lib/types";
+import { uiT } from "@/lib/ui-server";
 
 export const maxDuration = 30;
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const { supabase, user } = await getUser();
-  if (!user) return NextResponse.json({ error: "Please sign in." }, { status: 401 });
+  if (!user) return NextResponse.json({ error: await uiT("Please sign in.") }, { status: 401 });
 
   const invoice = await loadInvoice(supabase, id);
-  if (!invoice) return NextResponse.json({ error: "Invoice not found." }, { status: 404 });
-  if (!invoice.customer_email) return NextResponse.json({ error: "Add the customer's email first." }, { status: 400 });
+  if (!invoice) return NextResponse.json({ error: await uiT("Invoice not found.") }, { status: 404 });
+  if (!invoice.customer_email) return NextResponse.json({ error: await uiT("Add the customer's email first.") }, { status: 400 });
 
   // The client shows this warning and asks to confirm; the server double-checks.
   const { confirmMissingPrices } = (await request.json().catch(() => ({}))) as { confirmMissingPrices?: boolean };
   const missing = missingPriceCount(invoice.line_items);
   if (missing > 0 && !confirmMissingPrices) {
     return NextResponse.json(
-      { error: `${missing} line${missing === 1 ? " has" : "s have"} no price.`, missingPrices: missing },
+      { error: missing === 1 ? await uiT("1 line has no price.") : await uiT("{n} lines have no price.", { n: missing }), missingPrices: missing },
       { status: 409 },
     );
   }
@@ -64,7 +65,7 @@ ${profile.payment_instructions ? `<p><b>${L.howToPay}</b><br>${escapeHtml(profil
   }
   if (sendError) {
     console.error("send failed", sendError);
-    return NextResponse.json({ error: "The email couldn't be sent. Check the address and try again." }, { status: 502 });
+    return NextResponse.json({ error: await uiT("The email couldn't be sent. Check the address and try again.") }, { status: 502 });
   }
 
   await supabase.from("invoices").update({ sent_at: new Date().toISOString() }).eq("id", id);

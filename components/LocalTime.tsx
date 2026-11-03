@@ -1,16 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import type { UiLang } from "@/lib/ui";
 
 /**
  * Shows a date/time in the viewer's own time zone. The server renders in UTC,
  * so formatting waits until the page is in the browser.
  */
-export function LocalTime({ iso, dateOnly = false }: { iso: string; dateOnly?: boolean }) {
+export function LocalTime({ iso, dateOnly = false, lang }: { iso: string; dateOnly?: boolean; lang?: UiLang }) {
   const [text, setText] = useState("");
   useEffect(() => {
     const d = new Date(iso);
-    setText(dateOnly ? d.toLocaleDateString() : d.toLocaleString([], { dateStyle: "medium", timeStyle: "short" }));
-  }, [iso, dateOnly]);
+    const locale = lang === "es" ? "es-US" : lang === "en" ? "en-US" : [];
+    setText(dateOnly ? d.toLocaleDateString(locale) : d.toLocaleString(locale, { dateStyle: "medium", timeStyle: "short" }));
+  }, [iso, dateOnly, lang]);
   return <span suppressHydrationWarning>{text}</span>;
 }

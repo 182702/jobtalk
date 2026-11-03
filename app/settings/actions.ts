@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { parseDollarsToCents, parsePercentToBps } from "@/lib/money";
+import { translator } from "@/lib/ui";
+import { getUiLang } from "@/lib/ui-server";
 
 export type SettingsState = { ok?: boolean; error?: string };
 
@@ -18,17 +20,18 @@ const LOGO_TYPES: Record<string, string> = { "image/png": "png", "image/jpeg": "
 const MAX_LOGO_BYTES = 1024 * 1024;
 
 export async function saveSettings(_prev: SettingsState, form: FormData): Promise<SettingsState> {
+  const T = translator(await getUiLang());
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "Please sign in again." };
+  if (!user) return { error: T("Please sign in again.") };
 
   const input = schema.safeParse(Object.fromEntries(["business_name", "hourly_rate", "tax_rate", "payment_instructions"].map((k) => [k, String(form.get(k) ?? "")])));
-  if (!input.success) return { error: "Check the fields and try again." };
+  if (!input.success) return { error: T("Check the fields and try again.") };
 
   const tax = parsePercentToBps(input.data.tax_rate);
-  if (tax > 5000) return { error: "Tax rate looks too high. Enter it as a percent, like 8.25." };
+  if (tax > 5000) return { error: T("Tax rate looks too high. Enter it as a percent, like 8.25.") };
 
   const update: Record<string, unknown> = {
     business_name: input.data.business_name,
@@ -41,14 +44,14 @@ export async function saveSettings(_prev: SettingsState, form: FormData): Promis
   const logo = form.get("logo");
   if (logo instanceof File && logo.size > 0) {
     const ext = LOGO_TYPES[logo.type];
-    if (!ext) return { error: "Logo must be a PNG or JPG." };
-    if (logo.size > MAX_LOGO_BYTES) return { error: "Logo must be under 1 MB." };
+    if (!ext) return { error: T("Logo must be a PNG or JPG.") };
+    if (logo.size > MAX_LOGO_BYTES) return { error: T("Logo must be under 1 MB.") };
     // New file name each time so cached old logos don't linger.
     const path = `${user.id}/logo-${Date.now()}.${ext}`;
     const { error } = await supabase.storage.from("logos").upload(path, logo, { contentType: logo.type });
     if (error) {
       console.error("logo upload failed", error);
-      return { error: "Couldn't upload the logo." };
+      return { error: T("Couldn't upload the logo.") };
     }
     update.logo_path = path;
   } else if (form.get("remove_logo") === "on") {
@@ -56,7 +59,7 @@ export async function saveSettings(_prev: SettingsState, form: FormData): Promis
   }
 
   const { error } = await supabase.from("profiles").update(update).eq("id", user.id);
-  if (error) return { error: "Couldn't save settings." };
+  if (error) return { error: T("Couldn't save settings.") };
 
   revalidatePath("/", "layout");
   return { ok: true };

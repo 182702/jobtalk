@@ -6,6 +6,7 @@ import { parseJobNote, ParseError } from "@/lib/parse-note";
 import { loadPriceList } from "@/lib/price-list";
 import { AI_LIMIT_PER_DAY, AI_LIMIT_PER_MINUTE, FREE_NOTES_PER_MONTH, MAX_NOTE_CHARS } from "@/lib/plans";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { uiT } from "@/lib/ui-server";
 
 export const maxDuration = 60;
 
@@ -16,11 +17,11 @@ const body = z.object({
 
 export async function POST(request: Request) {
   const { supabase, user } = await getUser();
-  if (!user) return NextResponse.json({ error: "Please sign in." }, { status: 401 });
+  if (!user) return NextResponse.json({ error: await uiT("Please sign in.") }, { status: 401 });
 
   const input = body.safeParse(await request.json().catch(() => null));
   if (!input.success) {
-    return NextResponse.json({ error: `Add a job note (up to ${MAX_NOTE_CHARS} characters).` }, { status: 400 });
+    return NextResponse.json({ error: await uiT("Add a job note (up to {max} characters).", { max: MAX_NOTE_CHARS }) }, { status: 400 });
   }
 
   const admin = createAdminClient();
@@ -31,8 +32,8 @@ export async function POST(request: Request) {
     p_per_minute: AI_LIMIT_PER_MINUTE,
     p_per_day: AI_LIMIT_PER_DAY,
   });
-  if (limitError) return NextResponse.json({ error: "Something went wrong. Try again." }, { status: 500 });
-  if (!allowed) return NextResponse.json({ error: "Too many requests. Wait a minute and try again." }, { status: 429 });
+  if (limitError) return NextResponse.json({ error: await uiT("Something went wrong. Try again.") }, { status: 500 });
+  if (!allowed) return NextResponse.json({ error: await uiT("Too many requests. Wait a minute and try again.") }, { status: 429 });
 
   // Free plan limit, enforced here on the server.
   const plan = await getPlan(supabase, user.id);
@@ -41,10 +42,10 @@ export async function POST(request: Request) {
     // Owner accounts (ADMIN_EMAILS) are unlimited for testing and demos.
     p_limit: plan === "solo" || isAdminEmail(user.email) ? null : FREE_NOTES_PER_MONTH,
   });
-  if (usageError) return NextResponse.json({ error: "Something went wrong. Try again." }, { status: 500 });
+  if (usageError) return NextResponse.json({ error: await uiT("Something went wrong. Try again.") }, { status: 500 });
   if (used === null) {
     return NextResponse.json(
-      { error: `You've used all ${FREE_NOTES_PER_MONTH} free notes this month. Upgrade to Solo for unlimited notes.`, upgrade: true },
+      { error: await uiT("You've used all {n} free notes this month. Upgrade to Solo for unlimited notes.", { n: FREE_NOTES_PER_MONTH }), upgrade: true },
       { status: 402 },
     );
   }
@@ -62,8 +63,8 @@ export async function POST(request: Request) {
     console.error("parse failed", err);
     const message =
       err instanceof ParseError
-        ? "Couldn't build the invoice from that note. Try saying what you did and what it cost."
-        : "The invoice service is busy. Try again in a moment.";
+        ? await uiT("Couldn't build the invoice from that note. Try saying what you did and what it cost.")
+        : await uiT("The invoice service is busy. Try again in a moment.");
     return NextResponse.json({ error: message }, { status: 502 });
   }
 }

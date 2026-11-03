@@ -3,6 +3,7 @@ import { z } from "zod";
 import { getUser } from "@/lib/auth";
 import { escapeHtml, resend } from "@/lib/email";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { uiT } from "@/lib/ui-server";
 
 const MAX_PER_HOUR = 10;
 const SUPPORT_EMAIL = process.env.SUPPORT_EMAIL || "support@voicebillpro.com";
@@ -17,23 +18,23 @@ const body = z.object({
 /** Saves feedback from a signed-in contractor and emails it to support. */
 export async function POST(request: Request) {
   const { user } = await getUser();
-  if (!user) return NextResponse.json({ error: "Please sign in." }, { status: 401 });
+  if (!user) return NextResponse.json({ error: await uiT("Please sign in.") }, { status: 401 });
 
   const input = body.safeParse(await request.json().catch(() => null));
-  if (!input.success) return NextResponse.json({ error: "Write a short message first." }, { status: 400 });
+  if (!input.success) return NextResponse.json({ error: await uiT("Write a short message first.") }, { status: 400 });
 
   const admin = createAdminClient();
   const since = new Date(Date.now() - 3600_000).toISOString();
   const { count } = await admin.from("feedback").select("id", { count: "exact", head: true }).eq("user_id", user.id).gte("created_at", since);
   if ((count ?? 0) >= MAX_PER_HOUR) {
-    return NextResponse.json({ error: "Thanks! You've sent a lot already. Try again in a little while." }, { status: 429 });
+    return NextResponse.json({ error: await uiT("Thanks! You've sent a lot already. Try again in a little while.") }, { status: 429 });
   }
 
   const { message, mood, page } = input.data;
   const { error } = await admin.from("feedback").insert({ user_id: user.id, email: user.email ?? "", page, mood, message });
   if (error) {
     console.error("feedback insert failed", error);
-    return NextResponse.json({ error: "Couldn't send feedback right now. Email support@voicebillpro.com instead." }, { status: 500 });
+    return NextResponse.json({ error: await uiT("Couldn't send feedback right now. Email support@voicebillpro.com instead.") }, { status: 500 });
   }
 
   // Best effort: the feedback is already saved even if the email fails.

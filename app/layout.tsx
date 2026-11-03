@@ -3,6 +3,9 @@ import { Space_Grotesk } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import Link from "next/link";
 import { FeedbackButton } from "@/components/FeedbackButton";
+import { LangSwitch } from "@/components/LangSwitch";
+import { translator } from "@/lib/ui";
+import { getUiLang } from "@/lib/ui-server";
 import { createClient } from "@/lib/supabase/server";
 import "./globals.css";
 
@@ -37,9 +40,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const {
     data: { user },
   } = await supabase.auth.getUser();
+  const lang = await getUiLang();
+  const T = translator(lang);
 
   return (
-    <html lang="en" className={display.variable}>
+    <html lang={lang} className={display.variable}>
       <body>
         <header className="topbar">
           <div className={user ? "in authed" : "in"}>
@@ -53,20 +58,22 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <nav>
               {user ? (
                 <>
-                  <Link href="/invoices">Invoices</Link>
-                  <Link href="/settings">Settings</Link>
+                  <Link href="/invoices">{T("Invoices")}</Link>
+                  <Link href="/settings">{T("Settings")}</Link>
                   <Link className="btn small" href="/new">
-                    + New
+                    {T("+ New")}
                   </Link>
+                  <LangSwitch lang={lang} className="navOut" />
                   <form action="/auth/signout" method="post" className="navOut">
-                    <button type="submit" className="linkish">Log out</button>
+                    <button type="submit" className="linkish">{T("Log out")}</button>
                   </form>
                 </>
               ) : (
                 <>
-                  <Link href="/login">Log in</Link>
+                  <LangSwitch lang={lang} />
+                  <Link href="/login">{T("Log in")}</Link>
                   <Link className="btn small" href="/signup">
-                    Sign up
+                    {T("Sign up")}
                   </Link>
                 </>
               )}
@@ -74,7 +81,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           </div>
         </header>
         {children}
-        {user && <FeedbackButton />}
+        {user && <FeedbackButton lang={lang} />}
         <Analytics />
       </body>
     </html>

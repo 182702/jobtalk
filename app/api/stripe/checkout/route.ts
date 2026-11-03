@@ -4,6 +4,7 @@ import { getUser } from "@/lib/auth";
 import { appUrl, requireEnv } from "@/lib/env";
 import { stripe } from "@/lib/stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { uiT } from "@/lib/ui-server";
 
 /** Returns the stored customer if it still exists in this Stripe mode, else null. */
 async function existingCustomer(customerId: string | null | undefined): Promise<string | null> {
@@ -21,7 +22,7 @@ async function existingCustomer(customerId: string | null | undefined): Promise<
 /** Starts a Stripe Checkout session for the Solo plan. */
 export async function POST() {
   const { supabase, user } = await getUser();
-  if (!user) return NextResponse.json({ error: "Please sign in." }, { status: 401 });
+  if (!user) return NextResponse.json({ error: await uiT("Please sign in.") }, { status: 401 });
 
   const { data: sub } = await supabase.from("subscriptions").select("plan, stripe_customer_id").eq("user_id", user.id).maybeSingle();
   if (sub?.plan === "solo") return NextResponse.json({ url: `${appUrl()}/billing` });
@@ -52,6 +53,6 @@ export async function POST() {
     return NextResponse.json({ url: session.url });
   } catch (err) {
     console.error("checkout failed", err);
-    return NextResponse.json({ error: "Checkout is unavailable right now. Try again in a moment." }, { status: 502 });
+    return NextResponse.json({ error: await uiT("Checkout is unavailable right now. Try again in a moment.") }, { status: 502 });
   }
 }

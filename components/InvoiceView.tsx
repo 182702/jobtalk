@@ -2,9 +2,20 @@ import { businessName, formatDate, invoiceLabel, logoUrl } from "@/lib/invoice";
 import { bpsToPercentString, formatCents, formatQuantity, lineAmountCents } from "@/lib/money";
 import { t } from "@/lib/i18n";
 import type { InvoiceWithItems, Profile } from "@/lib/types";
+import { tr, type UiLang } from "@/lib/ui";
 
 /** Read-only invoice layout, shared by the contractor view and the customer link. */
-export function InvoiceView({ invoice, profile, holdTotal = false }: { invoice: InvoiceWithItems; profile: Profile; holdTotal?: boolean }) {
+export function InvoiceView({
+  invoice,
+  profile,
+  holdTotal = false,
+  uiLang = "en",
+}: {
+  invoice: InvoiceWithItems;
+  profile: Profile;
+  holdTotal?: boolean;
+  uiLang?: UiLang;
+}) {
   const logo = logoUrl(profile.logo_path);
   const s = t(invoice.language);
   // Contractor's view: while a price is missing, don't present a final total.
@@ -56,7 +67,7 @@ export function InvoiceView({ invoice, profile, holdTotal = false }: { invoice: 
       <table className="tot">
         <tbody>
           <tr>
-            <td>{missing > 0 ? "Subtotal so far" : s.subtotal}</td>
+            <td>{missing > 0 ? tr(uiLang, "Subtotal so far") : s.subtotal}</td>
             <td className="n">{formatCents(invoice.subtotal_cents)}</td>
           </tr>
           {invoice.tax_rate_bps > 0 && (
@@ -69,7 +80,7 @@ export function InvoiceView({ invoice, profile, holdTotal = false }: { invoice: 
             <td>{s.totalDue}</td>
             {missing > 0 ? (
               <td className="n" style={{ color: "var(--danger)", fontSize: 16 }}>
-                {missing} price{missing === 1 ? "" : "s"} missing
+                {missing === 1 ? tr(uiLang, "1 price missing") : tr(uiLang, "{n} prices missing", { n: missing })}
               </td>
             ) : (
               <td className="n">{formatCents(invoice.total_cents)}</td>

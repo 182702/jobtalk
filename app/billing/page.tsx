@@ -4,6 +4,8 @@ import { requireProfile } from "@/lib/auth";
 import { SOLO_PRICE_LABEL } from "@/lib/plans";
 import { stripe, stripeIsTestMode } from "@/lib/stripe";
 import { getUsage } from "@/lib/usage";
+import { translator } from "@/lib/ui";
+import { getUiLang } from "@/lib/ui-server";
 
 export const metadata = { title: "Billing" };
 
@@ -30,57 +32,59 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
     .eq("user_id", profile.id)
     .maybeSingle();
   const cancelsOn = usage.plan === "solo" ? await endingOn(sub?.stripe_subscription_id) : null;
+  const lang = await getUiLang();
+  const T = translator(lang);
 
   return (
     <main>
-      <h1>Billing</h1>
+      <h1>{T("Billing")}</h1>
       {stripeIsTestMode() && (
-        <div className="warn">Stripe is in test mode. Payments use test cards only and no real money is charged.</div>
+        <div className="warn">{T("Stripe is in test mode. Payments use test cards only and no real money is charged.")}</div>
       )}
-      {canceled && <div className="card">Your subscription is canceled. You keep Solo until the end of the period you paid for.</div>}
+      {canceled && <div className="card">{T("Your subscription is canceled. You keep Solo until the end of the period you paid for.")}</div>}
       {success && usage.plan !== "solo" && (
-        <div className="card">Thanks! Your payment is processing. This page updates within a minute; refresh to check.</div>
+        <div className="card">{T("Thanks! Your payment is processing. This page updates within a minute; refresh to check.")}</div>
       )}
       <div className="card">
-        <h2>{usage.plan === "solo" ? "Solo plan" : "Free plan"}</h2>
+        <h2>{usage.plan === "solo" ? T("Solo plan") : T("Free plan")}</h2>
         {usage.plan === "solo" ? (
           <p className="muted">
-            Unlimited job notes. {sub?.status && sub.status !== "active" ? `Status: ${sub.status}. ` : ""}
+            {T("Unlimited job notes.")} {sub?.status && sub.status !== "active" ? T("Status: {status}.", { status: sub.status }) + " " : ""}
             {cancelsOn ? (
               <>
-                Canceled: your plan stays active until <LocalTime iso={cancelsOn.toISOString()} dateOnly />, then switches to Free. You won&apos;t be
-                charged again.
+                {T("Canceled: your plan stays active until")} <LocalTime iso={cancelsOn.toISOString()} dateOnly lang={lang} />
+                {T(", then switches to Free. You won't be charged again.")}
               </>
             ) : sub?.current_period_end ? (
               <>
-                Renews <LocalTime iso={sub.current_period_end} dateOnly />.
+                {T("Renews")} <LocalTime iso={sub.current_period_end} dateOnly lang={lang} />.
               </>
             ) : null}
           </p>
         ) : (
           <p className="muted">
-            {usage.used} of {usage.limit} job notes used this month. Resets on the 1st.
+            {T("{used} of {limit} job notes used this month. Resets on the 1st.", { used: usage.used, limit: usage.limit })}
           </p>
         )}
         {usage.plan === "solo" ? (
           <div style={{ display: "grid", gap: 10 }}>
-            <BillingButton action="portal" label={cancelsOn ? "Keep my plan" : "Update card or view receipts"} />
-            {!cancelsOn && <BillingButton action="cancel" label="Cancel subscription" />}
+            <BillingButton action="portal" label={cancelsOn ? T("Keep my plan") : T("Update card or view receipts")} lang={lang} />
+            {!cancelsOn && <BillingButton action="cancel" label={T("Cancel subscription")} lang={lang} />}
           </div>
         ) : (
           <div style={{ display: "grid", gap: 10 }}>
-            <BillingButton action="checkout" label={`Upgrade to Solo · ${SOLO_PRICE_LABEL}`} />
-            {sub?.stripe_subscription_id && <BillingButton action="portal" label="View past receipts" />}
+            <BillingButton action="checkout" label={T("Upgrade to Solo · {price}", { price: lang === "es" ? "$24/mes" : SOLO_PRICE_LABEL })} lang={lang} />
+            {sub?.stripe_subscription_id && <BillingButton action="portal" label={T("View past receipts")} lang={lang} />}
           </div>
         )}
       </div>
       <div className="card">
-        <h2>Plans</h2>
+        <h2>{T("Plans")}</h2>
         <p style={{ margin: "0 0 6px" }}>
-          <b>Free</b> · 5 job notes a month
+          <b>{T("Free")}</b> · {T("5 job notes a month")}
         </p>
         <p style={{ margin: 0 }}>
-          <b>Solo</b> · {SOLO_PRICE_LABEL}, unlimited job notes. Cancel any time.
+          <b>Solo</b> · {T("{price}, unlimited job notes. Cancel any time.", { price: lang === "es" ? "$24/mes" : SOLO_PRICE_LABEL })}
         </p>
       </div>
     </main>

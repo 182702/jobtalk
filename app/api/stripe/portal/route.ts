@@ -3,6 +3,7 @@ import type Stripe from "stripe";
 import { getUser } from "@/lib/auth";
 import { appUrl } from "@/lib/env";
 import { stripe } from "@/lib/stripe";
+import { uiT } from "@/lib/ui-server";
 
 /**
  * Opens the Stripe customer portal to change card, see receipts or cancel.
@@ -10,7 +11,7 @@ import { stripe } from "@/lib/stripe";
  */
 export async function POST(request: Request) {
   const { supabase, user } = await getUser();
-  if (!user) return NextResponse.json({ error: "Please sign in." }, { status: 401 });
+  if (!user) return NextResponse.json({ error: await uiT("Please sign in.") }, { status: 401 });
 
   const { flow } = (await request.json().catch(() => ({}))) as { flow?: string };
   const { data: sub } = await supabase
@@ -18,7 +19,7 @@ export async function POST(request: Request) {
     .select("stripe_customer_id, stripe_subscription_id")
     .eq("user_id", user.id)
     .maybeSingle();
-  if (!sub?.stripe_customer_id) return NextResponse.json({ error: "No billing account yet." }, { status: 400 });
+  if (!sub?.stripe_customer_id) return NextResponse.json({ error: await uiT("No billing account yet.") }, { status: 400 });
 
   const params: Stripe.BillingPortal.SessionCreateParams = {
     customer: sub.stripe_customer_id,
@@ -37,6 +38,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ url: session.url });
   } catch (err) {
     console.error("portal failed", err);
-    return NextResponse.json({ error: "Billing management is unavailable right now. Try again in a moment." }, { status: 502 });
+    return NextResponse.json({ error: await uiT("Billing management is unavailable right now. Try again in a moment.") }, { status: 502 });
   }
 }

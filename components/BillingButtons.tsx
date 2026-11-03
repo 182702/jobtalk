@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { translator, type UiLang } from "@/lib/ui";
 
 type Action = "checkout" | "portal" | "cancel";
 
-export function BillingButton({ action, label }: { action: Action; label: string }) {
+export function BillingButton({ action, label, lang }: { action: Action; label: string; lang: UiLang }) {
+  const T = translator(lang);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
@@ -18,7 +20,7 @@ export function BillingButton({ action, label }: { action: Action; label: string
         body: JSON.stringify(action === "cancel" ? { flow: "cancel" } : {}),
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok || !data.url) throw new Error(data.error || "Billing is unavailable right now.");
+      if (!res.ok || !data.url) throw new Error(data.error || T("Billing is unavailable right now."));
       window.location.href = data.url;
     } catch (e) {
       setError((e as Error).message);
@@ -30,7 +32,7 @@ export function BillingButton({ action, label }: { action: Action; label: string
   return (
     <>
       <button type="button" className={className} onClick={go} disabled={busy} style={{ width: "100%" }}>
-        {busy ? "Opening…" : label}
+        {busy ? T("Opening…") : label}
       </button>
       {error && <div className="err">{error}</div>}
     </>

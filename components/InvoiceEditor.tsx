@@ -12,6 +12,7 @@ import {
   parsePercentToBps,
 } from "@/lib/money";
 import type { Draft } from "@/lib/types";
+import { translator, type UiLang } from "@/lib/ui";
 
 // Text state for each editable line, so partial input like "12." isn't lost.
 type Row = { key: number; description: string; quantity: string; rate: string; fromSaved: boolean };
@@ -37,12 +38,15 @@ export function InvoiceEditor({
   saveLabel,
   onSave,
   onCancel,
+  uiLang,
 }: {
   initial: Draft;
   saveLabel: string;
   onSave: (draft: Draft) => Promise<string | void>;
   onCancel?: () => void;
+  uiLang: UiLang;
 }) {
+  const T = translator(uiLang);
   const [customer, setCustomer] = useState(initial.customer_name);
   const [email, setEmail] = useState(initial.customer_email);
   const [date, setDate] = useState(initial.issued_on);
@@ -62,8 +66,8 @@ export function InvoiceEditor({
 
   async function save() {
     setError("");
-    if (!rows.length) return setError("Add at least one line.");
-    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return setError("That customer email doesn't look right.");
+    if (!rows.length) return setError(T("Add at least one line."));
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return setError(T("That customer email doesn't look right."));
     setBusy(true);
     const err = await onSave({
       customer_name: customer.trim(),
@@ -81,29 +85,29 @@ export function InvoiceEditor({
 
   return (
     <div className="card">
-      <h2>Review invoice</h2>
+      <h2>{T("Review invoice")}</h2>
       <div className="row">
         <div className="field">
-          <label htmlFor="customer">Customer</label>
+          <label htmlFor="customer">{T("Customer")}</label>
           <input id="customer" value={customer} onChange={(e) => setCustomer(e.target.value)} placeholder="Dana Smith" />
         </div>
         <div className="field">
-          <label htmlFor="cemail">Customer email</label>
+          <label htmlFor="cemail">{T("Customer email")}</label>
           <input id="cemail" type="email" inputMode="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="dana@example.com" />
         </div>
       </div>
       <div className="row">
         <div className="field">
-          <label htmlFor="date">Date</label>
+          <label htmlFor="date">{T("Date")}</label>
           <input id="date" type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
         </div>
         <div className="field">
-          <label htmlFor="tax">Tax %</label>
+          <label htmlFor="tax">{T("Tax %")}</label>
           <input id="tax" inputMode="decimal" value={tax} onChange={(e) => setTax(e.target.value)} placeholder="0" />
         </div>
       </div>
       <div className="field">
-        <label htmlFor="ilang">Invoice language (what your customer sees)</label>
+        <label htmlFor="ilang">{T("Invoice language (what your customer sees)")}</label>
         <select id="ilang" value={language} onChange={(e) => setLanguage(e.target.value === "es" ? "es" : "en")}>
           <option value="en">English</option>
           <option value="es">Español</option>
@@ -115,15 +119,15 @@ export function InvoiceEditor({
           const noPrice = !(items[idx].rate_cents > 0);
           return (
             <div key={r.key} className={`line${noPrice ? " miss" : ""}`}>
-              <label htmlFor={`d${r.key}`}>Item</label>
-              <input id={`d${r.key}`} value={r.description} onChange={(e) => update(r.key, { description: e.target.value })} placeholder="Description" />
+              <label htmlFor={`d${r.key}`}>{T("Item")}</label>
+              <input id={`d${r.key}`} value={r.description} onChange={(e) => update(r.key, { description: e.target.value })} placeholder={T("Description")} />
               <div className="cols">
                 <div>
-                  <label htmlFor={`q${r.key}`}>Qty</label>
+                  <label htmlFor={`q${r.key}`}>{T("Qty")}</label>
                   <input id={`q${r.key}`} inputMode="decimal" value={r.quantity} onChange={(e) => update(r.key, { quantity: e.target.value })} />
                 </div>
                 <div>
-                  <label htmlFor={`r${r.key}`}>Rate $</label>
+                  <label htmlFor={`r${r.key}`}>{T("Rate $")}</label>
                   <input
                     id={`r${r.key}`}
                     inputMode="decimal"
@@ -135,38 +139,38 @@ export function InvoiceEditor({
                   />
                 </div>
                 <div className="amt">{formatCents(totals.lines[idx].amount_cents)}</div>
-                <button type="button" className="x" aria-label="Delete line" onClick={() => setRows((rs) => rs.filter((x) => x.key !== r.key))}>
+                <button type="button" className="x" aria-label={T("Delete line")} onClick={() => setRows((rs) => rs.filter((x) => x.key !== r.key))}>
                   ✕
                 </button>
               </div>
-              {r.fromSaved && <div className="savedTag">💾 Price from your saved prices. Check it&apos;s still right.</div>}
+              {r.fromSaved && <div className="savedTag">{T("💾 Price from your saved prices. Check it's still right.")}</div>}
             </div>
           );
         })}
       </div>
       <div className="btns">
         <button type="button" className="alt" onClick={() => setRows((rs) => [...rs, toRow({ description: "", quantity: 1, rate_cents: 0 })])}>
-          + Add line
+          {T("+ Add line")}
         </button>
       </div>
 
       <table className="tot" style={{ marginTop: 12 }}>
         <tbody>
           <tr>
-            <td>{missing > 0 ? "Subtotal so far" : "Subtotal"}</td>
+            <td>{missing > 0 ? T("Subtotal so far") : T("Subtotal")}</td>
             <td className="n">{formatCents(totals.subtotal_cents)}</td>
           </tr>
           {taxBps > 0 && (
             <tr>
-              <td>Tax ({bpsToPercentString(taxBps)}%)</td>
+              <td>{T("Tax ({rate}%)", { rate: bpsToPercentString(taxBps) })}</td>
               <td className="n">{missing > 0 ? "—" : formatCents(totals.tax_cents)}</td>
             </tr>
           )}
           <tr className="grand">
-            <td>Total due</td>
+            <td>{T("Total due")}</td>
             {missing > 0 ? (
               <td className="n" style={{ color: "var(--danger)", fontSize: 16 }}>
-                {missing} price{missing === 1 ? "" : "s"} missing
+                {missing === 1 ? T("1 price missing") : T("{n} prices missing", { n: missing })}
               </td>
             ) : (
               <td className="n">{formatCents(totals.total_cents)}</td>
@@ -177,23 +181,23 @@ export function InvoiceEditor({
 
       {missing > 0 && (
         <div className="warn" role="status">
-          ⚠ {missing} line{missing === 1 ? " has" : "s have"} no price. Fill in the red fields before sending.
+          ⚠ {missing === 1 ? T("1 line has no price.") : T("{n} lines have no price.", { n: missing })} {T("Fill in the red fields before sending.")}
         </div>
       )}
 
       <div className="field" style={{ marginTop: 12 }}>
-        <label htmlFor="notes">Notes for the customer</label>
+        <label htmlFor="notes">{T("Notes for the customer")}</label>
         <textarea id="notes" value={notes} onChange={(e) => setNotes(e.target.value)} style={{ minHeight: 70 }} />
       </div>
 
       <div className="btns">
         {onCancel && (
           <button type="button" className="alt" onClick={onCancel}>
-            Cancel
+            {T("Cancel")}
           </button>
         )}
         <button type="button" onClick={save} disabled={busy}>
-          {busy ? "Saving…" : saveLabel}
+          {busy ? T("Saving…") : saveLabel}
         </button>
       </div>
       {error && <div className="err" role="alert">{error}</div>}

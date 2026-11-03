@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { InvoiceEditor } from "@/components/InvoiceEditor";
 import { MAX_NOTE_CHARS } from "@/lib/plans";
 import type { Draft } from "@/lib/types";
+import { translator, type UiLang } from "@/lib/ui";
 
 // Minimal typing for the browser Speech Recognition API (not in lib.dom).
 type Recognition = {
@@ -38,7 +39,18 @@ function today(): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
-export function NewInvoice({ taxRateBps, usage }: { taxRateBps: number; usage: { plan: "free" | "solo"; used: number; limit: number } }) {
+export function NewInvoice({
+  taxRateBps,
+  usage,
+  uiLang,
+  firstTime = false,
+}: {
+  taxRateBps: number;
+  usage: { plan: "free" | "solo"; used: number; limit: number };
+  uiLang: UiLang;
+  firstTime?: boolean;
+}) {
+  const T = translator(uiLang);
   const router = useRouter();
   const [note, setNote] = useState("");
   const [interim, setInterim] = useState("");
@@ -49,18 +61,17 @@ export function NewInvoice({ taxRateBps, usage }: { taxRateBps: number; usage: {
   const [upgrade, setUpgrade] = useState(false);
   const [draft, setDraft] = useState<Draft | null>(null);
   const [used, setUsed] = useState(usage.used);
-  const [lang, setLang] = useState<Lang>("en");
+  const [lang, setLang] = useState<Lang>(uiLang);
   const rec = useRef<Recognition | null>(null);
 
   useEffect(() => setMicSupported(!!getRecognition()), []);
-  // Remember the contractor's language; first time, follow the phone's language.
+  // Remember the contractor's voice language; first time, follow the menu language.
   useEffect(() => {
     let saved: string | null = null;
     try {
       saved = localStorage.getItem(LANG_KEY);
     } catch {}
     if (saved === "en" || saved === "es") setLang(saved);
-    else if (navigator.language?.toLowerCase().startsWith("es")) setLang("es");
   }, []);
 
   function chooseLang(l: Lang) {
@@ -102,13 +113,13 @@ export function NewInvoice({ taxRateBps, usage }: { taxRateBps: number; usage: {
       };
       r.onerror = (e) => {
         setRecording(false);
-        if (e.error !== "aborted" && e.error !== "no-speech") setError("The mic isn't available here. Type the note instead.");
+        if (e.error !== "aborted" && e.error !== "no-speech") setError(T("The mic isn't available here. Type the note instead."));
       };
       r.start();
       rec.current = r;
       setRecording(true);
     } catch {
-      setError("The mic isn't available here. Type the note instead.");
+      setError(T("The mic isn't available here. Type the note instead."));
     }
   }
 
@@ -117,13 +128,13 @@ export function NewInvoice({ taxRateBps, usage }: { taxRateBps: number; usage: {
     setError("");
     setUpgrade(false);
     const text = note.trim();
-    if (!text) return setError("Add a job note first.");
+    if (!text) return setError(T("Add a job note first."));
     setBusy(true);
     try {
       const res = await fetch("/api/parse", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ note: text, language: lang }) });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error || "Something went wrong.");
+        setError(data.error || T("Something went wrong. Try again."));
         setUpgrade(!!data.upgrade);
         return;
       }
@@ -139,7 +150,7 @@ export function NewInvoice({ taxRateBps, usage }: { taxRateBps: number; usage: {
         items: data.items,
       });
     } catch {
-      setError("Couldn't reach the server. Check your connection and try again.");
+      setError(T("Couldn't reach the server. Check your connection and try again."));
     } finally {
       setBusy(false);
     }
@@ -148,20 +159,33 @@ export function NewInvoice({ taxRateBps, usage }: { taxRateBps: number; usage: {
   async function save(d: Draft) {
     const res = await fetch("/api/invoices", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(d) });
     const data = await res.json().catch(() => ({}));
-    if (!res.ok) return data.error || "Couldn't save the invoice.";
+    if (!res.ok) return data.error || T("Couldn't save the invoice.");
     router.push(`/invoices/${data.id}`);
     router.refresh();
   }
 
   if (draft) {
-    return <InvoiceEditor initial={draft} saveLabel="Save invoice" onSave={save} onCancel={() => setDraft(null)} />;
+    return <InvoiceEditor initial={draft} saveLabel={T("Save invoice")} onSave={save} onCancel={() => setDraft(null)} uiLang={uiLang} />;
   }
 
   return (
     <div className="card">
+      {firstTime && (
+        <div className="hint">
+          <b>{T("How it works")}</b>
+          <ol>
+            <li>{T("Pick the language you will talk in.")}</li>
+            <li>{T("Tap Speak and say the customer's name, what you did, hours and prices.")}</li>
+            <li>{T("Tap Make invoice. Check it, fix anything in red, then save.")}</li>
+          </ol>
+          <p className="muted small" style={{ margin: 0 }}>
+            {T("Example:")} <i>{PLACEHOLDER[lang]}</i>
+          </p>
+        </div>
+      )}
       <div className="langRow">
-        <label htmlFor="note" style={{ margin: 0 }}>{lang === "es" ? "Nota del trabajo" : "Job note"}</label>
-        <div className="seg" role="group" aria-label="Voice and invoice language">
+        <label htmlFor="note" style={{ margin: 0 }}>{T("Job note")}</label>
+        <div className="seg" role="group" aria-label={T("Language you will talk in")}>
           <button type="button" className={lang === "en" ? "on" : ""} aria-pressed={lang === "en"} onClick={() => chooseLang("en")}>
             English
           </button>
@@ -181,22 +205,22 @@ export function NewInvoice({ taxRateBps, usage }: { taxRateBps: number; usage: {
       <div className="btns">
         {micSupported && (
           <button type="button" className={recording ? "rec" : "alt"} onClick={toggleMic} aria-pressed={recording}>
-            {recording ? (lang === "es" ? "■ Parar" : "■ Stop") : lang === "es" ? "🎙 Hablar" : "🎙 Speak"}
+            {recording ? T("■ Stop") : T("🎙 Speak")}
           </button>
         )}
         <button type="button" onClick={makeInvoice} disabled={busy || recording}>
-          {busy ? (lang === "es" ? "Trabajando…" : "Working…") : lang === "es" ? "Hacer factura" : "Make invoice"}
+          {busy ? T("Working…") : T("Make invoice")}
         </button>
       </div>
-      {!micSupported && <p className="muted small">Voice input isn&apos;t supported in this browser. Type the note, or use your keyboard&apos;s mic button.</p>}
+      {!micSupported && <p className="muted small">{T("Voice input isn't supported in this browser. Type the note, or use your keyboard's mic button.")}</p>}
       {error && (
         <div className="err" role="alert">
-          {error} {upgrade && <Link href="/billing">Upgrade</Link>}
+          {error} {upgrade && <Link href="/billing">{T("Upgrade")}</Link>}
         </div>
       )}
       {usage.plan === "free" && (
         <p className="muted small" style={{ marginBottom: 0 }}>
-          {Math.max(0, usage.limit - used)} of {usage.limit} free notes left this month. <Link href="/billing">Go unlimited</Link>
+          {T("{n} of {limit} free notes left this month.", { n: Math.max(0, usage.limit - used), limit: usage.limit })} <Link href="/billing">{T("Go unlimited")}</Link>
         </p>
       )}
     </div>
