@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
 import { FREE_NOTES_PER_MONTH } from "@/lib/plans";
 import s from "./landing.module.css";
 
@@ -15,11 +14,9 @@ function Icon({ d }: { d: string }) {
 
 const WAVE = [10, 18, 26, 14, 22, 28, 12, 20, 24, 10, 16, 26, 18, 12, 22, 14];
 
-export default async function Landing() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+// Static: built once and served from the CDN. Signed-in visitors who tap
+// "Log in" are sent straight to their invoices by proxy.ts.
+export default function Landing() {
 
   return (
     <div className={`${s.page} landing`}>
@@ -27,31 +24,25 @@ export default async function Landing() {
         <nav className={s.nav}>
           <Link href="/" className={s.brand}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/brand/icon.png" alt="" />
+            <img src="/brand/icon.png" alt="" width={32} height={32} />
             <span>
               VoiceBill<em>Pro</em>
             </span>
           </Link>
           <div className={s.navLinks}>
-            {user ? (
-              <Link className={`${s.btn} ${s.small}`} href="/invoices">Open app</Link>
-            ) : (
-              <>
-                <Link className={`${s.btnGhost} ${s.small}`} href="/login">Log in</Link>
-                <Link className={`${s.btn} ${s.small}`} href="/signup">Start free</Link>
-              </>
-            )}
+            <Link className={`${s.btnGhost} ${s.small}`} href="/login">Log in</Link>
+            <Link className={`${s.btn} ${s.small}`} href="/signup">Start free</Link>
           </div>
         </nav>
 
         <header className={s.hero}>
-          <h1>Talk through the job — get the invoice before you leave the driveway.</h1>
+          <h1>Talk through the job. Get the invoice <em>before you leave the driveway.</em></h1>
           <p className={s.lead}>
-            Hit record and say what you did. VoiceBill Pro turns your voice note into labor, parts and tax, then emails a clean PDF invoice to your customer.
+            Hit record and say what you did, in English or Spanish. VoiceBill Pro turns your voice note into labor, parts and tax, then emails a clean PDF invoice to your customer.
           </p>
           <div className={s.heroBtns}>
-            <Link className={s.btn} href={user ? "/new" : "/signup"}>{user ? "New invoice" : "Start free"}</Link>
-            {!user && <Link className={s.btnGhost} href="/login">Log in</Link>}
+            <Link className={s.btn} href="/signup">Start free</Link>
+            <Link className={s.btnGhost} href="#demo">See how it works</Link>
           </div>
           <div className={s.perks}>
             <div>
@@ -64,7 +55,7 @@ export default async function Landing() {
             </div>
             <div>
               <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="m5.6 5.6 12.8 12.8" /></svg>
-              <span>cancel anytime</span>
+              <span>no card to start</span>
             </div>
           </div>
         </header>
@@ -97,7 +88,7 @@ export default async function Landing() {
           </div>
         </section>
 
-        <section className={s.section}>
+        <section className={s.section} id="demo">
           <p className={s.eyebrow}>See it in action</p>
           <h2 className={s.demoTitle}>Turn a 30-second voice note into a ready-to-send invoice</h2>
           <div className={`${s.card} ${s.demo}`}>
@@ -154,14 +145,14 @@ export default async function Landing() {
               <li>Paid / unpaid tracking and total outstanding</li>
               <li>Your rates, tax and payment details saved</li>
             </ul>
-            <Link className={s.btn} href={user ? "/billing" : "/signup"}>{user ? "Go to billing" : "Start free"}</Link>
+            <Link className={s.btn} href="/signup">Start free</Link>
           </div>
         </section>
 
         <section className={s.cta}>
           <h2>Stop writing invoices at night.</h2>
           <p className={s.lead}>Built for plumbers, electricians, HVAC techs, handymen, and anyone who bills by the job.</p>
-          <Link className={s.btn} href={user ? "/new" : "/signup"}>{user ? "New invoice" : "Try it free"}</Link>
+          <Link className={s.btn} href="/signup">Try it free</Link>
         </section>
 
         <footer className={s.foot}>

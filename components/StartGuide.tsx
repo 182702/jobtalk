@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useActionState, useEffect, useState } from "react";
-import { saveSettings, type SettingsState } from "@/app/settings/actions";
+import { saveSettings, type SettingsState } from "@/app/(app)/settings/actions";
 import { setUiLang } from "@/components/LangSwitch";
 import { bpsToPercentString, centsToDollarString } from "@/lib/money";
 import type { Profile } from "@/lib/types";

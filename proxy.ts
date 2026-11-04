@@ -4,6 +4,9 @@ import { NextResponse, type NextRequest } from "next/server";
 // Pages that need a signed-in user.
 const PROTECTED = ["/start", "/new", "/invoices", "/settings", "/billing", "/admin"];
 
+// Signed-in visitors skip the log-in and sign-up pages.
+const GUEST_ONLY = ["/login", "/signup"];
+
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
 
@@ -36,11 +39,18 @@ export async function proxy(request: NextRequest) {
     url.search = `?next=${encodeURIComponent(path)}`;
     return NextResponse.redirect(url);
   }
+  if (user && GUEST_ONLY.includes(path) && !request.nextUrl.searchParams.has("error")) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/invoices";
+    url.search = "";
+    return NextResponse.redirect(url);
+  }
 
   return response;
 }
 
 export const config = {
   // Skip static files, the Stripe webhook (raw body), and public invoice links.
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|icon|manifest|robots.txt|sitemap.xml|brand/|api/stripe/webhook|i/).*)"],
+  // The home page ("/") is static and needs no session check, so it's skipped too.
+  matcher: ["/((?!$|_next/static|_next/image|favicon.ico|icon|manifest|robots.txt|sitemap.xml|brand/|api/stripe/webhook|i/).*)"],
 };

@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { saveSettings, type SettingsState } from "@/app/settings/actions";
+import { saveSettings, type SettingsState } from "@/app/(app)/settings/actions";
 import { logoUrl } from "@/lib/invoice";
 import { bpsToPercentString, centsToDollarString } from "@/lib/money";
 import { createClient } from "@/lib/supabase/client";
