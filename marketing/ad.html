@@ -1,0 +1,74 @@
+<!doctype html><html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; }
+body { width: 1080px; height: 1080px; overflow: hidden; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: #eaf0ff;
+  background: radial-gradient(900px 600px at 50% -10%, rgba(47,123,255,.55), transparent 70%), linear-gradient(180deg, #06102a, #0b1a3f 60%, #06102a); }
+.wrap { padding: 64px 72px; height: 100%; display: flex; flex-direction: column; }
+.brand { display: flex; align-items: center; gap: 14px; font: 700 34px "Space Grotesk"; letter-spacing: -.02em; }
+.brand img { width: 52px; height: 52px; border-radius: 12px; }
+.brand em { color: #ff7a2f; font-style: normal; }
+h1 { font: 700 84px/1.02 "Space Grotesk"; letter-spacing: -.04em; margin: 44px 0 18px; }
+h1 em { color: #ff7a2f; font-style: normal; }
+.sub { font-size: 30px; line-height: 1.4; color: #b4c2e6; max-width: 880px; }
+.demo { margin-top: 40px; display: grid; grid-template-columns: 1fr 1.15fr; gap: 22px; }
+.panel { background: rgba(5,14,38,.75); border: 1.5px solid rgba(90,150,255,.35); border-radius: 22px; padding: 26px; }
+.mic { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
+.mic span { width: 58px; height: 58px; border-radius: 50%; background: #ff7a2f; display: grid; place-items: center; box-shadow: 0 0 0 8px rgba(255,122,47,.18); }
+.wave { display: flex; gap: 4px; align-items: center; }
+.wave i { width: 6px; border-radius: 3px; background: #ff7a2f; }
+.quote { font-size: 25px; line-height: 1.45; font-style: italic; }
+table { width: 100%; border-collapse: collapse; font-size: 23px; }
+td { padding: 11px 0; border-bottom: 1px solid rgba(90,150,255,.25); }
+td:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+.head { display: flex; justify-content: space-between; align-items: baseline; font-weight: 700; font-size: 24px; margin-bottom: 6px; }
+.ok { font-size: 18px; color: #6ee7b7; border: 1px solid rgba(110,231,183,.4); border-radius: 99px; padding: 3px 12px; font-weight: 600; }
+.tot td { border: 0; font-weight: 800; font-size: 30px; padding-top: 16px; }
+.foot { margin-top: auto; display: flex; justify-content: space-between; align-items: center; }
+.cta { background: linear-gradient(180deg, #ffa149, #ff7a2f 60%, #f2661a); color: #1a0b02; font: 700 34px "Space Grotesk"; padding: 22px 40px; border-radius: 16px; }
+.trades { margin-top: 44px; display: flex; flex-wrap: wrap; gap: 12px; }
+.trades span { font-size: 24px; padding: 10px 20px; border-radius: 99px; border: 1.5px solid rgba(90,150,255,.4); background: rgba(47,123,255,.12); }
+.perks { font-size: 24px; color: #b4c2e6; line-height: 1.5; }
+.perks b { color: #eaf0ff; }
+</style></head><body><div class="wrap">
+<div class="brand"><img src="../public/brand/icon.png"><span>VoiceBill<em>Pro</em></span></div>
+<h1 id="h1"></h1>
+<p class="sub" id="sub"></p>
+<div class="demo">
+  <div class="panel">
+    <div class="mic"><span><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1a0b02" stroke-width="2.4" stroke-linecap="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3zM19 10v2a7 7 0 0 1-14 0v-2M12 19v3"/></svg></span>
+      <div class="wave" id="wave"></div></div>
+    <p class="quote" id="quote"></p>
+  </div>
+  <div class="panel">
+    <div class="head"><span id="inv"></span><span class="ok" id="ready"></span></div>
+    <table id="tbl"></table>
+  </div>
+</div>
+<div class="trades" id="trades"></div>
+<div class="foot"><div class="perks" id="perks"></div><div class="cta">voicebillpro.com</div></div>
+</div>
+<script>
+const es = location.hash === "#es";
+const T = es ? {
+  h1: 'Diga el trabajo.<br><em>Envíe la factura.</em>',
+  sub: 'Toque el micrófono, diga lo que hizo y la app hace la factura con mano de obra, materiales e impuesto.',
+  quote: '“Arreglé la llave de la cocina para Maria Lopez. 2 horas a $85, cartucho nuevo $35.”',
+  inv: 'Factura #0007 · Maria Lopez', ready: 'Lista',
+  rows: [['Mano de obra · 2 h × $85', '$170.00'], ['Cartucho nuevo', '$35.00']], total: 'Total a pagar',
+  trades: ['🔧 Plomeros', '⚡ Electricistas', '❄️ Aire acondicionado', '🔨 Handyman', '🚗 Detallado de autos'],
+  perks: '<b>Gratis</b> 5 facturas al mes · <b>Sin tarjeta</b><br>Funciona en <b>español</b> e <b>inglés</b>'
+} : {
+  h1: 'Say the job.<br><em>Send the invoice.</em>',
+  sub: 'Tap the mic, say what you did, and the app writes the invoice with labor, parts and tax.',
+  quote: '“Fixed the kitchen faucet for Maria Lopez. 2 hours at $85, new cartridge $35.”',
+  inv: 'Invoice #0007 · Maria Lopez', ready: 'Ready',
+  rows: [['Labor · 2 h × $85', '$170.00'], ['New cartridge', '$35.00']], total: 'Total due',
+  trades: ['🔧 Plumbers', '⚡ Electricians', '❄️ HVAC', '🔨 Handymen', '🚗 Detailers'],
+  perks: '<b>Free</b> for 5 invoices a month · <b>No card</b><br>Works in <b>English</b> and <b>Spanish</b>'
+};
+document.documentElement.lang = es ? "es" : "en";
+h1.innerHTML = T.h1; sub.textContent = T.sub; quote.textContent = T.quote; inv.textContent = T.inv; ready.textContent = T.ready; perks.innerHTML = T.perks; trades.innerHTML = T.trades.map(t => `<span>${t}</span>`).join('');
+tbl.innerHTML = T.rows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('') + `<tr class="tot"><td>${T.total}</td><td>$205.00</td></tr>`;
+wave.innerHTML = [14,26,38,20,32,42,18,30,36,14,24,38,26,18,32].map(h => `<i style="height:${h}px"></i>`).join('');
+</script></body></html>
