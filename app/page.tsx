@@ -2,161 +2,190 @@ import Link from "next/link";
 import { FREE_NOTES_PER_MONTH } from "@/lib/plans";
 import s from "./landing.module.css";
 
-function Icon({ d }: { d: string }) {
+const WAVE = [8, 14, 22, 12, 26, 18, 30, 16, 24, 10, 20, 28, 14, 22, 12, 26, 18, 10, 16, 24, 12, 20, 8, 14];
+
+function Mic({ size = 20 }: { size?: number }) {
   return (
-    <span className={s.icon}>
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-        <path d={d} />
-      </svg>
-    </span>
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3zM19 10v2a7 7 0 0 1-14 0v-2M12 19v3" />
+    </svg>
   );
 }
 
-const WAVE = [10, 18, 26, 14, 22, 28, 12, 20, 24, 10, 16, 26, 18, 12, 22, 14];
+function Arrow() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M5 12h14M13 6l6 6-6 6" />
+    </svg>
+  );
+}
+
+const STEPS = [
+  { title: "Speak", text: "Tell it what you did, in your own words. English or Spanish.", d: "M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3zM19 10v2a7 7 0 0 1-14 0v-2M12 19v3", tone: "orange" },
+  { title: "Check", text: "See a clean invoice. Anything without a price is flagged in red, never guessed.", d: "M4 12l5 5L20 6", tone: "blue" },
+  { title: "Send", text: "Email a PDF with your logo and payment details. Track what's paid.", d: "M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z", tone: "orange" },
+];
 
 // Static: built once and served from the CDN. Signed-in visitors who tap
 // "Log in" are sent straight to their invoices by proxy.ts.
 export default function Landing() {
-
   return (
     <div className={`${s.page} landing`}>
       <div className={s.wrap}>
         <nav className={s.nav}>
           <Link href="/" className={s.brand}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/brand/icon.png" alt="" width={32} height={32} />
+            <span className={s.brandMic}>
+              <Mic size={18} />
+            </span>
             <span>
               VoiceBill<em>Pro</em>
             </span>
           </Link>
           <div className={s.navLinks}>
-            <Link className={`${s.btnGhost} ${s.small}`} href="/login">Log in</Link>
+            <a className={s.navText} href="#how">How it works</a>
+            <a className={s.navText} href="#pricing">Pricing</a>
+            <Link className={s.navText} href="/login">Log in</Link>
             <Link className={`${s.btn} ${s.small}`} href="/signup">Start free</Link>
           </div>
         </nav>
 
         <header className={s.hero}>
-          <h1>Talk through the job. Get the invoice <em>before you leave the driveway.</em></h1>
-          <p className={s.lead}>
-            Hit record and say what you did, in English or Spanish. VoiceBill Pro turns your voice note into labor, parts and tax, then emails a clean PDF invoice to your customer.
-          </p>
-          <div className={s.heroBtns}>
-            <Link className={s.btn} href="/signup">Start free</Link>
-            <Link className={s.btnGhost} href="#demo">See how it works</Link>
+          <div className={s.heroText}>
+            <span className={s.stripes} aria-hidden="true" />
+            <h1>
+              Talk through the job. <em>Get the invoice before you leave the driveway.</em>
+            </h1>
+            <p className={s.lead}>
+              Turn your voice into a clean, ready-to-send invoice. Built for plumbers, electricians, HVAC techs and handymen who work in the field.
+            </p>
+            <div className={s.heroBtns}>
+              <Link className={s.btn} href="/signup">
+                Start free <Arrow />
+              </Link>
+              <a className={s.btnGhost} href="#how">See how it works</a>
+            </div>
           </div>
-          <div className={s.perks}>
-            <div>
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z" /></svg>
-              <span>{FREE_NOTES_PER_MONTH} free job notes a month</span>
+
+          <div className={s.appFrame} aria-label="Example: a voice note becomes an invoice">
+            <div className={s.appBar}>
+              <span className={s.appBrand}>
+                <Mic size={13} /> VoiceBill<em>Pro</em>
+              </span>
+              <span className={s.appTabs}>
+                <b>New invoice</b> Invoices · Settings
+              </span>
             </div>
-            <div>
-              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /></svg>
-              <span>then $24/month</span>
-            </div>
-            <div>
-              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="m5.6 5.6 12.8 12.8" /></svg>
-              <span>no card to start</span>
+            <div className={s.appBody}>
+              <div className={s.panel}>
+                <p className={s.panelLabel}>Job note</p>
+                <div className={s.wave} aria-hidden="true">
+                  {WAVE.map((h, i) => (
+                    <i key={i} style={{ height: h }} />
+                  ))}
+                </div>
+                <div className={s.recRow}>
+                  <span className={s.recDot} aria-hidden="true" /> 0:24
+                </div>
+                <p className={s.quote}>
+                  “Replaced the outdoor faucet for the Alvarez place. Hour and a half at eighty-five, faucet forty-two. Added a shutoff valve.”
+                </p>
+              </div>
+              <div className={s.arrowCol} aria-hidden="true">
+                <Arrow />
+              </div>
+              <div className={s.panel}>
+                <div className={s.invHead}>
+                  <b>Invoice #0012</b>
+                  <span className={s.pillWarn}>1 price missing</span>
+                </div>
+                <table className={s.inv}>
+                  <tbody>
+                    <tr>
+                      <td>Labor · 1.5 h × $85</td>
+                      <td>$127.50</td>
+                    </tr>
+                    <tr>
+                      <td>Outdoor faucet</td>
+                      <td>$42.00</td>
+                    </tr>
+                    <tr className={s.missRow}>
+                      <td>Shutoff valve</td>
+                      <td>Add price</td>
+                    </tr>
+                    <tr className={s.sub}>
+                      <td>Subtotal so far</td>
+                      <td>$169.50</td>
+                    </tr>
+                    <tr className={s.total}>
+                      <td>Total due</td>
+                      <td className={s.flag}>Add valve price</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </header>
 
-        <div className={`${s.card} ${s.math}`}>
-          <p className={s.eyebrow}>How the math works</p>
-          <h2>Hours × Rate + Parts + Tax = <b>Total due</b></h2>
-          <p>Every number comes from what you say. If you don&apos;t say a price, it&apos;s flagged — never guessed.</p>
+        <div className={s.badges}>
+          <span>{FREE_NOTES_PER_MONTH} free job notes a month</span>
+          <i aria-hidden="true" />
+          <span>No card needed</span>
+          <i aria-hidden="true" />
+          <span>English or Spanish</span>
         </div>
 
-        <section className={`${s.section} ${s.center}`}>
-          <p className={s.eyebrow}>Why VoiceBill Pro</p>
-          <h2 className={s.h2}>Everything you need to get paid</h2>
-          <div className={s.grid3} style={{ textAlign: "left" }}>
-            <div className={`${s.card} ${s.feature}`}>
-              <Icon d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3zM19 10v2a7 7 0 0 1-14 0v-2M12 19v3" />
-              <h3>Talk, don&apos;t type</h3>
-              <p>Say it the way you&apos;d tell a buddy, in the truck or on site. No forms, no spreadsheets.</p>
+        <section id="how" className={s.steps}>
+          {STEPS.map((st) => (
+            <div key={st.title} className={s.step}>
+              <span className={`${s.stepIcon} ${st.tone === "blue" ? s.blue : ""}`}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d={st.d} />
+                </svg>
+              </span>
+              <div>
+                <h3>{st.title}</h3>
+                <p>{st.text}</p>
+              </div>
             </div>
-            <div className={`${s.card} ${s.feature}`}>
-              <Icon d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" />
-              <h3>Prices never guessed</h3>
-              <p>Your hourly and tax rates fill in automatically. Anything you didn&apos;t price shows in red before it goes out.</p>
-            </div>
-            <div className={`${s.card} ${s.feature}`}>
-              <Icon d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z" />
-              <h3>Send in one tap</h3>
-              <p>Email a PDF with your logo and payment details, or copy a text version. See what&apos;s paid and what&apos;s owed.</p>
-            </div>
-          </div>
+          ))}
         </section>
 
-        <section className={s.section} id="demo">
-          <p className={s.eyebrow}>See it in action</p>
-          <h2 className={s.demoTitle}>Turn a 30-second voice note into a ready-to-send invoice</h2>
-          <div className={`${s.card} ${s.demo}`}>
-            <div className={s.panel}>
-              <div className={s.recRow}>
-                <span className={s.mic} aria-hidden="true">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round">
-                    <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3zM19 10v2a7 7 0 0 1-14 0v-2M12 19v3" />
-                  </svg>
-                </span>
-                <span className={s.wave} aria-hidden="true">
-                  {WAVE.map((h, i) => (
-                    <i key={i} style={{ height: h }} />
-                  ))}
-                </span>
-              </div>
-              <p className={s.quote}>
-                “Replaced the water heater at the Alvarez place. Two and a half hours at eighty-five. Forty-gallon heater, three eighty. Two shutoff valves at twelve each, plus the expansion tank.”
-              </p>
-            </div>
-            <div className={s.panel}>
-              <div className={s.invHead}>
-                <b>Invoice #0012 · Alvarez</b>
-                <span className={s.pillWarn}>1 price missing</span>
-              </div>
-              <table className={s.inv}>
-                <tbody>
-                  <tr><td>Labor · 2.5 h × $85.00</td><td>$212.50</td></tr>
-                  <tr><td>40-gallon water heater</td><td>$380.00</td></tr>
-                  <tr><td>Shutoff valve · 2 × $12.00</td><td>$24.00</td></tr>
-                  <tr><td>Expansion tank</td><td className={s.flag}>Add price</td></tr>
-                  <tr className={s.sub}><td>Subtotal so far</td><td>$616.50</td></tr>
-                  <tr className={s.sub}><td>Tax (8.25%)</td><td>—</td></tr>
-                  <tr className={s.total}><td>Total due</td><td className={s.flag}>Add tank price</td></tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-          <p className={s.caption}>The expansion tank had no price in the note, so it&apos;s flagged. You fill it in before sending, and the app warns you if a price is still missing. Nothing is made up.</p>
+        <section className={s.math}>
+          <p className={s.eyebrow}>How the math works</p>
+          <h2>
+            Hours × Rate + Parts + Tax = <em>Total due</em>
+          </h2>
+          <p>
+            Every number comes from what you say. Your hourly and tax rates fill in automatically. If you don&apos;t say a price, it&apos;s flagged, never made up.
+          </p>
         </section>
 
-        <section className={s.section}>
-          <div className={`${s.card} ${s.price}`}>
-            <p className={s.eyebrow}>Pricing</p>
-            <h2>One plan. Everything included.</h2>
-            <div className={s.amount}>
-              $24<small> / month</small>
-            </div>
-            <p className={s.fine} style={{ marginTop: 4 }}>Start with {FREE_NOTES_PER_MONTH} free job notes a month. Cancel anytime.</p>
-            <ul className={s.checks}>
+        <section id="pricing" className={s.priceBar}>
+          <div className={s.amount}>
+            $24<small> / month</small>
+          </div>
+          <div className={s.priceText}>
+            <p>A simple, all-in price for solo contractors who want to turn job talk into paid invoices.</p>
+            <ul>
               <li>Unlimited voice or typed job notes</li>
-              <li>Labor, parts and tax calculated for you</li>
               <li>PDF invoices with your logo, emailed in one tap</li>
-              <li>Paid / unpaid tracking and total outstanding</li>
-              <li>Your rates, tax and payment details saved</li>
+              <li>Paid / unpaid tracking · cancel anytime</li>
             </ul>
-            <Link className={s.btn} href="/signup">Start free</Link>
           </div>
+          <span className={s.stripesSmall} aria-hidden="true" />
         </section>
 
         <section className={s.cta}>
           <h2>Stop writing invoices at night.</h2>
-          <p className={s.lead}>Built for plumbers, electricians, HVAC techs, handymen, and anyone who bills by the job.</p>
-          <Link className={s.btn} href="/signup">Try it free</Link>
+          <p className={s.lead}>Start with {FREE_NOTES_PER_MONTH} free job notes a month. No card needed.</p>
+          <Link className={s.btn} href="/signup">
+            Start free <Arrow />
+          </Link>
         </section>
 
         <footer className={s.foot}>
-          <span>© {new Date().getFullYear()} VoiceBill Pro</span>
+          <span>© {new Date().getFullYear()} VoiceBill Pro · Springdale, Arkansas</span>
           <Link href="/privacy">Privacy</Link>
           <Link href="/terms">Terms</Link>
           <Link href="/support">Support</Link>
