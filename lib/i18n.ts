@@ -31,6 +31,16 @@ type Strings = {
   emailThanks: string;
   pdfName: string;
   dateLocale: string;
+  signatures: string;
+  signStatement: Record<"approve" | "complete", string>;
+  signTitle: Record<"approve" | "complete", string>;
+  signedBy: (name: string, date: string) => string;
+  yourName: string;
+  signHere: string;
+  clearSignature: string;
+  sign: string;
+  cancel: string;
+  signMissing: string;
 };
 
 export const INVOICE_STRINGS: Record<InvoiceLanguage, Strings> = {
@@ -60,6 +70,19 @@ export const INVOICE_STRINGS: Record<InvoiceLanguage, Strings> = {
     emailThanks: "Thanks,",
     pdfName: "invoice",
     dateLocale: "en-US",
+    signatures: "Signatures",
+    signStatement: {
+      approve: "Approved: I agree to the work and prices on this invoice.",
+      complete: "Work complete: the work is done and I'm satisfied with it.",
+    },
+    signTitle: { approve: "Approve this invoice", complete: "Confirm the work is done" },
+    signedBy: (name, date) => `Signed by ${name} · ${date}`,
+    yourName: "Your name",
+    signHere: "Sign here with your finger",
+    clearSignature: "Clear",
+    sign: "Sign",
+    cancel: "Cancel",
+    signMissing: "Please write your name and sign.",
   },
   es: {
     invoice: "Factura",
@@ -87,6 +110,19 @@ export const INVOICE_STRINGS: Record<InvoiceLanguage, Strings> = {
     emailThanks: "Gracias,",
     pdfName: "factura",
     dateLocale: "es-US",
+    signatures: "Firmas",
+    signStatement: {
+      approve: "Aprobado: estoy de acuerdo con el trabajo y los precios de esta factura.",
+      complete: "Trabajo terminado: el trabajo está hecho y estoy satisfecho.",
+    },
+    signTitle: { approve: "Aprobar esta factura", complete: "Confirmar que el trabajo está hecho" },
+    signedBy: (name, date) => `Firmado por ${name} · ${date}`,
+    yourName: "Su nombre",
+    signHere: "Firme aquí con su dedo",
+    clearSignature: "Borrar",
+    sign: "Firmar",
+    cancel: "Cancelar",
+    signMissing: "Escriba su nombre y firme.",
   },
 };
 

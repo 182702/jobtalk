@@ -183,6 +183,38 @@ export async function renderInvoicePdf(inv: InvoiceWithItems, profile: Profile):
   if (inv.notes) block(L.notes.toUpperCase(), inv.notes);
   if (profile.payment_instructions) block(L.howToPay.toUpperCase(), profile.payment_instructions);
 
+  // Customer signatures.
+  const sigs = inv.signatures ?? [];
+  if (sigs.length) {
+    ensure(30);
+    text(L.signatures.toUpperCase(), M, 9, bold, MUTE);
+    y -= 18;
+    for (const sig of sigs) {
+      let img: PDFImage | null = null;
+      try {
+        img = await doc.embedPng(Buffer.from(sig.image.slice(sig.image.indexOf(",") + 1), "base64"));
+      } catch {
+        // A broken image should never block the invoice.
+      }
+      const lines = wrap(L.signStatement[sig.kind], regular, 10, PAGE_W - 2 * M);
+      ensure(lines.length * 13 + 90);
+      for (const l of lines) {
+        text(l, M, 10);
+        y -= 13;
+      }
+      if (img) {
+        const scale = Math.min(54 / img.height, 220 / img.width);
+        const h = img.height * scale;
+        page.drawImage(img, { x: M, y: y - h, width: img.width * scale, height: h });
+        y -= h + 4;
+      }
+      page.drawLine({ start: { x: M, y }, end: { x: M + 240, y }, thickness: 0.75, color: LINE });
+      y -= 13;
+      text(L.signedBy(sig.signer_name, formatDate(sig.signed_on, L.dateLocale)), M, 9, regular, MUTE);
+      y -= 24;
+    }
+  }
+
   // Footer on every page.
   for (const p of doc.getPages()) {
     const s = L.madeWith;

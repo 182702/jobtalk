@@ -96,6 +96,21 @@ export function InvoiceView({
           <div className="pre">{profile.payment_instructions}</div>
         </div>
       )}
+      {!!invoice.signatures?.length && (
+        <div className="sigs">
+          <div className="muted small" style={{ textTransform: "uppercase", letterSpacing: 0.5 }}>{s.signatures}</div>
+          {invoice.signatures.map((sig) => (
+            <div key={sig.kind} className="sig">
+              <p>{s.signStatement[sig.kind]}</p>
+              <span className="sigImg">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={sig.image} alt={s.signedBy(sig.signer_name, formatDate(sig.signed_on, s.dateLocale))} />
+              </span>
+              <small className="muted">{s.signedBy(sig.signer_name, formatDate(sig.signed_on, s.dateLocale))}</small>
+            </div>
+          ))}
+        </div>
+      )}
       <div className="foot">{s.madeWith}</div>
     </div>
   );

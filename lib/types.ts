@@ -37,7 +37,18 @@ export type Invoice = {
   language?: "en" | "es"; // absent on databases without the 0002 migration
 };
 
-export type InvoiceWithItems = Invoice & { line_items: LineItem[] };
+export type SignatureKind = "approve" | "complete";
+
+/** A customer's signature, drawn on the contractor's phone. */
+export type Signature = {
+  kind: SignatureKind;
+  signer_name: string;
+  image: string; // PNG data URL
+  total_cents: number; // invoice total when signed
+  signed_on: string; // YYYY-MM-DD, the signer's local date
+};
+
+export type InvoiceWithItems = Invoice & { line_items: LineItem[]; signatures?: Signature[] };
 
 /** What the AI parser returns and the review screen edits before saving. */
 export type Draft = {

@@ -5,9 +5,10 @@ import { useState } from "react";
 import { InvoiceEditor } from "@/components/InvoiceEditor";
 import { InvoiceView } from "@/components/InvoiceView";
 import { LocalTime } from "@/components/LocalTime";
+import { SignSheet } from "@/components/SignSheet";
 import { invoiceLang } from "@/lib/i18n";
 import { missingPriceCount } from "@/lib/invoice";
-import type { Draft, InvoiceWithItems, Profile } from "@/lib/types";
+import type { Draft, InvoiceWithItems, Profile, SignatureKind } from "@/lib/types";
 import { translator, type UiLang } from "@/lib/ui";
 
 export function InvoiceActions({
@@ -26,6 +27,9 @@ export function InvoiceActions({
   const T = translator(uiLang);
   const router = useRouter();
   const [editing, setEditing] = useState(false);
+  const [signing, setSigning] = useState<SignatureKind | null>(null);
+  const signatures = invoice.signatures ?? [];
+  const signed = (k: SignatureKind) => signatures.some((s) => s.kind === k);
   const [busy, setBusy] = useState("");
   const [msg, setMsg] = useState<{ ok?: string; err?: string }>({});
   const missing = missingPriceCount(invoice.line_items);
@@ -51,7 +55,7 @@ export function InvoiceActions({
 
   async function send() {
     if (!invoice.customer_email) {
-      setEditing(true);
+      startEdit();
       return setMsg({ err: T("Add the customer's email, save, then send.") });
     }
     let confirmMissingPrices = false;
@@ -86,6 +90,24 @@ export function InvoiceActions({
     router.refresh();
   }
 
+  function startEdit() {
+    if (signatures.length && !window.confirm(T("Editing will remove your customer's signatures. They'll need to sign again. Continue?"))) return;
+    setEditing(true);
+  }
+
+  function startSigning(k: SignatureKind) {
+    setMsg({});
+    if (missing > 0) return setMsg({ err: T("Add all prices before your customer signs.") });
+    setSigning(k);
+  }
+
+  async function removeSignature(k: SignatureKind) {
+    if (!window.confirm(T("Remove this signature?"))) return;
+    const { res, data } = await call("unsign", `/api/invoices/${invoice.id}/signatures?kind=${k}`, { method: "DELETE" });
+    if (!res.ok) return setMsg({ err: data.error || T("Something went wrong. Try again.") });
+    router.refresh();
+  }
+
   async function save(d: Draft) {
     const res = await fetch(`/api/invoices/${invoice.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(d) });
     const data = await res.json().catch(() => ({}));
@@ -93,6 +115,22 @@ export function InvoiceActions({
     setEditing(false);
     setMsg({ ok: T("Saved.") });
     router.refresh();
+  }
+
+  if (signing) {
+    return (
+      <SignSheet
+        invoice={invoice}
+        kind={signing}
+        uiLang={uiLang}
+        onCancel={() => setSigning(null)}
+        onDone={() => {
+          setSigning(null);
+          setMsg({ ok: T("Signature saved.") });
+          router.refresh();
+        }}
+      />
+    );
   }
 
   if (editing) {
@@ -118,7 +156,7 @@ export function InvoiceActions({
       {missing > 0 && (
         <div className="warn noprint">
           ⚠ {missing === 1 ? T("1 line has no price.") : T("{n} lines have no price.", { n: missing })}{" "}
-          <a href="#" onClick={(e) => (e.preventDefault(), setEditing(true))}>
+          <a href="#" onClick={(e) => (e.preventDefault(), startEdit())}>
             {T("Fix it before sending.")}
           </a>
         </div>
@@ -136,11 +174,33 @@ export function InvoiceActions({
           <button type="button" className="alt small" onClick={() => copy(text, T("Invoice text copied."))}>{T("Copy text")}</button>
           <button type="button" className="alt small" onClick={() => copy(link, T("Link copied."))}>{T("Copy link")}</button>
           <a className="btn alt small" href={`/api/invoices/${invoice.id}/pdf`} target="_blank" rel="noopener">PDF</a>
-          <button type="button" className="alt small" onClick={() => setEditing(true)}>{T("Edit")}</button>
+          <button type="button" className="alt small" onClick={startEdit}>{T("Edit")}</button>
         </div>
         {invoice.sent_at && <p className="muted small" style={{ marginBottom: 0 }}>{T("Last sent")} <LocalTime iso={invoice.sent_at} lang={uiLang} /></p>}
         {msg.err && <div className="err" role="alert">{msg.err}</div>}
         {msg.ok && <div className="okmsg">{msg.ok}</div>}
+      </div>
+      <div className="card noprint">
+        <h2 style={{ marginTop: 0 }}>{T("Customer signature")}</h2>
+        <p className="muted small" style={{ marginTop: 0 }}>
+          {T("Hand your phone to the customer: before the job to approve the price, after the job to confirm the work is done.")}
+        </p>
+        <div className="sigActions">
+          {(["approve", "complete"] as const).map((k) =>
+            signed(k) ? (
+              <div key={k} className="sigDone">
+                <span>{k === "approve" ? T("Approved ✓") : T("Work complete ✓")}</span>
+                <button type="button" className="alt small" onClick={() => removeSignature(k)} disabled={!!busy}>
+                  {T("Remove")}
+                </button>
+              </div>
+            ) : (
+              <button key={k} type="button" className={k === "approve" ? "alt" : ""} onClick={() => startSigning(k)} disabled={!!busy}>
+                {k === "approve" ? T("✍️ Approve (before the job)") : T("✍️ Work complete (after the job)")}
+              </button>
+            ),
+          )}
+        </div>
       </div>
       <InvoiceView invoice={invoice} profile={profile} holdTotal uiLang={uiLang} />
       {invoice.original_note && (

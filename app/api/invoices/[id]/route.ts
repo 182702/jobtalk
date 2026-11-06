@@ -19,6 +19,8 @@ export async function PUT(request: Request, { params }: Ctx) {
   const { invoice, items } = draftToRpcPayload(draft.data);
   const { error } = await supabase.rpc("update_invoice", { p_id: id, p_invoice: invoice, p_items: items });
   if (error) return NextResponse.json({ error: await uiT("Couldn't save the invoice.") }, { status: 404 });
+  // A signature covers the invoice as it was signed, so edits clear it. (No-op before the 0006 migration.)
+  await supabase.from("invoice_signatures").delete().eq("invoice_id", id);
   await rememberPrices(supabase, user.id, items);
   return NextResponse.json({ id });
 }

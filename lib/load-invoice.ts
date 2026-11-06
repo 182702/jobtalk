@@ -2,7 +2,7 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { normalizeItems } from "@/lib/invoice";
 import { createAdminClient } from "@/lib/supabase/admin";
-import type { InvoiceWithItems, Profile } from "@/lib/types";
+import type { InvoiceWithItems, Profile, Signature } from "@/lib/types";
 
 const SELECT = "*, line_items(description, quantity, rate_cents, position)";
 
@@ -16,11 +16,22 @@ function toInvoice(row: Row): InvoiceWithItems {
   return { ...row, line_items: normalizeItems(items) };
 }
 
+/** Signatures in a fixed order (approve, then complete). Empty if the 0006 migration hasn't run. */
+async function loadSignatures(client: SupabaseClient, invoiceId: string): Promise<Signature[]> {
+  const { data, error } = await client
+    .from("invoice_signatures")
+    .select("kind, signer_name, image, total_cents, signed_on")
+    .eq("invoice_id", invoiceId);
+  if (error || !data) return [];
+  return (data as Signature[]).sort((a, b) => (a.kind === b.kind ? 0 : a.kind === "approve" ? -1 : 1));
+}
+
 /** Loads one of the signed-in user's invoices (RLS restricts to the owner). */
 export async function loadInvoice(supabase: SupabaseClient, id: string): Promise<InvoiceWithItems | null> {
   if (!/^[0-9a-f-]{36}$/i.test(id)) return null;
   const { data } = await supabase.from("invoices").select(SELECT).eq("id", id).maybeSingle();
-  return data ? toInvoice(data as Row) : null;
+  if (!data) return null;
+  return { ...toInvoice(data as Row), signatures: await loadSignatures(supabase, id) };
 }
 
 /** Loads an invoice and its owner's profile by the customer link token. */
@@ -29,7 +40,7 @@ export async function loadPublicInvoice(token: string): Promise<{ invoice: Invoi
   const admin = createAdminClient();
   const { data } = await admin.from("invoices").select(SELECT).eq("public_token", token).maybeSingle();
   if (!data) return null;
-  const invoice = toInvoice(data as Row);
+  const invoice = { ...toInvoice(data as Row), signatures: await loadSignatures(admin, (data as Row).id) };
   const { data: profile } = await admin.from("profiles").select("*").eq("id", (data as Row).user_id).single();
   if (!profile) return null;
   return { invoice, profile: profile as Profile };
