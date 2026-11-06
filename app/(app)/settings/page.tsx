@@ -4,6 +4,7 @@ import { PasswordForm, SettingsForm } from "@/components/SettingsForm";
 import { requireProfile } from "@/lib/auth";
 import { loadPriceList } from "@/lib/price-list";
 import { LangSwitch } from "@/components/LangSwitch";
+import { RemindersToggle } from "@/components/RemindersToggle";
 import { translator } from "@/lib/ui";
 import { getUiLang } from "@/lib/ui-server";
 
@@ -29,6 +30,7 @@ export default async function SettingsPage() {
         <LangSwitch lang={lang} className="big" />
       </div>
       <SettingsForm profile={profile} lang={lang} />
+      <RemindersToggle initial={profile.reminders_enabled === true} lang={lang} />
       <SavedPrices initial={prices.map(({ id, name, rate_cents }) => ({ id, name, rate_cents }))} lang={lang} />
       <div className="card">
         <h2>{T("Plan")}</h2>

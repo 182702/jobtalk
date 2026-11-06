@@ -41,6 +41,9 @@ type Strings = {
   sign: string;
   cancel: string;
   signMissing: string;
+  reminderSubject: (number: string, business: string) => string;
+  reminderBody: (number: string, business: string, total: string, date: string) => string;
+  reminderAlreadyPaid: string;
 };
 
 export const INVOICE_STRINGS: Record<InvoiceLanguage, Strings> = {
@@ -83,6 +86,9 @@ export const INVOICE_STRINGS: Record<InvoiceLanguage, Strings> = {
     sign: "Sign",
     cancel: "Cancel",
     signMissing: "Please write your name and sign.",
+    reminderSubject: (n, b) => `Reminder: invoice ${n} from ${b}`,
+    reminderBody: (n, b, t, d) => `Just a friendly reminder that invoice ${n} from ${b} for <b>${t}</b>, sent on ${d}, is still unpaid.`,
+    reminderAlreadyPaid: "If you've already paid, thank you, and please ignore this email.",
   },
   es: {
     invoice: "Factura",
@@ -123,6 +129,9 @@ export const INVOICE_STRINGS: Record<InvoiceLanguage, Strings> = {
     sign: "Firmar",
     cancel: "Cancelar",
     signMissing: "Escriba su nombre y firme.",
+    reminderSubject: (n, b) => `Recordatorio: factura ${n} de ${b}`,
+    reminderBody: (n, b, t, d) => `Le recordamos amablemente que la factura ${n} de ${b} por <b>${t}</b>, enviada el ${d}, todavía está pendiente de pago.`,
+    reminderAlreadyPaid: "Si ya pagó, muchas gracias, y por favor ignore este correo.",
   },
 };
 

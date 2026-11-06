@@ -26,14 +26,22 @@ export async function PUT(request: Request, { params }: Ctx) {
 }
 
 const statusBody = z.object({ status: z.enum(["paid", "unpaid"]) });
+const remindersBody = z.object({ reminders_off: z.boolean() });
 
-/** Mark paid or unpaid. */
+/** Mark paid or unpaid, or stop / restart payment reminders for this invoice. */
 export async function PATCH(request: Request, { params }: Ctx) {
   const { id } = await params;
   const { supabase, user } = await getUser();
   if (!user) return NextResponse.json({ error: await uiT("Please sign in.") }, { status: 401 });
 
-  const input = statusBody.safeParse(await request.json().catch(() => null));
+  const json = await request.json().catch(() => null);
+  const reminders = remindersBody.safeParse(json);
+  if (reminders.success) {
+    const { data, error } = await supabase.from("invoices").update({ reminders_off: reminders.data.reminders_off }).eq("id", id).select("id");
+    if (error || !data?.length) return NextResponse.json({ error: await uiT("Something went wrong. Try again.") }, { status: 404 });
+    return NextResponse.json({ ok: true });
+  }
+  const input = statusBody.safeParse(json);
   if (!input.success) return NextResponse.json({ error: await uiT("Invalid status.") }, { status: 400 });
 
   const now = new Date().toISOString();

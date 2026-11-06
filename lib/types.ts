@@ -7,6 +7,7 @@ export type Profile = {
   tax_rate_bps: number;
   payment_instructions: string;
   signup_notified_at?: string | null; // absent before the 0004 migration
+  reminders_enabled?: boolean; // absent before the 0007 migration
 };
 
 export type LineItem = {
@@ -35,6 +36,9 @@ export type Invoice = {
   paid_at: string | null;
   created_at: string;
   language?: "en" | "es"; // absent on databases without the 0002 migration
+  reminders_sent?: number; // these three are absent before the 0007 migration
+  last_reminder_at?: string | null;
+  reminders_off?: boolean;
 };
 
 export type SignatureKind = "approve" | "complete";

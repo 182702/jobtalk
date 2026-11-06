@@ -8,6 +8,7 @@ import { LocalTime } from "@/components/LocalTime";
 import { SignSheet } from "@/components/SignSheet";
 import { invoiceLang } from "@/lib/i18n";
 import { missingPriceCount } from "@/lib/invoice";
+import { MAX_REMINDERS, nextReminderAt } from "@/lib/reminders";
 import type { Draft, InvoiceWithItems, Profile, SignatureKind } from "@/lib/types";
 import { translator, type UiLang } from "@/lib/ui";
 
@@ -49,6 +50,12 @@ export function InvoiceActions({
   async function togglePaid() {
     const status = invoice.status === "paid" ? "unpaid" : "paid";
     const { res, data } = await call("paid", `/api/invoices/${invoice.id}`, { method: "PATCH", body: JSON.stringify({ status }) });
+    if (!res.ok) return setMsg({ err: data.error || T("Something went wrong. Try again.") });
+    router.refresh();
+  }
+
+  async function toggleReminders() {
+    const { res, data } = await call("remind", `/api/invoices/${invoice.id}`, { method: "PATCH", body: JSON.stringify({ reminders_off: !invoice.reminders_off }) });
     if (!res.ok) return setMsg({ err: data.error || T("Something went wrong. Try again.") });
     router.refresh();
   }
@@ -177,6 +184,40 @@ export function InvoiceActions({
           <button type="button" className="alt small" onClick={startEdit}>{T("Edit")}</button>
         </div>
         {invoice.sent_at && <p className="muted small" style={{ marginBottom: 0 }}>{T("Last sent")} <LocalTime iso={invoice.sent_at} lang={uiLang} /></p>}
+        {invoice.sent_at && invoice.status === "unpaid" && invoice.reminders_sent !== undefined && (
+          <div className="remindLine">
+            {!profile.reminders_enabled ? (
+              <span className="muted">
+                {T("Payment reminders are off.")} <a href="/settings">{T("Turn them on in Settings")}</a>
+              </span>
+            ) : invoice.reminders_off ? (
+              <>
+                <span className="muted">{T("Reminders stopped for this invoice.")}</span>
+                <button type="button" className="alt small" onClick={toggleReminders} disabled={!!busy}>
+                  {T("Restart reminders")}
+                </button>
+              </>
+            ) : (
+              <>
+                <span className="muted">
+                  {T("Reminders sent: {n} of {max}.", { n: invoice.reminders_sent ?? 0, max: MAX_REMINDERS })}{" "}
+                  {missing > 0 ? (
+                    T("Paused until every price is filled in.")
+                  ) : nextReminderAt(invoice.sent_at, invoice.reminders_sent ?? 0) ? (
+                    <>
+                      {T("Next:")} <LocalTime iso={nextReminderAt(invoice.sent_at, invoice.reminders_sent ?? 0)!.toISOString()} dateOnly lang={uiLang} />
+                    </>
+                  ) : null}
+                </span>
+                {(invoice.reminders_sent ?? 0) < MAX_REMINDERS && (
+                  <button type="button" className="alt small" onClick={toggleReminders} disabled={!!busy}>
+                    {T("Stop reminders")}
+                  </button>
+                )}
+              </>
+            )}
+          </div>
+        )}
         {msg.err && <div className="err" role="alert">{msg.err}</div>}
         {msg.ok && <div className="okmsg">{msg.ok}</div>}
       </div>

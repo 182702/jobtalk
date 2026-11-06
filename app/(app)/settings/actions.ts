@@ -64,3 +64,20 @@ export async function saveSettings(_prev: SettingsState, form: FormData): Promis
   revalidatePath("/", "layout");
   return { ok: true };
 }
+
+/** Turns automatic payment reminders on or off for the signed-in contractor. */
+export async function setReminders(enabled: boolean): Promise<SettingsState> {
+  const T = translator(await getUiLang());
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: T("Please sign in again.") };
+  const { error } = await supabase.from("profiles").update({ reminders_enabled: enabled === true }).eq("id", user.id);
+  if (error) {
+    console.error("reminders toggle failed", error.message);
+    return { error: T("Couldn't save settings.") };
+  }
+  revalidatePath("/", "layout");
+  return { ok: true };
+}

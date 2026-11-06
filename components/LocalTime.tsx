@@ -12,7 +12,7 @@ export function LocalTime({ iso, dateOnly = false, lang }: { iso: string; dateOn
   useEffect(() => {
     const d = new Date(iso);
     const locale = lang === "es" ? "es-US" : lang === "en" ? "en-US" : [];
-    setText(dateOnly ? d.toLocaleDateString(locale) : d.toLocaleString(locale, { dateStyle: "medium", timeStyle: "short" }));
+    setText(dateOnly ? d.toLocaleDateString(locale, { dateStyle: "medium" }) : d.toLocaleString(locale, { dateStyle: "medium", timeStyle: "short" }));
   }, [iso, dateOnly, lang]);
   return <span suppressHydrationWarning>{text}</span>;
 }
