@@ -4,6 +4,7 @@ import { appUrl, requireEnv } from "@/lib/env";
 import { t } from "@/lib/i18n";
 import { businessName, formatDate, invoiceLabel, missingPriceCount, normalizeItems } from "@/lib/invoice";
 import { formatCents } from "@/lib/money";
+import { canPayByCard, syncCardPayment } from "@/lib/card-payments";
 import { MAX_REMINDERS, REMINDER_DAYS, reminderDue } from "@/lib/reminders";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { InvoiceWithItems, Profile } from "@/lib/types";
@@ -60,6 +61,9 @@ export async function GET(request: Request) {
     if (missingPriceCount(items) > 0) continue; // the total isn't final; don't chase it
     const count = row.reminders_sent ?? 0;
     if (!reminderDue(row.sent_at, count, row.last_reminder_at ?? null)) continue;
+    // Paid by card but Stripe's notice hasn't arrived? Then don't remind.
+    if (await syncCardPayment({ ...row, line_items: items }, profile)) continue;
+    const cardOk = canPayByCard({ ...row, line_items: items }, profile);
 
     // Claim this reminder so a second run can't send it again.
     const now = new Date().toISOString();
@@ -82,6 +86,7 @@ export async function GET(request: Request) {
 <p>${escapeHtml(L.emailGreeting(row.customer_name))}</p>
 <p>${L.reminderBody(num, escapeHtml(biz), formatCents(row.total_cents), sentOn)}</p>
 <p><a href="${link}" style="display:inline-block;background:#e8590c;color:#fff;padding:10px 16px;border-radius:8px;text-decoration:none;font-weight:600">${L.viewInvoice}</a></p>
+${cardOk ? `<p>${L.payByCardNote}</p>` : ""}
 ${profile.payment_instructions ? `<p><b>${L.howToPay}</b><br>${escapeHtml(profile.payment_instructions).replace(/\n/g, "<br>")}</p>` : ""}
 <p>${L.reminderAlreadyPaid}</p>
 <p>${L.emailThanks}<br>${escapeHtml(biz)}</p>
@@ -92,6 +97,7 @@ ${profile.payment_instructions ? `<p><b>${L.howToPay}</b><br>${escapeHtml(profil
       L.reminderBody(num, biz, formatCents(row.total_cents), sentOn).replace(/<\/?b>/g, ""),
       "",
       `${L.viewInvoice}: ${link}`,
+      ...(cardOk ? [L.payByCardNote] : []),
       ...(profile.payment_instructions ? ["", `${L.howToPay}:`, profile.payment_instructions] : []),
       "",
       L.reminderAlreadyPaid,

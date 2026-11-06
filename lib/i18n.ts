@@ -44,6 +44,12 @@ type Strings = {
   reminderSubject: (number: string, business: string) => string;
   reminderBody: (number: string, business: string, total: string, date: string) => string;
   reminderAlreadyPaid: string;
+  payByCard: (total: string) => string;
+  payByCardNote: string;
+  paymentReceived: string;
+  paymentPending: string;
+  payUnavailable: string;
+  paidByCard: string;
 };
 
 export const INVOICE_STRINGS: Record<InvoiceLanguage, Strings> = {
@@ -89,6 +95,12 @@ export const INVOICE_STRINGS: Record<InvoiceLanguage, Strings> = {
     reminderSubject: (n, b) => `Reminder: invoice ${n} from ${b}`,
     reminderBody: (n, b, t, d) => `Just a friendly reminder that invoice ${n} from ${b} for <b>${t}</b>, sent on ${d}, is still unpaid.`,
     reminderAlreadyPaid: "If you've already paid, thank you, and please ignore this email.",
+    payByCard: (t) => `Pay ${t} by card`,
+    payByCardNote: "You can pay by card from the invoice link.",
+    paymentReceived: "Payment received. Thank you!",
+    paymentPending: "Your payment is processing. This page will show Paid once it goes through.",
+    payUnavailable: "Card payment isn't available right now. Please try again later.",
+    paidByCard: "Paid by card",
   },
   es: {
     invoice: "Factura",
@@ -132,6 +144,12 @@ export const INVOICE_STRINGS: Record<InvoiceLanguage, Strings> = {
     reminderSubject: (n, b) => `Recordatorio: factura ${n} de ${b}`,
     reminderBody: (n, b, t, d) => `Le recordamos amablemente que la factura ${n} de ${b} por <b>${t}</b>, enviada el ${d}, todavía está pendiente de pago.`,
     reminderAlreadyPaid: "Si ya pagó, muchas gracias, y por favor ignore este correo.",
+    payByCard: (t) => `Pagar ${t} con tarjeta`,
+    payByCardNote: "Puede pagar con tarjeta desde el enlace de la factura.",
+    paymentReceived: "Pago recibido. ¡Gracias!",
+    paymentPending: "Su pago se está procesando. Esta página mostrará Pagada cuando se complete.",
+    payUnavailable: "El pago con tarjeta no está disponible ahora. Intente más tarde.",
+    paidByCard: "Pagada con tarjeta",
   },
 };
 

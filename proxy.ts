@@ -52,5 +52,5 @@ export async function proxy(request: NextRequest) {
 export const config = {
   // Skip static files, the Stripe webhook (raw body), and public invoice links.
   // The home page ("/") is static and needs no session check, so it's skipped too.
-  matcher: ["/((?!$|_next/static|_next/image|favicon.ico|icon|manifest|robots.txt|sitemap.xml|brand/|api/stripe/webhook|i/).*)"],
+  matcher: ["/((?!$|_next/static|_next/image|favicon.ico|icon|manifest|robots.txt|sitemap.xml|brand/|api/stripe/webhook|api/stripe/connect-webhook|i/).*)"],
 };

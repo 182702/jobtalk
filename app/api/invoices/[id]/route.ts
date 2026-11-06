@@ -3,6 +3,7 @@ import { z } from "zod";
 import { getUser } from "@/lib/auth";
 import { draftSchema, draftToRpcPayload } from "@/lib/invoice";
 import { rememberPrices } from "@/lib/price-list";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { uiT } from "@/lib/ui-server";
 
 type Ctx = { params: Promise<{ id: string }> };
@@ -21,6 +22,8 @@ export async function PUT(request: Request, { params }: Ctx) {
   if (error) return NextResponse.json({ error: await uiT("Couldn't save the invoice.") }, { status: 404 });
   // A signature covers the invoice as it was signed, so edits clear it. (No-op before the 0006 migration.)
   await supabase.from("invoice_signatures").delete().eq("invoice_id", id);
+  // A checkout page made for the old total shouldn't be reused. (No-op before the 0008 migration.)
+  await createAdminClient().from("invoices").update({ stripe_checkout_session_id: null }).eq("id", id).eq("user_id", user.id);
   await rememberPrices(supabase, user.id, items);
   return NextResponse.json({ id });
 }
@@ -51,6 +54,8 @@ export async function PATCH(request: Request, { params }: Ctx) {
     .eq("id", id)
     .select("id");
   if (error || !data?.length) return NextResponse.json({ error: await uiT("Invoice not found.") }, { status: 404 });
+  // Marked by hand, so it's no longer "paid by card". (No-op before the 0008 migration.)
+  await createAdminClient().from("invoices").update({ paid_via: null }).eq("id", id).eq("user_id", user.id);
   return NextResponse.json({ ok: true });
 }
 

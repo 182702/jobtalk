@@ -4,13 +4,34 @@ import { PasswordForm, SettingsForm } from "@/components/SettingsForm";
 import { requireProfile } from "@/lib/auth";
 import { loadPriceList } from "@/lib/price-list";
 import { LangSwitch } from "@/components/LangSwitch";
+import { CardPayments, type CardStatus } from "@/components/CardPayments";
 import { RemindersToggle } from "@/components/RemindersToggle";
+import { platformFeeBps } from "@/lib/card-payments";
+import { stripe } from "@/lib/stripe";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { translator } from "@/lib/ui";
 import { getUiLang } from "@/lib/ui-server";
 
 export const metadata = { title: "Settings" };
 
-export default async function SettingsPage() {
+/** Asks Stripe how far the contractor's account setup got, and caches whether it can take cards. */
+async function cardStatus(profile: { id: string; stripe_account_id?: string | null; card_payments_enabled?: boolean }): Promise<CardStatus> {
+  if (!profile.stripe_account_id) return "none";
+  try {
+    const acct = await stripe().accounts.retrieve(profile.stripe_account_id);
+    const enabled = acct.charges_enabled === true;
+    if (enabled !== (profile.card_payments_enabled === true)) {
+      await createAdminClient().from("profiles").update({ card_payments_enabled: enabled }).eq("id", profile.id);
+    }
+    return enabled ? "ready" : acct.details_submitted ? "review" : "setup";
+  } catch (err) {
+    console.error("stripe account check failed", err);
+    return profile.card_payments_enabled ? "ready" : "error";
+  }
+}
+
+export default async function SettingsPage({ searchParams }: { searchParams: Promise<{ stripe?: string }> }) {
+  const { stripe: stripeParam } = await searchParams;
   const { supabase, profile } = await requireProfile();
   const prices = await loadPriceList(supabase, 300);
   const lang = await getUiLang();
@@ -30,6 +51,9 @@ export default async function SettingsPage() {
         <LangSwitch lang={lang} className="big" />
       </div>
       <SettingsForm profile={profile} lang={lang} />
+      {profile.card_payments_enabled !== undefined && (
+        <CardPayments status={await cardStatus(profile)} feeBps={platformFeeBps()} lang={lang} notice={stripeParam === "error" ? "error" : undefined} />
+      )}
       <RemindersToggle initial={profile.reminders_enabled === true} lang={lang} />
       <SavedPrices initial={prices.map(({ id, name, rate_cents }) => ({ id, name, rate_cents }))} lang={lang} />
       <div className="card">

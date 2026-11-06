@@ -8,6 +8,8 @@ export type Profile = {
   payment_instructions: string;
   signup_notified_at?: string | null; // absent before the 0004 migration
   reminders_enabled?: boolean; // absent before the 0007 migration
+  stripe_account_id?: string | null; // these two are absent before the 0008 migration
+  card_payments_enabled?: boolean;
 };
 
 export type LineItem = {
@@ -39,6 +41,9 @@ export type Invoice = {
   reminders_sent?: number; // these three are absent before the 0007 migration
   last_reminder_at?: string | null;
   reminders_off?: boolean;
+  paid_via?: "card" | null; // these three are absent before the 0008 migration
+  stripe_checkout_session_id?: string | null;
+  stripe_payment_intent_id?: string | null;
 };
 
 export type SignatureKind = "approve" | "complete";

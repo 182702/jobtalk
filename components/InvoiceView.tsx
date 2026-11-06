@@ -32,7 +32,7 @@ export function InvoiceView({
         <div style={{ textAlign: "right" }}>
           <div style={{ fontWeight: 800, color: "var(--accent)" }}>{s.invoice.toUpperCase()} {invoiceLabel(invoice.number)}</div>
           <div className="muted small">{formatDate(invoice.issued_on, s.dateLocale)}</div>
-          {invoice.status === "paid" && <span className="pill paid">{s.paid}</span>}
+          {invoice.status === "paid" && <span className="pill paid">{invoice.paid_via === "card" ? s.paidByCard : s.paid}</span>}
         </div>
       </div>
 

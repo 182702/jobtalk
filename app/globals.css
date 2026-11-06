@@ -239,3 +239,8 @@ main { padding-bottom: 72px; }
 .switch.on { background: #16a34a !important; border-color: #16a34a !important; }
 .switch.on span { transform: translateX(22px); }
 .remindLine { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 14px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line); }
+
+/* Customer card payment */
+.payBtn { width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 10px; font-size: 18px; padding: 15px; background: #16a34a !important; color: #fff !important; box-shadow: 0 8px 22px rgba(22, 163, 74, 0.3) !important; }
+.paidBanner { background: rgba(22, 163, 74, 0.14); border: 1px solid rgba(22, 163, 74, 0.5); color: #86efac; border-radius: 12px; padding: 12px 14px; margin: 12px 0; font-weight: 600; }
+.pill.card { background: rgba(22, 163, 74, 0.14); color: #86efac; border: 1px solid rgba(22, 163, 74, 0.4); }

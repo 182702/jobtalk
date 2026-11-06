@@ -4,6 +4,7 @@ import { InvoiceActions } from "@/components/InvoiceActions";
 import { requireProfile } from "@/lib/auth";
 import { appUrl } from "@/lib/env";
 import { invoiceLabel, invoiceText } from "@/lib/invoice";
+import { syncCardPayment } from "@/lib/card-payments";
 import { loadInvoice } from "@/lib/load-invoice";
 import { translator } from "@/lib/ui";
 import { getUiLang } from "@/lib/ui-server";
@@ -13,8 +14,10 @@ export const metadata = { title: "Invoice" };
 export default async function InvoicePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const { supabase, profile } = await requireProfile();
-  const invoice = await loadInvoice(supabase, id);
+  let invoice = await loadInvoice(supabase, id);
   if (!invoice) notFound();
+  // A customer may have paid by card while a Stripe notice was delayed: ask Stripe.
+  if (await syncCardPayment(invoice, profile)) invoice = { ...invoice, status: "paid", paid_via: "card", paid_at: new Date().toISOString() };
 
   const link = `${appUrl()}/i/${invoice.public_token}`;
   const lang = await getUiLang();

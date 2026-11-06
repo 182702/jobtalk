@@ -6,6 +6,7 @@ import { businessName, invoiceLabel, invoiceText, missingPriceCount } from "@/li
 import { t } from "@/lib/i18n";
 import { loadInvoice } from "@/lib/load-invoice";
 import { formatCents } from "@/lib/money";
+import { canPayByCard } from "@/lib/card-payments";
 import { renderInvoicePdf } from "@/lib/pdf";
 import type { Profile } from "@/lib/types";
 import { uiT } from "@/lib/ui-server";
@@ -43,6 +44,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 <p>${escapeHtml(L.emailGreeting(invoice.customer_name))}</p>
 <p>${L.emailBody(num, escapeHtml(biz), formatCents(invoice.total_cents))}</p>
 <p><a href="${link}" style="display:inline-block;background:#e8590c;color:#fff;padding:10px 16px;border-radius:8px;text-decoration:none;font-weight:600">${L.viewInvoice}</a></p>
+${canPayByCard(invoice, profile) ? `<p>${L.payByCardNote}</p>` : ""}
 ${profile.payment_instructions ? `<p><b>${L.howToPay}</b><br>${escapeHtml(profile.payment_instructions).replace(/\n/g, "<br>")}</p>` : ""}
 <p>${L.emailAttached}</p>
 <p>${L.emailThanks}<br>${escapeHtml(biz)}</p>
@@ -56,7 +58,7 @@ ${profile.payment_instructions ? `<p><b>${L.howToPay}</b><br>${escapeHtml(profil
       replyTo: profile.email,
       subject: L.emailSubject(num, biz),
       html,
-      text: invoiceText(invoice, profile, link),
+      text: invoiceText(invoice, profile, link) + (canPayByCard(invoice, profile) ? `\n\n${L.payByCardNote}` : ""),
       attachments: [{ filename: `${L.pdfName}-${num.slice(1)}.pdf`, content: Buffer.from(pdf) }],
     });
     sendError = error;
