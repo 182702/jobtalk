@@ -41,3 +41,10 @@ export async function POST(request: Request) {
   }
   return NextResponse.json({ received: true });
 }
+
+/** Opening this address in a browser shows a short note instead of an error page. */
+export function GET() {
+  return new NextResponse("This address is for Stripe to send payment updates to VoiceBill Pro. Nothing to see here: it's working.", {
+    headers: { "Content-Type": "text/plain; charset=utf-8" },
+  });
+}
