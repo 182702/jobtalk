@@ -292,4 +292,5 @@ export const ES: Record<string, string> = {
   "Connect Stripe": "Conectar Stripe",
   "Finish Stripe setup": "Terminar configuración de Stripe",
   "Check with Stripe": "Revisar con Stripe",
+  "Stripe said:": "Stripe dijo:",
 };

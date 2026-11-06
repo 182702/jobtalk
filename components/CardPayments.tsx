@@ -7,7 +7,7 @@ import { translator, type UiLang } from "@/lib/ui";
 export type CardStatus = "none" | "setup" | "review" | "ready" | "error";
 
 /** Settings card: connect Stripe so customers can pay invoices by card. */
-export function CardPayments({ status, feeBps, lang, notice }: { status: CardStatus; feeBps: number; lang: UiLang; notice?: "error" }) {
+export function CardPayments({ status, feeBps, lang, notice, reason }: { status: CardStatus; feeBps: number; lang: UiLang; notice?: "error"; reason?: string }) {
   const T = translator(lang);
   const router = useRouter();
   const [busy, setBusy] = useState(false);
@@ -56,6 +56,11 @@ export function CardPayments({ status, feeBps, lang, notice }: { status: CardSta
         )}
       </div>
       {error && <div className="err">{error}</div>}
+      {notice === "error" && reason && (
+        <p className="muted small" style={{ marginBottom: 0 }}>
+          {T("Stripe said:")} “{reason}”
+        </p>
+      )}
     </div>
   );
 }

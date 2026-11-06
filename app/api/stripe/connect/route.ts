@@ -36,6 +36,8 @@ export async function GET() {
     return NextResponse.redirect(link.url);
   } catch (err) {
     console.error("stripe connect failed", err);
-    return NextResponse.redirect(`${appUrl()}/settings?stripe=error#card-payments`);
+    // Show Stripe's own reason to the account owner, so setup problems are easy to fix.
+    const reason = err instanceof Error ? err.message.slice(0, 300) : "";
+    return NextResponse.redirect(`${appUrl()}/settings?stripe=error&reason=${encodeURIComponent(reason)}#card-payments`);
   }
 }

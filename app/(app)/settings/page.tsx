@@ -30,8 +30,8 @@ async function cardStatus(profile: { id: string; stripe_account_id?: string | nu
   }
 }
 
-export default async function SettingsPage({ searchParams }: { searchParams: Promise<{ stripe?: string }> }) {
-  const { stripe: stripeParam } = await searchParams;
+export default async function SettingsPage({ searchParams }: { searchParams: Promise<{ stripe?: string; reason?: string }> }) {
+  const { stripe: stripeParam, reason } = await searchParams;
   const { supabase, profile } = await requireProfile();
   const prices = await loadPriceList(supabase, 300);
   const lang = await getUiLang();
@@ -52,7 +52,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
       </div>
       <SettingsForm profile={profile} lang={lang} />
       {profile.card_payments_enabled !== undefined && (
-        <CardPayments status={await cardStatus(profile)} feeBps={platformFeeBps()} lang={lang} notice={stripeParam === "error" ? "error" : undefined} />
+        <CardPayments status={await cardStatus(profile)} feeBps={platformFeeBps()} lang={lang} notice={stripeParam === "error" ? "error" : undefined} reason={stripeParam === "error" ? reason?.slice(0, 300) : undefined} />
       )}
       <RemindersToggle initial={profile.reminders_enabled === true} lang={lang} />
       <SavedPrices initial={prices.map(({ id, name, rate_cents }) => ({ id, name, rate_cents }))} lang={lang} />
