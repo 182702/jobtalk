@@ -21,6 +21,40 @@ function Arrow() {
   );
 }
 
+// Facts for search engines (who runs VoiceBill Pro, where, how to reach it). Matches the Terms page.
+const SITE = "https://www.voicebillpro.com";
+const STRUCTURED_DATA = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": `${SITE}/#org`,
+      name: "VoiceBill Pro",
+      url: SITE,
+      logo: `${SITE}/brand/logo.png`,
+      email: "support@voicebillpro.com",
+      founder: { "@type": "Person", name: "Isaac Elanzo" },
+      address: { "@type": "PostalAddress", addressLocality: "Springdale", addressRegion: "AR", addressCountry: "US" },
+      description: "VoiceBill Pro is a voice-to-invoice app for contractors, operated by Isaac Elanzo in Springdale, Arkansas.",
+    },
+    {
+      "@type": "SoftwareApplication",
+      name: "VoiceBill Pro",
+      url: SITE,
+      applicationCategory: "BusinessApplication",
+      operatingSystem: "Web",
+      description:
+        "Turn a contractor's voice note into a ready-to-send invoice with labor, parts and tax, in English or Spanish. Customer signatures, card payments and payment reminders.",
+      publisher: { "@id": `${SITE}/#org` },
+      offers: [
+        { "@type": "Offer", name: "Free", price: "0", priceCurrency: "USD", description: "5 job notes a month" },
+        { "@type": "Offer", name: "Solo", price: "24", priceCurrency: "USD", description: "Unlimited job notes, billed monthly" },
+      ],
+    },
+    { "@type": "WebSite", "@id": `${SITE}/#site`, name: "VoiceBill Pro", url: SITE, publisher: { "@id": `${SITE}/#org` } },
+  ],
+};
+
 const STEPS = [
   { title: "Speak", text: "Tell it what you did, in your own words. English or Spanish.", d: "M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3zM19 10v2a7 7 0 0 1-14 0v-2M12 19v3", tone: "orange" },
   { title: "Check", text: "See a clean invoice. Anything without a price is flagged in red, never guessed.", d: "M4 12l5 5L20 6", tone: "blue" },
@@ -32,6 +66,7 @@ const STEPS = [
 export default function Landing() {
   return (
     <div className={`${s.page} landing`}>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(STRUCTURED_DATA) }} />
       <div className={s.wrap}>
         <nav className={s.nav}>
           <Link href="/" className={s.brand}>
@@ -188,7 +223,7 @@ export default function Landing() {
         </section>
 
         <footer className={s.foot}>
-          <span>© {new Date().getFullYear()} VoiceBill Pro · Springdale, Arkansas</span>
+          <span>© {new Date().getFullYear()} VoiceBill Pro · Isaac Elanzo · Springdale, Arkansas</span>
           <Link href="/privacy">Privacy</Link>
           <Link href="/terms">Terms</Link>
           <Link href="/support">Support</Link>
