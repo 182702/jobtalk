@@ -127,3 +127,37 @@
 .foot { margin-top: 48px; padding: 24px 0 36px; border-top: 1px solid var(--l-line); color: var(--l-mute); font-size: 14px; display: flex; gap: 18px; flex-wrap: wrap; }
 .foot a { color: var(--l-mute); text-decoration: none; }
 .foot a:hover { color: var(--l-ink); }
+
+/* Try it now demo */
+.demoTry { margin-top: 56px; scroll-margin-top: 16px; }
+.tryTitle { font-family: var(--font-condensed), "Arial Narrow", sans-serif; font-size: clamp(32px, 5.4vw, 48px); line-height: 1; font-weight: 800; margin: 0 0 18px; text-wrap: balance; }
+.tryGrid { display: grid; gap: 14px; }
+@media (min-width: 860px) { .tryGrid { grid-template-columns: 1fr 1.1fr; align-items: start; } }
+.tryPanel { background: var(--l-panel); border: 1.5px solid var(--l-line); border-radius: 14px; padding: 16px; font-size: 14px; }
+.tryTop { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 10px; }
+.trySeg { display: inline-flex; border: 1px solid var(--l-line); border-radius: 8px; overflow: hidden; }
+.trySeg button { background: transparent; color: var(--l-mute); border: 0; padding: 6px 12px; font: 600 13px system-ui, sans-serif; cursor: pointer; }
+.trySeg button.on { background: var(--l-blue); color: #fff; }
+.tryText { width: 100%; box-sizing: border-box; min-height: 110px; resize: vertical; background: var(--l-panel2); color: var(--l-ink); border: 1px solid var(--l-line); border-radius: 10px; padding: 12px; font: 16px/1.5 system-ui, sans-serif; }
+.tryText:focus { outline: 2px solid var(--l-blue2); outline-offset: 1px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+.chips button { background: rgba(31, 107, 255, 0.12); color: var(--l-ink); border: 1px solid var(--l-line); border-radius: 99px; padding: 6px 12px; font: 600 13px system-ui, sans-serif; cursor: pointer; }
+.tryBtns { display: flex; gap: 10px; flex-wrap: wrap; }
+.tryBtns .btn { flex: 1; min-width: 160px; border: 0; cursor: pointer; }
+.tryBtns .btn:disabled { opacity: 0.7; cursor: wait; }
+.tryBtns .btnGhost { cursor: pointer; }
+.recOn { border-color: #ff5a5a !important; color: #ffb4b4 !important; }
+.tryErr { color: var(--l-red); margin: 10px 0 0; }
+.tryFine { color: var(--l-mute); font-size: 13px; line-height: 1.5; margin: 10px 0 0; }
+.tryEmpty { min-height: 180px; display: grid; place-items: center; color: var(--l-mute); border: 1.5px dashed var(--l-line); border-radius: 10px; text-align: center; padding: 16px; }
+.pillOk { font-size: 11px; padding: 3px 9px; border-radius: 99px; background: rgba(110, 231, 183, 0.12); color: #6ee7b7; border: 1px solid rgba(110, 231, 183, 0.4); white-space: nowrap; }
+.tryCta { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin-top: 14px; color: var(--l-mute); font-size: 13px; }
+
+/* The app's global button style shouldn't leak into the demo. */
+.demoTry button { box-shadow: none !important; border-radius: 8px; }
+.demoTry .trySeg button { background: transparent !important; color: var(--l-mute) !important; border-radius: 0; padding: 6px 12px; }
+.demoTry .trySeg button.on { background: var(--l-blue) !important; color: #fff !important; }
+.demoTry .chips button { background: rgba(31, 107, 255, 0.12) !important; color: var(--l-ink) !important; border: 1px solid var(--l-line) !important; border-radius: 99px; padding: 6px 12px; font-size: 13px; }
+.demoTry .tryBtns .btnGhost { background: rgba(255, 255, 255, 0.04) !important; color: var(--l-ink) !important; border: 1.5px solid var(--l-line) !important; }
+.demoTry .tryBtns .recOn { border-color: #ff5a5a !important; color: #ffb4b4 !important; }
+.demoTry .tryBtns .btn { background: var(--l-blue) !important; color: #fff !important; box-shadow: 0 0 0 1px rgba(140, 180, 255, 0.4) inset, 0 8px 22px rgba(31, 107, 255, 0.35) !important; padding: 13px 22px; font-size: 17px; }

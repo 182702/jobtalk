@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { DemoInvoice } from "@/components/DemoInvoice";
 import { FREE_NOTES_PER_MONTH } from "@/lib/plans";
 import s from "./landing.module.css";
 
@@ -62,7 +63,7 @@ export default function Landing() {
               <Link className={s.btn} href="/signup">
                 Start free <Arrow />
               </Link>
-              <a className={s.btnGhost} href="#how">See how it works</a>
+              <a className={s.btnGhost} href="#try">Try it now, no sign-up</a>
             </div>
           </div>
 
@@ -134,6 +135,8 @@ export default function Landing() {
           <i aria-hidden="true" />
           <span>English or Spanish</span>
         </div>
+
+        <DemoInvoice />
 
         <section id="how" className={s.steps}>
           {STEPS.map((st) => (
