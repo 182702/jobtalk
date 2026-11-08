@@ -7,26 +7,38 @@ import { getUiLang } from "@/lib/ui-server";
 
 export const metadata = { title: "Invoices" };
 
-type Row = { id: string; number: number; customer_name: string; issued_on: string; status: "paid" | "unpaid"; total_cents: number; line_items: { rate_cents: number }[] };
+type Row = {
+  id: string;
+  number: number;
+  customer_name: string;
+  issued_on: string;
+  status: "paid" | "unpaid";
+  total_cents: number;
+  doc_type?: "invoice" | "estimate";
+  line_items: { rate_cents: number }[];
+};
+const COLUMNS = "id, number, customer_name, issued_on, status, total_cents, line_items(rate_cents)";
 
 export default async function InvoicesPage({ searchParams }: { searchParams: Promise<{ show?: string }> }) {
   const { show } = await searchParams;
-  const filter = show === "unpaid" || show === "paid" ? show : "all";
+  const filter = show === "unpaid" || show === "paid" || show === "estimates" ? show : "all";
   const { supabase, profile } = await requireProfile();
   const lang = await getUiLang();
   const T = translator(lang);
-  const tabLabel = { all: T("All"), unpaid: T("Unpaid"), paid: T("Paid") };
+  const tabLabel = { all: T("All"), unpaid: T("Unpaid"), paid: T("Paid"), estimates: T("Estimates") };
 
   // Totals always cover every invoice; the filter only changes the list.
-  const { data } = await supabase
-    .from("invoices")
-    .select("id, number, customer_name, issued_on, status, total_cents, line_items(rate_cents)")
-    .order("number", { ascending: false })
-    .limit(500);
-  const all = (data ?? []) as Row[];
-  const unpaid = all.filter((i) => i.status === "unpaid");
+  // doc_type needs the 0010 migration; fall back to the older columns without it.
+  const withType = await supabase.from("invoices").select(`${COLUMNS}, doc_type`).order("number", { ascending: false }).limit(500);
+  const rows = withType.error ? (await supabase.from("invoices").select(COLUMNS).order("number", { ascending: false }).limit(500)).data : withType.data;
+  const all = (rows ?? []) as Row[];
+  const isEst = (i: Row) => i.doc_type === "estimate";
+  // Estimates aren't owed yet, so they never count toward what's outstanding.
+  const unpaid = all.filter((i) => i.status === "unpaid" && !isEst(i));
   const outstanding = unpaid.reduce((s, i) => s + i.total_cents, 0);
-  const list = filter === "all" ? all : all.filter((i) => i.status === filter);
+  const hasEstimates = all.some(isEst);
+  const list =
+    filter === "all" ? all : filter === "estimates" ? all.filter(isEst) : all.filter((i) => !isEst(i) && i.status === filter);
 
   return (
     <main>
@@ -65,7 +77,7 @@ export default async function InvoicesPage({ searchParams }: { searchParams: Pro
       ) : (
         <>
           <div className="tabs">
-            {(["all", "unpaid", "paid"] as const).map((f) => (
+            {(hasEstimates ? (["all", "unpaid", "paid", "estimates"] as const) : (["all", "unpaid", "paid"] as const)).map((f) => (
               <Link key={f} href={f === "all" ? "/invoices" : `/invoices?show=${f}`} className={filter === f ? "on" : ""}>
                 {tabLabel[f]}
               </Link>
@@ -86,7 +98,11 @@ export default async function InvoicesPage({ searchParams }: { searchParams: Pro
                   ) : (
                     formatCents(i.total_cents)
                   )}
-                  <span className={`pill ${i.status}`}>{i.status === "paid" ? T("Paid") : T("Unpaid")}</span>
+                  {isEst(i) ? (
+                    <span className="pill estimate">{T("Estimate")}</span>
+                  ) : (
+                    <span className={`pill ${i.status}`}>{i.status === "paid" ? T("Paid") : T("Unpaid")}</span>
+                  )}
                 </span>
               </Link>
             ))}

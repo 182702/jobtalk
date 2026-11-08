@@ -7,7 +7,7 @@ import { InvoiceView } from "@/components/InvoiceView";
 import { LocalTime } from "@/components/LocalTime";
 import { SignSheet } from "@/components/SignSheet";
 import { invoiceLang } from "@/lib/i18n";
-import { missingPriceCount } from "@/lib/invoice";
+import { isEstimate, missingPriceCount } from "@/lib/invoice";
 import { MAX_REMINDERS, nextReminderAt } from "@/lib/reminders";
 import type { Draft, InvoiceWithItems, Profile, SignatureKind } from "@/lib/types";
 import { translator, type UiLang } from "@/lib/ui";
@@ -34,6 +34,7 @@ export function InvoiceActions({
   const [busy, setBusy] = useState("");
   const [msg, setMsg] = useState<{ ok?: string; err?: string }>({});
   const missing = missingPriceCount(invoice.line_items);
+  const est = isEstimate(invoice);
 
   async function call(name: string, url: string, init: RequestInit) {
     setBusy(name);
@@ -51,6 +52,16 @@ export function InvoiceActions({
     const status = invoice.status === "paid" ? "unpaid" : "paid";
     const { res, data } = await call("paid", `/api/invoices/${invoice.id}`, { method: "PATCH", body: JSON.stringify({ status }) });
     if (!res.ok) return setMsg({ err: data.error || T("Something went wrong. Try again.") });
+    router.refresh();
+  }
+
+  async function convertToInvoice() {
+    if (!window.confirm(T("Turn this estimate into an invoice? It keeps the same number and lines, and is dated today."))) return;
+    const d = new Date();
+    const today = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    const { res, data } = await call("convert", `/api/invoices/${invoice.id}`, { method: "PATCH", body: JSON.stringify({ convert: "invoice", issued_on: today }) });
+    if (!res.ok) return setMsg({ err: data.error || T("Something went wrong. Try again.") });
+    setMsg({ ok: T("It's an invoice now. Email it to your customer when the job is done.") });
     router.refresh();
   }
 
@@ -90,7 +101,7 @@ export function InvoiceActions({
   }
 
   async function remove() {
-    if (!window.confirm(T("Delete this invoice? This can't be undone."))) return;
+    if (!window.confirm(est ? T("Delete this estimate? This can't be undone.") : T("Delete this invoice? This can't be undone."))) return;
     const { res, data } = await call("delete", `/api/invoices/${invoice.id}`, { method: "DELETE" });
     if (!res.ok) return setMsg({ err: data.error || T("Something went wrong. Try again.") });
     router.push("/invoices");
@@ -171,20 +182,26 @@ export function InvoiceActions({
       <div className="card noprint">
         <div className="btns" style={{ marginTop: 0 }}>
           <button type="button" onClick={send} disabled={!!busy}>
-            {busy === "send" ? T("Sending…") : invoice.sent_at ? T("Send again") : T("Email to customer")}
+            {busy === "send" ? T("Sending…") : invoice.sent_at ? T("Send again") : est ? T("Email estimate") : T("Email to customer")}
           </button>
-          <button type="button" className="alt" onClick={togglePaid} disabled={!!busy}>
-            {invoice.status === "paid" ? T("Paid ✓ (undo)") : T("Mark paid")}
-          </button>
+          {est ? (
+            <button type="button" className="alt" onClick={convertToInvoice} disabled={!!busy}>
+              {busy === "convert" ? T("One moment…") : T("Turn into invoice")}
+            </button>
+          ) : (
+            <button type="button" className="alt" onClick={togglePaid} disabled={!!busy}>
+              {invoice.status === "paid" ? T("Paid ✓ (undo)") : T("Mark paid")}
+            </button>
+          )}
         </div>
         <div className="btns">
-          <button type="button" className="alt small" onClick={() => copy(text, T("Invoice text copied."))}>{T("Copy text")}</button>
+          <button type="button" className="alt small" onClick={() => copy(text, est ? T("Estimate text copied.") : T("Invoice text copied."))}>{T("Copy text")}</button>
           <button type="button" className="alt small" onClick={() => copy(link, T("Link copied."))}>{T("Copy link")}</button>
           <a className="btn alt small" href={`/api/invoices/${invoice.id}/pdf`} target="_blank" rel="noopener">PDF</a>
           <button type="button" className="alt small" onClick={startEdit}>{T("Edit")}</button>
         </div>
         {invoice.sent_at && <p className="muted small" style={{ marginBottom: 0 }}>{T("Last sent")} <LocalTime iso={invoice.sent_at} lang={uiLang} /></p>}
-        {invoice.sent_at && invoice.status === "unpaid" && invoice.reminders_sent !== undefined && (
+        {invoice.sent_at && !est && invoice.status === "unpaid" && invoice.reminders_sent !== undefined && (
           <div className="remindLine">
             {!profile.reminders_enabled ? (
               <span className="muted">
@@ -227,7 +244,7 @@ export function InvoiceActions({
           {T("Hand your phone to the customer: before the job to approve the price, after the job to confirm the work is done.")}
         </p>
         <div className="sigActions">
-          {(["approve", "complete"] as const).map((k) =>
+          {(est ? (["approve"] as const) : (["approve", "complete"] as const)).map((k) =>
             signed(k) ? (
               <div key={k} className="sigDone">
                 <span>{k === "approve" ? T("Approved ✓") : T("Work complete ✓")}</span>
@@ -251,7 +268,7 @@ export function InvoiceActions({
         </details>
       )}
       <button type="button" className="danger noprint" style={{ width: "100%" }} onClick={remove} disabled={!!busy}>
-        {T("Delete invoice")}
+        {est ? T("Delete estimate") : T("Delete invoice")}
       </button>
     </>
   );

@@ -30,6 +30,7 @@ export async function PUT(request: Request, { params }: Ctx) {
 
 const statusBody = z.object({ status: z.enum(["paid", "unpaid"]) });
 const remindersBody = z.object({ reminders_off: z.boolean() });
+const convertBody = z.object({ convert: z.literal("invoice"), issued_on: z.string().regex(/^\d{4}-\d{2}-\d{2}$/) });
 
 /** Mark paid or unpaid, or stop / restart payment reminders for this invoice. */
 export async function PATCH(request: Request, { params }: Ctx) {
@@ -38,6 +39,26 @@ export async function PATCH(request: Request, { params }: Ctx) {
   if (!user) return NextResponse.json({ error: await uiT("Please sign in.") }, { status: 401 });
 
   const json = await request.json().catch(() => null);
+
+  // Turn an estimate into an invoice: same number and lines, dated today, not sent yet.
+  const convert = convertBody.safeParse(json);
+  if (convert.success) {
+    const { data, error } = await supabase
+      .from("invoices")
+      .update({ doc_type: "invoice", issued_on: convert.data.issued_on, sent_at: null, updated_at: new Date().toISOString() })
+      .eq("id", id)
+      .eq("doc_type", "estimate")
+      .select("id");
+    if (error || !data?.length) return NextResponse.json({ error: await uiT("Something went wrong. Try again.") }, { status: 404 });
+    // Server-only fields: start reminders fresh and drop any old checkout.
+    await createAdminClient()
+      .from("invoices")
+      .update({ reminders_sent: 0, last_reminder_at: null, stripe_checkout_session_id: null })
+      .eq("id", id)
+      .eq("user_id", user.id);
+    return NextResponse.json({ ok: true });
+  }
+
   const reminders = remindersBody.safeParse(json);
   if (reminders.success) {
     const { data, error } = await supabase.from("invoices").update({ reminders_off: reminders.data.reminders_off }).eq("id", id).select("id");

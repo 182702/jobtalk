@@ -1,4 +1,4 @@
-import { businessName, formatDate, invoiceLabel, logoUrl } from "@/lib/invoice";
+import { businessName, docWords, formatDate, invoiceLabel, isEstimate, logoUrl } from "@/lib/invoice";
 import { bpsToPercentString, formatCents, formatQuantity, lineAmountCents } from "@/lib/money";
 import { t } from "@/lib/i18n";
 import type { InvoiceWithItems, Profile } from "@/lib/types";
@@ -18,6 +18,7 @@ export function InvoiceView({
 }) {
   const logo = logoUrl(profile.logo_path);
   const s = t(invoice.language);
+  const w = docWords(invoice);
   // Contractor's view: while a price is missing, don't present a final total.
   const missing = holdTotal ? invoice.line_items.filter((i) => !(i.rate_cents > 0)).length : 0;
   return (
@@ -30,7 +31,7 @@ export function InvoiceView({
           <div className="muted small">{profile.email}</div>
         </div>
         <div style={{ textAlign: "right" }}>
-          <div style={{ fontWeight: 800, color: "var(--accent)" }}>{s.invoice.toUpperCase()} {invoiceLabel(invoice.number)}</div>
+          <div style={{ fontWeight: 800, color: "var(--accent)" }}>{w.title.toUpperCase()} {invoiceLabel(invoice.number)}</div>
           <div className="muted small">{formatDate(invoice.issued_on, s.dateLocale)}</div>
           {invoice.status === "paid" && <span className="pill paid">{invoice.paid_via === "card" ? s.paidByCard : s.paid}</span>}
         </div>
@@ -77,7 +78,7 @@ export function InvoiceView({
             </tr>
           )}
           <tr className="grand">
-            <td>{s.totalDue}</td>
+            <td>{w.total}</td>
             {missing > 0 ? (
               <td className="n" style={{ color: "var(--danger)", fontSize: 16 }}>
                 {missing === 1 ? tr(uiLang, "1 price missing") : tr(uiLang, "{n} prices missing", { n: missing })}
@@ -90,7 +91,7 @@ export function InvoiceView({
       </table>
 
       {invoice.notes && <p className="pre">{invoice.notes}</p>}
-      {profile.payment_instructions && (
+      {profile.payment_instructions && !isEstimate(invoice) && (
         <div style={{ marginTop: 14 }}>
           <div className="muted small" style={{ textTransform: "uppercase", letterSpacing: 0.5 }}>{s.howToPay}</div>
           <div className="pre">{profile.payment_instructions}</div>

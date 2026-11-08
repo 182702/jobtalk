@@ -41,6 +41,7 @@ export type Invoice = {
   reminders_sent?: number; // these three are absent before the 0007 migration
   last_reminder_at?: string | null;
   reminders_off?: boolean;
+  doc_type?: "invoice" | "estimate"; // absent before the 0010 migration
   paid_via?: "card" | null; // these three are absent before the 0008 migration
   stripe_checkout_session_id?: string | null;
   stripe_payment_intent_id?: string | null;
@@ -69,4 +70,5 @@ export type Draft = {
   tax_rate_bps: number;
   language: "en" | "es";
   items: LineItem[];
+  doc_type?: "invoice" | "estimate";
 };

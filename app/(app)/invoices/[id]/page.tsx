@@ -28,6 +28,7 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
         <Link href="/invoices">{T("← Invoices")}</Link>
       </p>
       <h1>
+        {invoice.doc_type === "estimate" ? `${T("Estimate")} ` : ""}
         {invoiceLabel(invoice.number)} · {invoice.customer_name || T("Customer")}
       </h1>
       <InvoiceActions invoice={invoice} profile={profile} link={link} text={invoiceText(invoice, profile, link)} uiLang={lang} />

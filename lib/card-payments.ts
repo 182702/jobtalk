@@ -3,7 +3,7 @@ import type Stripe from "stripe";
 import { escapeHtml, resend } from "@/lib/email";
 import { appUrl, requireEnv } from "@/lib/env";
 import { t } from "@/lib/i18n";
-import { businessName, invoiceLabel, missingPriceCount } from "@/lib/invoice";
+import { businessName, invoiceLabel, isEstimate, missingPriceCount } from "@/lib/invoice";
 import { formatCents } from "@/lib/money";
 import { stripe } from "@/lib/stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -24,6 +24,7 @@ export function canPayByCard(invoice: InvoiceWithItems, profile: Profile): boole
     profile.card_payments_enabled === true &&
     !!profile.stripe_account_id &&
     invoice.status === "unpaid" &&
+    !isEstimate(invoice) &&
     invoice.total_cents >= MIN_CARD_CENTS &&
     missingPriceCount(invoice.line_items) === 0
   );

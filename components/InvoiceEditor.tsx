@@ -39,12 +39,14 @@ export function InvoiceEditor({
   onSave,
   onCancel,
   uiLang,
+  allowEstimate = false,
 }: {
   initial: Draft;
   saveLabel: string;
   onSave: (draft: Draft) => Promise<string | void>;
   onCancel?: () => void;
   uiLang: UiLang;
+  allowEstimate?: boolean;
 }) {
   const T = translator(uiLang);
   const [customer, setCustomer] = useState(initial.customer_name);
@@ -53,6 +55,7 @@ export function InvoiceEditor({
   const [notes, setNotes] = useState(initial.notes);
   const [tax, setTax] = useState(initial.tax_rate_bps ? bpsToPercentString(initial.tax_rate_bps) : "");
   const [language, setLanguage] = useState<"en" | "es">(initial.language);
+  const [docType, setDocType] = useState<"invoice" | "estimate">(initial.doc_type ?? "invoice");
   const [rows, setRows] = useState<Row[]>(() => initial.items.map(toRow));
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -77,6 +80,7 @@ export function InvoiceEditor({
       original_note: initial.original_note,
       tax_rate_bps: taxBps,
       language,
+      doc_type: docType,
       items: items.map((i) => ({ ...i, description: i.description.trim() })),
     });
     setBusy(false);
@@ -85,7 +89,23 @@ export function InvoiceEditor({
 
   return (
     <div className="card">
-      <h2>{T("Review invoice")}</h2>
+      <h2>{docType === "estimate" ? T("Review estimate") : T("Review invoice")}</h2>
+      {allowEstimate && (
+        <div className="field">
+          <span className="muted small">{T("This is an")}</span>
+          <div className="seg big" role="group" aria-label={T("Invoice or estimate")} style={{ display: "flex", marginTop: 4 }}>
+            <button type="button" className={docType === "invoice" ? "on" : ""} aria-pressed={docType === "invoice"} onClick={() => setDocType("invoice")} style={{ flex: 1 }}>
+              {T("Invoice")}
+            </button>
+            <button type="button" className={docType === "estimate" ? "on" : ""} aria-pressed={docType === "estimate"} onClick={() => setDocType("estimate")} style={{ flex: 1 }}>
+              {T("Estimate (quote)")}
+            </button>
+          </div>
+          {docType === "estimate" && (
+            <p className="muted small" style={{ margin: "6px 0 0" }}>{T("Your customer can approve it, then you turn it into an invoice with one tap.")}</p>
+          )}
+        </div>
+      )}
       <div className="row">
         <div className="field">
           <label htmlFor="customer">{T("Customer")}</label>
@@ -167,7 +187,7 @@ export function InvoiceEditor({
             </tr>
           )}
           <tr className="grand">
-            <td>{T("Total due")}</td>
+            <td>{docType === "estimate" ? T("Estimate total") : T("Total due")}</td>
             {missing > 0 ? (
               <td className="n" style={{ color: "var(--danger)", fontSize: 16 }}>
                 {missing === 1 ? T("1 price missing") : T("{n} prices missing", { n: missing })}
@@ -197,7 +217,7 @@ export function InvoiceEditor({
           </button>
         )}
         <button type="button" onClick={save} disabled={busy}>
-          {busy ? T("Saving…") : saveLabel}
+          {busy ? T("Saving…") : allowEstimate && docType === "estimate" ? T("Save estimate") : saveLabel}
         </button>
       </div>
       {error && <div className="err" role="alert">{error}</div>}

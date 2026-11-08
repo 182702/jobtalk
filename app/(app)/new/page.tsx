@@ -16,6 +16,8 @@ export default async function NewPage() {
   const lang = await getUiLang();
   const T = translator(lang);
   const { count } = await supabase.from("invoices").select("id", { count: "exact", head: true });
+  // Estimates need the 0010 migration; hide the choice until it has run.
+  const { error: docTypeMissing } = await supabase.from("invoices").select("doc_type").limit(1);
 
   return (
     <main>
@@ -28,7 +30,7 @@ export default async function NewPage() {
           <Link className="btn alt small" href="/start">{T("Start the 1-minute setup")}</Link>
         </div>
       )}
-      <NewInvoice taxRateBps={profile.tax_rate_bps} usage={usage} uiLang={lang} firstTime={!count} />
+      <NewInvoice taxRateBps={profile.tax_rate_bps} usage={usage} uiLang={lang} firstTime={!count} allowEstimate={!docTypeMissing} />
     </main>
   );
 }

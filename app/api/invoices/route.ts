@@ -17,6 +17,10 @@ export async function POST(request: Request) {
     console.error("create_invoice failed", error);
     return NextResponse.json({ error: await uiT("Couldn't save the invoice. Try again.") }, { status: 500 });
   }
+  if (draft.data.doc_type === "estimate") {
+    const { error: typeError } = await supabase.from("invoices").update({ doc_type: "estimate" }).eq("id", id);
+    if (typeError) console.error("marking estimate failed (0010 migration not run?)", typeError.message);
+  }
   await rememberPrices(supabase, user.id, items);
   return NextResponse.json({ id });
 }

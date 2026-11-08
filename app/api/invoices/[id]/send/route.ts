@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getUser } from "@/lib/auth";
 import { escapeHtml, resend } from "@/lib/email";
 import { appUrl, requireEnv } from "@/lib/env";
-import { businessName, invoiceLabel, invoiceText, missingPriceCount } from "@/lib/invoice";
+import { businessName, docWords, invoiceLabel, invoiceText, isEstimate, missingPriceCount } from "@/lib/invoice";
 import { t } from "@/lib/i18n";
 import { loadInvoice } from "@/lib/load-invoice";
 import { formatCents } from "@/lib/money";
@@ -35,6 +35,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   const { data: profileRow } = await supabase.from("profiles").select("*").eq("id", user.id).single();
   const profile = profileRow as Profile;
   const L = t(invoice.language);
+  const W = docWords(invoice);
+  const est = isEstimate(invoice);
   const biz = businessName(profile, L.yourBusiness);
   const num = invoiceLabel(invoice.number);
   const link = `${appUrl()}/i/${invoice.public_token}`;
@@ -42,10 +44,11 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
   const html = `<div style="font:16px/1.5 system-ui,sans-serif;color:#1c1c1a;max-width:560px">
 <p>${escapeHtml(L.emailGreeting(invoice.customer_name))}</p>
-<p>${L.emailBody(num, escapeHtml(biz), formatCents(invoice.total_cents))}</p>
-<p><a href="${link}" style="display:inline-block;background:#e8590c;color:#fff;padding:10px 16px;border-radius:8px;text-decoration:none;font-weight:600">${L.viewInvoice}</a></p>
+<p>${est ? L.estimateBody(num, escapeHtml(biz), formatCents(invoice.total_cents)) : L.emailBody(num, escapeHtml(biz), formatCents(invoice.total_cents))}</p>
+<p><a href="${link}" style="display:inline-block;background:#e8590c;color:#fff;padding:10px 16px;border-radius:8px;text-decoration:none;font-weight:600">${W.view}</a></p>
+${est ? `<p>${L.estimateApprove}</p>` : ""}
 ${canPayByCard(invoice, profile) ? `<p>${L.payByCardNote}</p>` : ""}
-${profile.payment_instructions ? `<p><b>${L.howToPay}</b><br>${escapeHtml(profile.payment_instructions).replace(/\n/g, "<br>")}</p>` : ""}
+${profile.payment_instructions && !est ? `<p><b>${L.howToPay}</b><br>${escapeHtml(profile.payment_instructions).replace(/\n/g, "<br>")}</p>` : ""}
 <p>${L.emailAttached}</p>
 <p>${L.emailThanks}<br>${escapeHtml(biz)}</p>
 <p style="color:#6b6a64;font-size:12px">${L.madeWith}</p></div>`;
@@ -56,10 +59,10 @@ ${profile.payment_instructions ? `<p><b>${L.howToPay}</b><br>${escapeHtml(profil
       from: requireEnv("EMAIL_FROM"),
       to: invoice.customer_email,
       replyTo: profile.email,
-      subject: L.emailSubject(num, biz),
+      subject: W.subject(num, biz),
       html,
-      text: invoiceText(invoice, profile, link) + (canPayByCard(invoice, profile) ? `\n\n${L.payByCardNote}` : ""),
-      attachments: [{ filename: `${L.pdfName}-${num.slice(1)}.pdf`, content: Buffer.from(pdf) }],
+      text: invoiceText(invoice, profile, link) + (est ? `\n\n${L.estimateApprove}` : canPayByCard(invoice, profile) ? `\n\n${L.payByCardNote}` : ""),
+      attachments: [{ filename: `${W.pdfName}-${num.slice(1)}.pdf`, content: Buffer.from(pdf) }],
     });
     sendError = error;
   } catch (err) {

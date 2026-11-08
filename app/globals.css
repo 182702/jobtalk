@@ -244,3 +244,4 @@ main { padding-bottom: 72px; }
 .payBtn { width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 10px; font-size: 18px; padding: 15px; background: #16a34a !important; color: #fff !important; box-shadow: 0 8px 22px rgba(22, 163, 74, 0.3) !important; }
 .paidBanner { background: rgba(22, 163, 74, 0.14); border: 1px solid rgba(22, 163, 74, 0.5); color: #86efac; border-radius: 12px; padding: 12px 14px; margin: 12px 0; font-weight: 600; }
 .pill.card { background: rgba(22, 163, 74, 0.14); color: #86efac; border: 1px solid rgba(22, 163, 74, 0.4); }
+.pill.estimate { background: rgba(90, 160, 255, 0.14); color: #9cc4ff; border: 1px solid rgba(90, 160, 255, 0.4); }

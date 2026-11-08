@@ -27,6 +27,24 @@ export function logoUrl(logoPath: string | null): string | null {
   return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/logos/${logoPath}`;
 }
 
+export function isEstimate(inv: { doc_type?: string | null }): boolean {
+  return inv.doc_type === "estimate";
+}
+
+/** Customer-facing words for an invoice or an estimate, in the document's language. */
+export function docWords(inv: { language?: string; doc_type?: string | null }) {
+  const s = t(inv.language);
+  const est = isEstimate(inv);
+  return {
+    title: est ? s.estimate : s.invoice,
+    total: est ? s.estimateTotal : s.totalDue,
+    view: est ? s.viewEstimate : s.viewInvoice,
+    pdfName: est ? s.estimatePdfName : s.pdfName,
+    forLine: est ? s.estimateFor : s.invoiceFor,
+    subject: est ? s.estimateSubject : s.emailSubject,
+  };
+}
+
 export function missingPriceCount(items: LineItem[]): number {
   return items.filter((i) => !(i.rate_cents > 0)).length;
 }
@@ -34,9 +52,10 @@ export function missingPriceCount(items: LineItem[]): number {
 /** Plain-text version for copy/paste into a text message or email. */
 export function invoiceText(inv: InvoiceWithItems, profile: Profile, link?: string): string {
   const s = t(inv.language);
+  const w = docWords(inv);
   const lines: string[] = [
     businessName(profile, s.yourBusiness),
-    s.invoiceFor(invoiceLabel(inv.number), inv.customer_name || s.customer, formatDate(inv.issued_on, s.dateLocale)),
+    w.forLine(invoiceLabel(inv.number), inv.customer_name || s.customer, formatDate(inv.issued_on, s.dateLocale)),
     "",
   ];
   for (const it of inv.line_items) {
@@ -45,10 +64,10 @@ export function invoiceText(inv: InvoiceWithItems, profile: Profile, link?: stri
   }
   lines.push("", `${s.subtotal}: ${formatCents(inv.subtotal_cents)}`);
   if (inv.tax_rate_bps > 0) lines.push(`${s.tax} (${bpsToPercentString(inv.tax_rate_bps)}%): ${formatCents(inv.tax_cents)}`);
-  lines.push(`${s.totalDue}: ${formatCents(inv.total_cents)}`);
+  lines.push(`${w.total}: ${formatCents(inv.total_cents)}`);
   if (inv.notes) lines.push("", inv.notes);
-  if (profile.payment_instructions) lines.push("", `${s.howToPay}:`, profile.payment_instructions);
-  if (link) lines.push("", `${s.viewInvoice}: ${link}`);
+  if (profile.payment_instructions && !isEstimate(inv)) lines.push("", `${s.howToPay}:`, profile.payment_instructions);
+  if (link) lines.push("", `${w.view}: ${link}`);
   return lines.join("\n");
 }
 
@@ -69,6 +88,7 @@ export const draftSchema = z.object({
   tax_rate_bps: z.number().int().min(0).max(10000),
   language: z.enum(["en", "es"]).default("en"),
   items: z.array(lineItemSchema).min(1).max(100),
+  doc_type: z.enum(["invoice", "estimate"]).default("invoice"),
 });
 
 export function draftToRpcPayload(draft: z.infer<typeof draftSchema>) {

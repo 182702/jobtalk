@@ -57,6 +57,7 @@ export async function GET(request: Request) {
   for (const row of rows) {
     const profile = byId.get(row.user_id);
     if (!profile) continue; // owner hasn't turned reminders on
+    if (row.doc_type === "estimate") continue; // estimates aren't owed yet
     const items = normalizeItems(row.line_items);
     if (missingPriceCount(items) > 0) continue; // the total isn't final; don't chase it
     const count = row.reminders_sent ?? 0;

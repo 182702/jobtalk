@@ -4,7 +4,7 @@ import { InvoiceView } from "@/components/InvoiceView";
 import { PayButton } from "@/components/PayButton";
 import { canPayByCard, recordCardPayment, syncCardPayment } from "@/lib/card-payments";
 import { t } from "@/lib/i18n";
-import { businessName, invoiceLabel } from "@/lib/invoice";
+import { businessName, docWords, invoiceLabel } from "@/lib/invoice";
 import { loadPublicInvoice } from "@/lib/load-invoice";
 import { formatCents } from "@/lib/money";
 import { stripe } from "@/lib/stripe";
@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const found = await loadPublicInvoice((await params).token);
   if (!found) return { title: "Invoice" };
   return {
-    title: t(found.invoice.language).emailSubject(invoiceLabel(found.invoice.number), businessName(found.profile, t(found.invoice.language).yourBusiness)),
+    title: docWords(found.invoice).subject(invoiceLabel(found.invoice.number), businessName(found.profile, t(found.invoice.language).yourBusiness)),
     robots: { index: false, follow: false },
   };
 }

@@ -1,6 +1,6 @@
 import "server-only";
 import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFImage, type PDFPage } from "pdf-lib";
-import { businessName, formatDate, invoiceLabel, logoUrl } from "@/lib/invoice";
+import { businessName, docWords, formatDate, invoiceLabel, isEstimate, logoUrl } from "@/lib/invoice";
 import { bpsToPercentString, formatCents, formatQuantity, lineAmountCents } from "@/lib/money";
 import { t } from "@/lib/i18n";
 import type { InvoiceWithItems, Profile } from "@/lib/types";
@@ -70,8 +70,9 @@ async function loadLogo(doc: PDFDocument, path: string | null): Promise<PDFImage
 export async function renderInvoicePdf(inv: InvoiceWithItems, profile: Profile): Promise<Uint8Array> {
   const doc = await PDFDocument.create();
   const L = t(inv.language);
+  const W = docWords(inv);
   const biz = businessName(profile, L.yourBusiness);
-  doc.setTitle(`${L.invoice} ${invoiceLabel(inv.number)} - ${biz}`);
+  doc.setTitle(`${W.title} ${invoiceLabel(inv.number)} - ${biz}`);
   doc.setCreator("VoiceBill Pro");
   const regular = await doc.embedFont(StandardFonts.Helvetica);
   const bold = await doc.embedFont(StandardFonts.HelveticaBold);
@@ -103,7 +104,7 @@ export async function renderInvoicePdf(inv: InvoiceWithItems, profile: Profile):
   }
   y -= 18;
   text(biz, headerX, 20, bold);
-  right(L.invoice.toUpperCase(), PAGE_W - M, 20, bold, ACCENT);
+  right(W.title.toUpperCase(), PAGE_W - M, 20, bold, ACCENT);
   y -= 18;
   text(profile.email, headerX, 10, regular, MUTE);
   right(invoiceLabel(inv.number), PAGE_W - M, 11, bold);
@@ -164,7 +165,7 @@ export async function renderInvoicePdf(inv: InvoiceWithItems, profile: Profile):
     right(formatCents(inv.tax_cents), colAmt, 11);
   }
   y -= 24;
-  text(L.totalDue, labelX, 14, bold);
+  text(W.total, labelX, 14, bold);
   right(formatCents(inv.total_cents), colAmt, 14, bold);
   y -= 36;
 
@@ -181,7 +182,7 @@ export async function renderInvoicePdf(inv: InvoiceWithItems, profile: Profile):
     y -= 14;
   };
   if (inv.notes) block(L.notes.toUpperCase(), inv.notes);
-  if (profile.payment_instructions) block(L.howToPay.toUpperCase(), profile.payment_instructions);
+  if (profile.payment_instructions && !isEstimate(inv)) block(L.howToPay.toUpperCase(), profile.payment_instructions);
 
   // Customer signatures.
   const sigs = inv.signatures ?? [];

@@ -50,6 +50,14 @@ type Strings = {
   paymentPending: string;
   payUnavailable: string;
   paidByCard: string;
+  estimate: string;
+  estimateTotal: string;
+  viewEstimate: string;
+  estimatePdfName: string;
+  estimateFor: (number: string, customer: string, date: string) => string;
+  estimateSubject: (number: string, business: string) => string;
+  estimateBody: (number: string, business: string, total: string) => string;
+  estimateApprove: string;
 };
 
 export const INVOICE_STRINGS: Record<InvoiceLanguage, Strings> = {
@@ -101,6 +109,14 @@ export const INVOICE_STRINGS: Record<InvoiceLanguage, Strings> = {
     paymentPending: "Your payment is processing. This page will show Paid once it goes through.",
     payUnavailable: "Card payment isn't available right now. Please try again later.",
     paidByCard: "Paid by card",
+    estimate: "Estimate",
+    estimateTotal: "Estimate total",
+    viewEstimate: "View estimate",
+    estimatePdfName: "estimate",
+    estimateFor: (n, c, d) => `Estimate ${n} for ${c} · ${d}`,
+    estimateSubject: (n, b) => `Estimate ${n} from ${b}`,
+    estimateBody: (n, b, t) => `Here is estimate ${n} from ${b} for <b>${t}</b>.`,
+    estimateApprove: "If it looks good, reply to this email to approve it, or ask any questions.",
   },
   es: {
     invoice: "Factura",
@@ -150,6 +166,14 @@ export const INVOICE_STRINGS: Record<InvoiceLanguage, Strings> = {
     paymentPending: "Su pago se está procesando. Esta página mostrará Pagada cuando se complete.",
     payUnavailable: "El pago con tarjeta no está disponible ahora. Intente más tarde.",
     paidByCard: "Pagada con tarjeta",
+    estimate: "Presupuesto",
+    estimateTotal: "Total estimado",
+    viewEstimate: "Ver presupuesto",
+    estimatePdfName: "presupuesto",
+    estimateFor: (n, c, d) => `Presupuesto ${n} para ${c} · ${d}`,
+    estimateSubject: (n, b) => `Presupuesto ${n} de ${b}`,
+    estimateBody: (n, b, t) => `Le enviamos el presupuesto ${n} de ${b} por <b>${t}</b>.`,
+    estimateApprove: "Si le parece bien, responda a este correo para aprobarlo, o pregunte lo que necesite.",
   },
 };
 

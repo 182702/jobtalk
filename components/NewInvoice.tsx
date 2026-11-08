@@ -44,11 +44,13 @@ export function NewInvoice({
   usage,
   uiLang,
   firstTime = false,
+  allowEstimate = false,
 }: {
   taxRateBps: number;
   usage: { plan: "free" | "solo"; used: number; limit: number };
   uiLang: UiLang;
   firstTime?: boolean;
+  allowEstimate?: boolean;
 }) {
   const T = translator(uiLang);
   const router = useRouter();
@@ -165,7 +167,7 @@ export function NewInvoice({
   }
 
   if (draft) {
-    return <InvoiceEditor initial={draft} saveLabel={T("Save invoice")} onSave={save} onCancel={() => setDraft(null)} uiLang={uiLang} />;
+    return <InvoiceEditor initial={draft} saveLabel={T("Save invoice")} onSave={save} onCancel={() => setDraft(null)} uiLang={uiLang} allowEstimate={allowEstimate} />;
   }
 
   return (
