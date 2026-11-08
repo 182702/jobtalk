@@ -310,4 +310,5 @@ export const ES: Record<string, string> = {
   "Estimates": "Presupuestos",
   "Delete this estimate? This can't be undone.": "¿Borrar este presupuesto? No se puede deshacer.",
   "Delete estimate": "Borrar presupuesto",
+  "New invoice or estimate": "Nueva factura o presupuesto",
 };

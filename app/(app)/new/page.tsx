@@ -21,7 +21,7 @@ export default async function NewPage() {
 
   return (
     <main>
-      <h1>{T("New invoice")}</h1>
+      <h1>{docTypeMissing ? T("New invoice") : T("New invoice or estimate")}</h1>
       <p className="sub">{T("Say what you did. Mention hours, parts, and prices.")}</p>
       {needsSetup && (
         <div className="card">
