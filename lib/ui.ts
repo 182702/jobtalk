@@ -311,4 +311,11 @@ export const ES: Record<string, string> = {
   "Delete this estimate? This can't be undone.": "¿Borrar este presupuesto? No se puede deshacer.",
   "Delete estimate": "Borrar presupuesto",
   "New invoice or estimate": "Nueva factura o presupuesto",
+  "For your taxes": "Para sus impuestos",
+  "Download every invoice for a year. Estimates are left out. The spreadsheet opens in Excel or Google Sheets and has totals at the bottom.": "Descargue todas las facturas de un año. Los presupuestos no se incluyen. La hoja de cálculo se abre en Excel o Google Sheets y tiene los totales al final.",
+  "Year": "Año",
+  "📊 Spreadsheet (CSV)": "📊 Hoja de cálculo (CSV)",
+  "📄 All invoices (PDF)": "📄 Todas las facturas (PDF)",
+  "No invoices in that year.": "No hay facturas en ese año.",
+  "Too many invoices for one PDF. Download the spreadsheet instead.": "Demasiadas facturas para un solo PDF. Descargue la hoja de cálculo.",
 };

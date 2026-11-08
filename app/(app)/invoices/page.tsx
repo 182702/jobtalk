@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { TaxExport } from "@/components/TaxExport";
 import { requireProfile } from "@/lib/auth";
 import { formatDate, invoiceLabel } from "@/lib/invoice";
 import { formatCents } from "@/lib/money";
@@ -37,6 +38,7 @@ export default async function InvoicesPage({ searchParams }: { searchParams: Pro
   const unpaid = all.filter((i) => i.status === "unpaid" && !isEst(i));
   const outstanding = unpaid.reduce((s, i) => s + i.total_cents, 0);
   const hasEstimates = all.some(isEst);
+  const taxYears = [...new Set(all.filter((i) => !isEst(i)).map((i) => Number(i.issued_on.slice(0, 4))))].sort((a, b) => b - a);
   const list =
     filter === "all" ? all : filter === "estimates" ? all.filter(isEst) : all.filter((i) => !isEst(i) && i.status === filter);
 
@@ -108,6 +110,7 @@ export default async function InvoicesPage({ searchParams }: { searchParams: Pro
             ))}
             {list.length === 0 && <p className="muted">{T("Nothing here.")}</p>}
           </div>
+          {taxYears.length > 0 && <TaxExport years={taxYears} lang={lang} />}
         </>
       )}
     </main>
