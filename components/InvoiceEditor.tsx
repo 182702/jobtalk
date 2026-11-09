@@ -98,7 +98,7 @@ export function InvoiceEditor({
               {T("Invoice")}
             </button>
             <button type="button" className={docType === "estimate" ? "on" : ""} aria-pressed={docType === "estimate"} onClick={() => setDocType("estimate")} style={{ flex: 1 }}>
-              {T("Estimate (quote)")}
+              {T("Estimate")}
             </button>
           </div>
           {docType === "estimate" && (

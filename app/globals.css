@@ -245,3 +245,40 @@ main { padding-bottom: 72px; }
 .paidBanner { background: rgba(22, 163, 74, 0.14); border: 1px solid rgba(22, 163, 74, 0.5); color: #86efac; border-radius: 12px; padding: 12px 14px; margin: 12px 0; font-weight: 600; }
 .pill.card { background: rgba(22, 163, 74, 0.14); color: #86efac; border: 1px solid rgba(22, 163, 74, 0.4); }
 .pill.estimate { background: rgba(90, 160, 255, 0.14); color: #9cc4ff; border: 1px solid rgba(90, 160, 255, 0.4); }
+
+/* ---------- Clean-up pass: match the home page (blue actions, orange brand accent, no glow) ---------- */
+:root { --accent: #3d84ff; --onacc: #fff; --brand: #ff7a2f; }
+a { color: #8ab8ff; }
+.logo .logoText span { color: var(--brand); }
+button:not(.alt):not(.danger):not(.x):not(.linkish), .btn:not(.alt) {
+  background: #1f6bff; color: #fff; box-shadow: 0 0 0 1px rgba(140, 180, 255, 0.35) inset;
+}
+button:not(.alt):not(.danger):not(.x):not(.linkish):hover:not(:disabled), .btn:not(.alt):hover { background: #3d84ff; }
+.topbar nav a.btn { color: #fff; }
+button:focus-visible, .btn:focus-visible, a:focus-visible { outline: 2px solid #8ab8ff; outline-offset: 2px; }
+/* Cards: no blur (slow on phones) and no glow. */
+.card { backdrop-filter: none; -webkit-backdrop-filter: none; box-shadow: none; }
+.tabs a.on, .seg button.on { color: #fff; }
+.tag-paid { background: #1f6bff; color: #fff; }
+
+/* Top bar: always one line. On narrow phones, show just the logo icon. */
+.topbar nav { flex-wrap: nowrap; }
+@media (max-width: 440px) {
+  .topbar .in .logoText { display: none; }
+  .topbar nav { gap: 10px; }
+  .topbar .seg button { padding: 5px 9px; font-size: 13px; }
+}
+/* The customer's invoice link: just the logo, no app buttons. */
+body:has(.publicInvoice) .topbar nav { display: none; }
+body:has(.publicInvoice) .fbBtn { display: none; }
+
+/* Feedback: a small round button on phones so it doesn't cover the page; room below content to scroll past it. */
+main { padding-bottom: 96px; }
+.fbBtn { width: 48px; height: 48px; padding: 0 !important; justify-content: center; font-size: 20px; background: #12245a !important; border: 1px solid rgba(140, 180, 255, 0.35) !important; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35) !important; }
+.fbLabel { display: none; }
+@media (min-width: 760px) {
+  .fbBtn { width: auto; height: auto; padding: 9px 14px !important; font-size: 14px; gap: 6px; }
+  .fbLabel { display: inline; }
+}
+/* Unpaid = money owed: amber, so it doesn't look like the blue Estimate label. */
+.pill.unpaid { background: rgba(255, 179, 71, 0.16); color: #ffc163; border: 1px solid rgba(255, 179, 71, 0.45); }

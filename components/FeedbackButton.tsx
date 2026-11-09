@@ -61,8 +61,9 @@ export function FeedbackButton({ lang }: { lang: UiLang }) {
 
   return (
     <>
-      <button type="button" className="fbBtn noprint" onClick={() => setOpen(true)} aria-haspopup="dialog">
-        {T("💬 Feedback")}
+      <button type="button" className="fbBtn alt noprint" onClick={() => setOpen(true)} aria-haspopup="dialog" aria-label={T("Send feedback")} title={T("Send feedback")}>
+        <span aria-hidden="true">💬</span>
+        <span className="fbLabel">{T("Feedback")}</span>
       </button>
       {open && (
         <div className="fbBackdrop" onClick={close}>

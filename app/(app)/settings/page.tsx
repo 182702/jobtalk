@@ -38,12 +38,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
   const T = translator(lang);
   return (
     <main>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
-        <h1>{T("Settings")}</h1>
-        <form action="/auth/signout" method="post">
-          <button type="submit" className="alt small">{T("Log out")}</button>
-        </form>
-      </div>
+      <h1>{T("Settings")}</h1>
       <p className="sub">{profile.email}</p>
       <div className="card">
         <h2>{T("App language")}</h2>

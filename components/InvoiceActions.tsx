@@ -253,7 +253,7 @@ export function InvoiceActions({
                 </button>
               </div>
             ) : (
-              <button key={k} type="button" className={k === "approve" ? "alt" : ""} onClick={() => startSigning(k)} disabled={!!busy}>
+              <button key={k} type="button" className="alt" onClick={() => startSigning(k)} disabled={!!busy}>
                 {k === "approve" ? T("✍️ Approve (before the job)") : T("✍️ Work complete (after the job)")}
               </button>
             ),

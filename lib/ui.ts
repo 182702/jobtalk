@@ -318,4 +318,5 @@ export const ES: Record<string, string> = {
   "📄 All invoices (PDF)": "📄 Todas las facturas (PDF)",
   "No invoices in that year.": "No hay facturas en ese año.",
   "Too many invoices for one PDF. Download the spreadsheet instead.": "Demasiadas facturas para un solo PDF. Descargue la hoja de cálculo.",
+  "Feedback": "Comentarios",
 };

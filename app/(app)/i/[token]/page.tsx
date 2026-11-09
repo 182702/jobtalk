@@ -56,7 +56,7 @@ export default async function PublicInvoicePage({ params, searchParams }: Props)
 
   const L = t(found.invoice.language);
   return (
-    <main lang={found.invoice.language === "es" ? "es" : "en"}>
+    <main className="publicInvoice" lang={found.invoice.language === "es" ? "es" : "en"}>
       {justPaid && <div className="paidBanner noprint">✓ {L.paymentReceived}</div>}
       {pending && <div className="warn noprint">{L.paymentPending}</div>}
       {canPayByCard(found.invoice, found.profile) && !pending && (
