@@ -57,7 +57,7 @@ export function StartGuide({ profile, lang }: { profile: Profile; lang: UiLang }
           <p className="muted">{T("This goes on every invoice. You can change it later in Settings.")}</p>
           <div className="field">
             <label htmlFor="business_name">{T("Business name")}</label>
-            <input id="business_name" name="business_name" defaultValue={profile.business_name} placeholder="Rivera Plumbing" required />
+            <input id="business_name" name="business_name" defaultValue={profile.business_name} placeholder={`${T("e.g.")} Rivera Plumbing`} required />
           </div>
           <div className="row">
             <div className="field">
@@ -67,12 +67,12 @@ export function StartGuide({ profile, lang }: { profile: Profile; lang: UiLang }
                 name="hourly_rate"
                 inputMode="decimal"
                 defaultValue={profile.hourly_rate_cents ? centsToDollarString(profile.hourly_rate_cents) : ""}
-                placeholder="85"
+                placeholder={`${T("e.g.")} 85`}
               />
             </div>
             <div className="field">
               <label htmlFor="tax_rate">{T("Sales tax (%)")}</label>
-              <input id="tax_rate" name="tax_rate" inputMode="decimal" defaultValue={profile.tax_rate_bps ? bpsToPercentString(profile.tax_rate_bps) : ""} placeholder="0" />
+              <input id="tax_rate" name="tax_rate" inputMode="decimal" defaultValue={profile.tax_rate_bps ? bpsToPercentString(profile.tax_rate_bps) : ""} placeholder={`${T("e.g.")} 8.25`} />
             </div>
           </div>
           <p className="muted small" style={{ marginTop: -4 }}>
@@ -84,7 +84,7 @@ export function StartGuide({ profile, lang }: { profile: Profile; lang: UiLang }
               id="payment_instructions"
               name="payment_instructions"
               defaultValue={profile.payment_instructions}
-              placeholder={T("Zelle or Venmo: 555-123-4567\nChecks payable to Rivera Plumbing LLC")}
+              placeholder={`${T("e.g.")} ${T("Zelle or Venmo: 555-123-4567\nChecks payable to Rivera Plumbing LLC")}`}
               style={{ minHeight: 70 }}
             />
           </div>

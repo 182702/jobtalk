@@ -282,3 +282,5 @@ main { padding-bottom: 96px; }
 }
 /* Unpaid = money owed: amber, so it doesn't look like the blue Estimate label. */
 .pill.unpaid { background: rgba(255, 179, 71, 0.16); color: #ffc163; border: 1px solid rgba(255, 179, 71, 0.45); }
+/* Example text in empty fields: clearly lighter and italic, so it doesn't look filled in. */
+input::placeholder, textarea::placeholder { color: rgba(156, 173, 214, 0.55); font-style: italic; }

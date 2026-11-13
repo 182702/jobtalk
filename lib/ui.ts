@@ -327,4 +327,5 @@ export const ES: Record<string, string> = {
   "Confirm my email": "Confirmar mi correo",
   "This link isn't complete": "Este enlace no está completo",
   "Open the newest email from VoiceBill Pro and tap the button again, or log in.": "Abra el correo más reciente de VoiceBill Pro y toque el botón otra vez, o inicie sesión.",
+  "e.g.": "p. ej.",
 };
