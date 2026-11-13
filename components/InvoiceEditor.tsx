@@ -12,6 +12,7 @@ import {
   parsePercentToBps,
 } from "@/lib/money";
 import type { Draft } from "@/lib/types";
+import { emailFor, type Customer } from "@/lib/customers";
 import { translator, type UiLang } from "@/lib/ui";
 
 // Text state for each editable line, so partial input like "12." isn't lost.
@@ -40,6 +41,7 @@ export function InvoiceEditor({
   onCancel,
   uiLang,
   allowEstimate = false,
+  customers = [],
 }: {
   initial: Draft;
   saveLabel: string;
@@ -47,6 +49,7 @@ export function InvoiceEditor({
   onCancel?: () => void;
   uiLang: UiLang;
   allowEstimate?: boolean;
+  customers?: Customer[];
 }) {
   const T = translator(uiLang);
   const [customer, setCustomer] = useState(initial.customer_name);
@@ -109,11 +112,31 @@ export function InvoiceEditor({
       <div className="row">
         <div className="field">
           <label htmlFor="customer">{T("Customer")}</label>
-          <input id="customer" value={customer} onChange={(e) => setCustomer(e.target.value)} placeholder="Dana Smith" />
+          <input
+            id="customer"
+            value={customer}
+            list={customers.length ? "past-customers" : undefined}
+            autoComplete="off"
+            onChange={(e) => {
+              const name = e.target.value;
+              setCustomer(name);
+              // Picked a past customer: fill in their email unless one is already typed.
+              const saved = emailFor(customers, name);
+              if (saved && !email.trim()) setEmail(saved);
+            }}
+            placeholder={`${T("e.g.")} Dana Smith`}
+          />
+          {customers.length > 0 && (
+            <datalist id="past-customers">
+              {customers.map((c) => (
+                <option key={c.name} value={c.name} />
+              ))}
+            </datalist>
+          )}
         </div>
         <div className="field">
           <label htmlFor="cemail">{T("Customer email")}</label>
-          <input id="cemail" type="email" inputMode="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="dana@example.com" />
+          <input id="cemail" type="email" inputMode="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder={`${T("e.g.")} dana@example.com`} />
         </div>
       </div>
       <div className="row">

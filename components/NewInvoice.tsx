@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { InvoiceEditor } from "@/components/InvoiceEditor";
 import { MAX_NOTE_CHARS } from "@/lib/plans";
 import type { Draft } from "@/lib/types";
+import { emailFor, type Customer } from "@/lib/customers";
 import { translator, type UiLang } from "@/lib/ui";
 
 // Minimal typing for the browser Speech Recognition API (not in lib.dom).
@@ -45,12 +46,14 @@ export function NewInvoice({
   uiLang,
   firstTime = false,
   allowEstimate = false,
+  customers = [],
 }: {
   taxRateBps: number;
   usage: { plan: "free" | "solo"; used: number; limit: number };
   uiLang: UiLang;
   firstTime?: boolean;
   allowEstimate?: boolean;
+  customers?: Customer[];
 }) {
   const T = translator(uiLang);
   const router = useRouter();
@@ -143,7 +146,8 @@ export function NewInvoice({
       setUsed(data.notes_used);
       setDraft({
         customer_name: data.customer_name,
-        customer_email: data.customer_email,
+        // A repeat customer: fill in the email used last time if the note didn't say one.
+        customer_email: data.customer_email || emailFor(customers, data.customer_name ?? ""),
         issued_on: today(),
         notes: data.notes,
         original_note: text,
@@ -167,7 +171,7 @@ export function NewInvoice({
   }
 
   if (draft) {
-    return <InvoiceEditor initial={draft} saveLabel={T("Save invoice")} onSave={save} onCancel={() => setDraft(null)} uiLang={uiLang} allowEstimate={allowEstimate} />;
+    return <InvoiceEditor initial={draft} saveLabel={T("Save invoice")} onSave={save} onCancel={() => setDraft(null)} uiLang={uiLang} allowEstimate={allowEstimate} customers={customers} />;
   }
 
   return (
