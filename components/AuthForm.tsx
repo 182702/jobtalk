@@ -21,6 +21,7 @@ export function AuthForm({ mode, lang }: { mode: "login" | "signup"; lang: UiLan
       : "",
   );
   const [sent, setSent] = useState(false);
+  const linkReason = params.get("reason")?.slice(0, 120) ?? "";
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -92,6 +93,7 @@ export function AuthForm({ mode, lang }: { mode: "login" | "signup"; lang: UiLan
         </button>
       </div>
       {error && <div className="err" role="alert">{error}</div>}
+      {error && linkReason && <p className="muted small">({linkReason})</p>}
       <p className="muted small" style={{ marginBottom: 0 }}>
         {mode === "signup" ? (
           <>
