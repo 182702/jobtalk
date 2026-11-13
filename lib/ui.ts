@@ -319,4 +319,12 @@ export const ES: Record<string, string> = {
   "No invoices in that year.": "No hay facturas en ese año.",
   "Too many invoices for one PDF. Download the spreadsheet instead.": "Demasiadas facturas para un solo PDF. Descargue la hoja de cálculo.",
   "Feedback": "Comentarios",
+  "Reset your password": "Restablezca su contraseña",
+  "Confirm your email": "Confirme su correo",
+  "Tap the button to continue, then choose a new password.": "Toque el botón para continuar y luego elija una nueva contraseña.",
+  "One tap and you're in.": "Un toque y listo.",
+  "Continue": "Continuar",
+  "Confirm my email": "Confirmar mi correo",
+  "This link isn't complete": "Este enlace no está completo",
+  "Open the newest email from VoiceBill Pro and tap the button again, or log in.": "Abra el correo más reciente de VoiceBill Pro y toque el botón otra vez, o inicie sesión.",
 };
