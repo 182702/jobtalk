@@ -37,7 +37,7 @@ export async function GET() {
   } catch (err) {
     console.error("stripe connect failed", err);
     // Show Stripe's own reason to the account owner, so setup problems are easy to fix.
-    const reason = err instanceof Error ? err.message.slice(0, 300) : "";
+    const reason = String((err as { message?: unknown } | null)?.message ?? "").slice(0, 300);
     return NextResponse.redirect(`${appUrl()}/settings?stripe=error&reason=${encodeURIComponent(reason)}#card-payments`);
   }
 }
