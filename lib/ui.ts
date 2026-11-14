@@ -328,4 +328,6 @@ export const ES: Record<string, string> = {
   "This link isn't complete": "Este enlace no está completo",
   "Open the newest email from VoiceBill Pro and tap the button again, or log in.": "Abra el correo más reciente de VoiceBill Pro y toque el botón otra vez, o inicie sesión.",
   "e.g.": "p. ej.",
+  "You'll talk in Spanish and the invoice will be in Spanish. Menus stay in English (change them in Settings).": "Va a hablar en español y la factura saldrá en español. Los menús siguen en inglés (cámbielos en Ajustes).",
+  "You'll talk in English and the invoice will be in English. Menus stay in Spanish (change them in Settings).": "Va a hablar en inglés y la factura saldrá en inglés. Los menús siguen en español (cámbielos en Ajustes).",
 };

@@ -200,6 +200,13 @@ export function NewInvoice({
           </button>
         </div>
       </div>
+      {lang !== uiLang && (
+        <p className="muted small" style={{ margin: "0 0 8px" }}>
+          {lang === "es"
+            ? T("You'll talk in Spanish and the invoice will be in Spanish. Menus stay in English (change them in Settings).")
+            : T("You'll talk in English and the invoice will be in English. Menus stay in Spanish (change them in Settings).")}
+        </p>
+      )}
       <textarea
         id="note"
         value={interim ? `${note} ${interim}`.trim() : note}
