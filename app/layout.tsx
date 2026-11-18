@@ -16,9 +16,9 @@ export const metadata: Metadata = {
     siteName: "VoiceBill Pro",
     title: "VoiceBill Pro: talk through the job, get the invoice",
     description: "Turn a voice note into a ready-to-send invoice with labor, parts and tax. English or Spanish. Free to try.",
-    images: [{ url: "/brand/launch/gallery-1.png", width: 1270, height: 760 }],
+    images: [{ url: "/brand/og.png", width: 1200, height: 630 }],
   },
-  twitter: { card: "summary_large_image", images: ["/brand/launch/gallery-1.png"] },
+  twitter: { card: "summary_large_image", images: ["/brand/og.png"] },
   appleWebApp: { capable: true, title: "VoiceBill Pro", statusBarStyle: "black-translucent" },
 };
 

@@ -22,7 +22,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/brand/icon.png" alt="" width={28} height={28} />
             <span className="logoText">
-              VoiceBill<span>Pro</span>
+              VoiceBill <span>Pro</span>
             </span>
           </Link>
           <nav>

@@ -12,7 +12,7 @@ export default function NotFound() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/brand/icon.png" alt="" width={32} height={32} />
             <span>
-              VoiceBill<em>Pro</em>
+              VoiceBill <em>Pro</em>
             </span>
           </Link>
         </nav>

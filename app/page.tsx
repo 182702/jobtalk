@@ -74,7 +74,7 @@ export default function Landing() {
               <Mic size={18} />
             </span>
             <span>
-              VoiceBill<em>Pro</em>
+              VoiceBill <em>Pro</em>
             </span>
           </Link>
           <div className={s.navLinks}>
@@ -105,7 +105,7 @@ export default function Landing() {
           <div className={s.appFrame} aria-label="Example: a voice note becomes an invoice">
             <div className={s.appBar}>
               <span className={s.appBrand}>
-                <Mic size={13} /> VoiceBill<em>Pro</em>
+                <Mic size={13} /> VoiceBill <em>Pro</em>
               </span>
               <span className={s.appTabs}>
                 <b>New invoice</b> Invoices · Settings
