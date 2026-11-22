@@ -161,3 +161,10 @@
 .demoTry .tryBtns .btnGhost { background: rgba(255, 255, 255, 0.04) !important; color: var(--l-ink) !important; border: 1.5px solid var(--l-line) !important; }
 .demoTry .tryBtns .recOn { border-color: #ff5a5a !important; color: #ffb4b4 !important; }
 .demoTry .tryBtns .btn { background: var(--l-blue) !important; color: #fff !important; box-shadow: 0 0 0 1px rgba(140, 180, 255, 0.4) inset, 0 8px 22px rgba(31, 107, 255, 0.35) !important; padding: 13px 22px; font-size: 17px; }
+
+/* Watch it work video */
+.watch { margin-top: 56px; }
+.watchVideo { display: block; width: 100%; height: auto; border-radius: 14px; border: 1.5px solid var(--l-line); background: var(--l-panel); box-shadow: 0 24px 60px rgba(0, 5, 25, 0.5); }
+.watchCaption { color: var(--l-mute); font-size: 13px; line-height: 1.5; margin: 10px 2px 0; }
+.watchPhone { display: none; max-width: 420px; margin: 0 auto; }
+@media (max-width: 700px) { .watchWide { display: none; } .watchPhone { display: block; } }

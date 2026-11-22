@@ -171,6 +171,24 @@ export default function Landing() {
           <span>English or Spanish</span>
         </div>
 
+        <section className={s.watch} aria-labelledby="watch-title">
+          <p className={s.eyebrow}>Watch it work · 12 seconds</p>
+          <h2 id="watch-title" className={s.tryTitle}>From job note to invoice</h2>
+          {/* Wide video on computers, a tall readable one on phones (only one is shown). */}
+          <video className={`${s.watchVideo} ${s.watchWide}`} autoPlay muted loop playsInline preload="metadata" poster="/brand/demo-poster.jpg" width={960} height={430}>
+            <source src="/brand/demo.webm" type="video/webm" />
+            <source src="/brand/demo.mp4" type="video/mp4" />
+          </video>
+          <video className={`${s.watchVideo} ${s.watchPhone}`} autoPlay muted loop playsInline preload="metadata" poster="/brand/demo-phone-poster.jpg" width={780} height={1144}>
+            <source src="/brand/demo-phone.webm" type="video/webm" />
+            <source src="/brand/demo-phone.mp4" type="video/mp4" />
+          </video>
+          <p className={s.watchCaption}>
+            The note is typed here so you can read it. In the app you can tap Speak and just say it. The wire kit had no price, so it stays red until
+            you add one.
+          </p>
+        </section>
+
         <DemoInvoice />
 
         <section id="how" className={s.steps}>
