@@ -330,4 +330,6 @@ export const ES: Record<string, string> = {
   "e.g.": "p. ej.",
   "You'll talk in Spanish and the invoice will be in Spanish. Menus stay in English (change them in Settings).": "Va a hablar en español y la factura saldrá en español. Los menús siguen en inglés (cámbielos en Ajustes).",
   "You'll talk in English and the invoice will be in English. Menus stay in Spanish (change them in Settings).": "Va a hablar en inglés y la factura saldrá en inglés. Los menús siguen en español (cámbielos en Ajustes).",
+  "QR to pay": "QR para pagar",
+  "QR code": "Código QR",
 };

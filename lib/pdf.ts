@@ -1,4 +1,7 @@
 import "server-only";
+import QRCode from "qrcode";
+import { canPayByCard } from "@/lib/card-payments";
+import { appUrl } from "@/lib/env";
 import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFImage, type PDFPage } from "pdf-lib";
 import { businessName, docWords, formatDate, invoiceLabel, isEstimate, logoUrl } from "@/lib/invoice";
 import { bpsToPercentString, formatCents, formatQuantity, lineAmountCents } from "@/lib/money";
@@ -214,6 +217,22 @@ export async function renderInvoicePdf(inv: InvoiceWithItems, profile: Profile):
       text(L.signedBy(sig.signer_name, formatDate(sig.signed_on, L.dateLocale)), M, 9, regular, MUTE);
       y -= 24;
     }
+  }
+
+  // QR code that opens the invoice link (and the Pay by card button when it's on).
+  try {
+    const png = await QRCode.toBuffer(`${appUrl()}/i/${inv.public_token}`, { margin: 1, width: 300, errorCorrectionLevel: "M" });
+    const qr = await doc.embedPng(png);
+    const size = 84;
+    ensure(size + 20);
+    y -= 4;
+    page.drawImage(qr, { x: M, y: y - size, width: size, height: size });
+    const label = canPayByCard(inv, profile) ? L.scanToPay : L.scanToView;
+    page.drawText(safe(label), { x: M + size + 14, y: y - 34, size: 12, font: bold, color: INK });
+    page.drawText(safe(L.scanHint), { x: M + size + 14, y: y - 52, size: 9, font: regular, color: MUTE });
+    y -= size + 16;
+  } catch (err) {
+    console.error("pdf qr failed", err); // a missing QR never blocks the invoice
   }
 
   // Footer on every page.

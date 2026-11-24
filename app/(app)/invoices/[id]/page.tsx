@@ -4,7 +4,7 @@ import { InvoiceActions } from "@/components/InvoiceActions";
 import { requireProfile } from "@/lib/auth";
 import { appUrl } from "@/lib/env";
 import { invoiceLabel, invoiceText } from "@/lib/invoice";
-import { syncCardPayment } from "@/lib/card-payments";
+import { canPayByCard, syncCardPayment } from "@/lib/card-payments";
 import { loadInvoice } from "@/lib/load-invoice";
 import { translator } from "@/lib/ui";
 import { getUiLang } from "@/lib/ui-server";
@@ -31,7 +31,7 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
         {invoice.doc_type === "estimate" ? `${T("Estimate")} ` : ""}
         {invoiceLabel(invoice.number)} · {invoice.customer_name || T("Customer")}
       </h1>
-      <InvoiceActions invoice={invoice} profile={profile} link={link} text={invoiceText(invoice, profile, link)} uiLang={lang} />
+      <InvoiceActions invoice={invoice} profile={profile} link={link} text={invoiceText(invoice, profile, link)} uiLang={lang} canPay={canPayByCard(invoice, profile)} />
     </main>
   );
 }

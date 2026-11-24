@@ -58,6 +58,9 @@ type Strings = {
   estimateSubject: (number: string, business: string) => string;
   estimateBody: (number: string, business: string, total: string) => string;
   estimateApprove: string;
+  scanToPay: string;
+  scanToView: string;
+  scanHint: string;
 };
 
 export const INVOICE_STRINGS: Record<InvoiceLanguage, Strings> = {
@@ -117,6 +120,9 @@ export const INVOICE_STRINGS: Record<InvoiceLanguage, Strings> = {
     estimateSubject: (n, b) => `Estimate ${n} from ${b}`,
     estimateBody: (n, b, t) => `Here is estimate ${n} from ${b} for <b>${t}</b>.`,
     estimateApprove: "If it looks good, reply to this email to approve it, or ask any questions.",
+    scanToPay: "Scan to view and pay",
+    scanToView: "Scan to view online",
+    scanHint: "Point your phone's camera at the code.",
   },
   es: {
     invoice: "Factura",
@@ -174,6 +180,9 @@ export const INVOICE_STRINGS: Record<InvoiceLanguage, Strings> = {
     estimateSubject: (n, b) => `Presupuesto ${n} de ${b}`,
     estimateBody: (n, b, t) => `Le enviamos el presupuesto ${n} de ${b} por <b>${t}</b>.`,
     estimateApprove: "Si le parece bien, responda a este correo para aprobarlo, o pregunte lo que necesite.",
+    scanToPay: "Escanee para ver y pagar",
+    scanToView: "Escanee para verla en línea",
+    scanHint: "Apunte la cámara de su teléfono al código.",
   },
 };
 

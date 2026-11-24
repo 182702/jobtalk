@@ -5,9 +5,10 @@ import { useState } from "react";
 import { InvoiceEditor } from "@/components/InvoiceEditor";
 import { InvoiceView } from "@/components/InvoiceView";
 import { LocalTime } from "@/components/LocalTime";
+import { QrSheet } from "@/components/QrSheet";
 import { SignSheet } from "@/components/SignSheet";
 import { invoiceLang } from "@/lib/i18n";
-import { isEstimate, missingPriceCount } from "@/lib/invoice";
+import { businessName, isEstimate, missingPriceCount } from "@/lib/invoice";
 import { MAX_REMINDERS, nextReminderAt } from "@/lib/reminders";
 import type { Draft, InvoiceWithItems, Profile, SignatureKind } from "@/lib/types";
 import { translator, type UiLang } from "@/lib/ui";
@@ -18,17 +19,20 @@ export function InvoiceActions({
   link,
   text,
   uiLang,
+  canPay = false,
 }: {
   invoice: InvoiceWithItems;
   profile: Profile;
   link: string;
   text: string;
   uiLang: UiLang;
+  canPay?: boolean;
 }) {
   const T = translator(uiLang);
   const router = useRouter();
   const [editing, setEditing] = useState(false);
   const [signing, setSigning] = useState<SignatureKind | null>(null);
+  const [showQr, setShowQr] = useState(false);
   const signatures = invoice.signatures ?? [];
   const signed = (k: SignatureKind) => signatures.some((s) => s.kind === k);
   const [busy, setBusy] = useState("");
@@ -135,6 +139,19 @@ export function InvoiceActions({
     router.refresh();
   }
 
+  if (showQr) {
+    return (
+      <QrSheet
+        invoice={invoice}
+        link={link}
+        canPay={canPay}
+        business={businessName(profile, "")}
+        closeLabel={T("Close")}
+        onClose={() => setShowQr(false)}
+      />
+    );
+  }
+
   if (signing) {
     return (
       <SignSheet
@@ -197,6 +214,9 @@ export function InvoiceActions({
         <div className="btns">
           <button type="button" className="alt small" onClick={() => copy(text, est ? T("Estimate text copied.") : T("Invoice text copied."))}>{T("Copy text")}</button>
           <button type="button" className="alt small" onClick={() => copy(link, T("Link copied."))}>{T("Copy link")}</button>
+          <button type="button" className="alt small" onClick={() => setShowQr(true)}>
+            {canPay ? T("QR to pay") : T("QR code")}
+          </button>
           <a className="btn alt small" href={`/api/invoices/${invoice.id}/pdf`} target="_blank" rel="noopener">PDF</a>
           <button type="button" className="alt small" onClick={startEdit}>{T("Edit")}</button>
         </div>
