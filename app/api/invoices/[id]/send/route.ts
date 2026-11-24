@@ -7,6 +7,7 @@ import { t } from "@/lib/i18n";
 import { loadInvoice } from "@/lib/load-invoice";
 import { formatCents } from "@/lib/money";
 import { canPayByCard } from "@/lib/card-payments";
+import { balanceCents } from "@/lib/payments";
 import { renderInvoicePdf } from "@/lib/pdf";
 import type { Profile } from "@/lib/types";
 import { uiT } from "@/lib/ui-server";
@@ -44,7 +45,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
   const html = `<div style="font:16px/1.5 system-ui,sans-serif;color:#1c1c1a;max-width:560px">
 <p>${escapeHtml(L.emailGreeting(invoice.customer_name))}</p>
-<p>${est ? L.estimateBody(num, escapeHtml(biz), formatCents(invoice.total_cents)) : L.emailBody(num, escapeHtml(biz), formatCents(invoice.total_cents))}</p>
+<p>${est ? L.estimateBody(num, escapeHtml(biz), formatCents(invoice.total_cents)) : L.emailBody(num, escapeHtml(biz), formatCents(balanceCents(invoice) || invoice.total_cents))}</p>
 <p><a href="${link}" style="display:inline-block;background:#e8590c;color:#fff;padding:10px 16px;border-radius:8px;text-decoration:none;font-weight:600">${W.view}</a></p>
 ${est ? `<p>${L.estimateApprove}</p>` : ""}
 ${canPayByCard(invoice, profile) ? `<p>${L.payByCardNote}</p>` : ""}

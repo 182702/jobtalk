@@ -3,6 +3,7 @@ import { bpsToPercentString, formatCents, formatQuantity, lineAmountCents } from
 import { t } from "@/lib/i18n";
 import type { InvoiceWithItems, Profile } from "@/lib/types";
 import { tr, type UiLang } from "@/lib/ui";
+import { balanceCents, paidCents } from "@/lib/payments";
 
 /** Read-only invoice layout, shared by the contractor view and the customer link. */
 export function InvoiceView({
@@ -87,6 +88,18 @@ export function InvoiceView({
               <td className="n">{formatCents(invoice.total_cents)}</td>
             )}
           </tr>
+          {!isEstimate(invoice) && paidCents(invoice.payments) > 0 && missing === 0 && (
+            <>
+              <tr>
+                <td>{s.amountPaid}</td>
+                <td className="n">−{formatCents(paidCents(invoice.payments))}</td>
+              </tr>
+              <tr className="grand">
+                <td>{s.balanceDue}</td>
+                <td className="n">{formatCents(balanceCents(invoice))}</td>
+              </tr>
+            </>
+          )}
         </tbody>
       </table>
 

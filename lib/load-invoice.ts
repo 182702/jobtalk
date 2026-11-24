@@ -2,7 +2,7 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { normalizeItems } from "@/lib/invoice";
 import { createAdminClient } from "@/lib/supabase/admin";
-import type { InvoiceWithItems, Profile, Signature } from "@/lib/types";
+import type { InvoiceWithItems, Payment, Profile, Signature } from "@/lib/types";
 
 const SELECT = "*, line_items(description, quantity, rate_cents, position)";
 
@@ -26,12 +26,24 @@ async function loadSignatures(client: SupabaseClient, invoiceId: string): Promis
   return (data as Signature[]).sort((a, b) => (a.kind === b.kind ? 0 : a.kind === "approve" ? -1 : 1));
 }
 
+/** Payments in date order. Undefined if the 0011 migration hasn't run (the feature stays hidden). */
+async function loadPayments(client: SupabaseClient, invoiceId: string): Promise<Payment[] | undefined> {
+  const { data, error } = await client
+    .from("invoice_payments")
+    .select("id, amount_cents, method, paid_on, note")
+    .eq("invoice_id", invoiceId)
+    .order("paid_on", { ascending: true })
+    .order("id", { ascending: true });
+  if (error || !data) return undefined;
+  return data as Payment[];
+}
+
 /** Loads one of the signed-in user's invoices (RLS restricts to the owner). */
 export async function loadInvoice(supabase: SupabaseClient, id: string): Promise<InvoiceWithItems | null> {
   if (!/^[0-9a-f-]{36}$/i.test(id)) return null;
   const { data } = await supabase.from("invoices").select(SELECT).eq("id", id).maybeSingle();
   if (!data) return null;
-  return { ...toInvoice(data as Row), signatures: await loadSignatures(supabase, id) };
+  return { ...toInvoice(data as Row), signatures: await loadSignatures(supabase, id), payments: await loadPayments(supabase, id) };
 }
 
 /** Loads an invoice and its owner's profile by the customer link token. */
@@ -40,7 +52,11 @@ export async function loadPublicInvoice(token: string): Promise<{ invoice: Invoi
   const admin = createAdminClient();
   const { data } = await admin.from("invoices").select(SELECT).eq("public_token", token).maybeSingle();
   if (!data) return null;
-  const invoice = { ...toInvoice(data as Row), signatures: await loadSignatures(admin, (data as Row).id) };
+  const invoice = {
+    ...toInvoice(data as Row),
+    signatures: await loadSignatures(admin, (data as Row).id),
+    payments: await loadPayments(admin, (data as Row).id),
+  };
   const { data: profile } = await admin.from("profiles").select("*").eq("id", (data as Row).user_id).single();
   if (!profile) return null;
   return { invoice, profile: profile as Profile };

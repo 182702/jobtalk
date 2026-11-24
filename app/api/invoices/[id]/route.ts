@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getUser } from "@/lib/auth";
 import { draftSchema, draftToRpcPayload } from "@/lib/invoice";
+import { syncStatusFromPayments } from "@/lib/payments-server";
 import { rememberPrices } from "@/lib/price-list";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { uiT } from "@/lib/ui-server";
@@ -24,6 +25,8 @@ export async function PUT(request: Request, { params }: Ctx) {
   await supabase.from("invoice_signatures").delete().eq("invoice_id", id);
   // A checkout page made for the old total shouldn't be reused. (No-op before the 0008 migration.)
   await createAdminClient().from("invoices").update({ stripe_checkout_session_id: null }).eq("id", id).eq("user_id", user.id);
+  // A new total may change whether recorded payments cover it.
+  await syncStatusFromPayments(supabase, id);
   await rememberPrices(supabase, user.id, items);
   return NextResponse.json({ id });
 }

@@ -1,6 +1,7 @@
 import "server-only";
 import QRCode from "qrcode";
 import { canPayByCard } from "@/lib/card-payments";
+import { balanceCents, paidCents } from "@/lib/payments";
 import { appUrl } from "@/lib/env";
 import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFImage, type PDFPage } from "pdf-lib";
 import { businessName, docWords, formatDate, invoiceLabel, isEstimate, logoUrl } from "@/lib/invoice";
@@ -170,6 +171,14 @@ export async function renderInvoicePdf(inv: InvoiceWithItems, profile: Profile):
   y -= 24;
   text(W.total, labelX, 14, bold);
   right(formatCents(inv.total_cents), colAmt, 14, bold);
+  if (!isEstimate(inv) && paidCents(inv.payments) > 0) {
+    y -= 20;
+    text(L.amountPaid, labelX, 11, regular, MUTE);
+    right(`-${formatCents(paidCents(inv.payments))}`, colAmt, 11);
+    y -= 22;
+    text(L.balanceDue, labelX, 14, bold);
+    right(formatCents(balanceCents(inv)), colAmt, 14, bold);
+  }
   y -= 36;
 
   const block = (title: string, body: string) => {

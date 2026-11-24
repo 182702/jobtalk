@@ -5,6 +5,8 @@ import { appUrl, requireEnv } from "@/lib/env";
 import { t } from "@/lib/i18n";
 import { businessName, invoiceLabel, isEstimate, missingPriceCount } from "@/lib/invoice";
 import { formatCents } from "@/lib/money";
+import { balanceCents } from "@/lib/payments";
+import { syncStatusFromPayments } from "@/lib/payments-server";
 import { stripe } from "@/lib/stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { InvoiceWithItems, Profile } from "@/lib/types";
@@ -25,7 +27,7 @@ export function canPayByCard(invoice: InvoiceWithItems, profile: Profile): boole
     !!profile.stripe_account_id &&
     invoice.status === "unpaid" &&
     !isEstimate(invoice) &&
-    invoice.total_cents >= MIN_CARD_CENTS &&
+    balanceCents(invoice) >= MIN_CARD_CENTS &&
     missingPriceCount(invoice.line_items) === 0
   );
 }
@@ -39,7 +41,7 @@ export async function checkoutUrl(invoice: InvoiceWithItems, profile: Profile): 
   if (invoice.stripe_checkout_session_id) {
     try {
       const old = await stripe().checkout.sessions.retrieve(invoice.stripe_checkout_session_id, {}, opts);
-      if (old.status === "open" && old.amount_total === invoice.total_cents && old.url) return old.url;
+      if (old.status === "open" && old.amount_total === balanceCents(invoice) && old.url) return old.url;
     } catch {
       // Expired or from another mode: make a new one.
     }
@@ -49,11 +51,13 @@ export async function checkoutUrl(invoice: InvoiceWithItems, profile: Profile): 
   const num = invoiceLabel(invoice.number);
   const biz = businessName(profile, L.yourBusiness);
   const link = `${appUrl()}/i/${invoice.public_token}`;
-  const fee = Math.round((invoice.total_cents * platformFeeBps()) / 10000);
+  // Charge what's still owed (after any deposit or partial payment).
+  const amount = balanceCents(invoice);
+  const fee = Math.round((amount * platformFeeBps()) / 10000);
   const session = await stripe().checkout.sessions.create(
     {
       mode: "payment",
-      line_items: [{ quantity: 1, price_data: { currency: "usd", unit_amount: invoice.total_cents, product_data: { name: `${L.invoice} ${num} · ${biz}` } } }],
+      line_items: [{ quantity: 1, price_data: { currency: "usd", unit_amount: amount, product_data: { name: `${L.invoice} ${num} · ${biz}` } } }],
       customer_email: invoice.customer_email || undefined,
       metadata: { invoice_id: invoice.id },
       payment_intent_data: { metadata: { invoice_id: invoice.id }, description: `${L.invoice} ${num}`, ...(fee > 0 ? { application_fee_amount: fee } : {}) },
@@ -88,13 +92,36 @@ export async function recordCardPayment(session: Stripe.Checkout.Session, accoun
 
   const now = new Date().toISOString();
   const paymentIntent = typeof session.payment_intent === "string" ? session.payment_intent : (session.payment_intent?.id ?? null);
+  const amount = session.amount_total ?? inv.total_cents;
+
+  // Record it as a payment (once per checkout), then let the payments decide paid/unpaid.
+  const { data: added, error: payError } = await admin
+    .from("invoice_payments")
+    .upsert(
+      { invoice_id: invoiceId, user_id: inv.user_id, amount_cents: amount, method: "card", paid_on: now.slice(0, 10), stripe_session_id: session.id },
+      { onConflict: "stripe_session_id", ignoreDuplicates: true },
+    )
+    .select("id");
+  if (!payError) {
+    await admin.from("invoices").update({ stripe_payment_intent_id: paymentIntent }).eq("id", invoiceId);
+    if (!added?.length) {
+      // Already recorded this checkout: report whether the invoice is paid now.
+      const { data: now2 } = await admin.from("invoices").select("status").eq("id", invoiceId).maybeSingle();
+      return now2?.status === "paid";
+    }
+    const status = await syncStatusFromPayments(admin, invoiceId);
+    await notifyContractor(inv as InvoiceWithItems, owner as Profile, amount);
+    return status === "paid";
+  }
+
+  // Before the 0011 migration: a card payment marks the whole invoice paid.
   const { data: changed } = await admin
     .from("invoices")
     .update({ status: "paid", paid_at: now, updated_at: now, paid_via: "card", stripe_payment_intent_id: paymentIntent })
     .eq("id", invoiceId)
     .eq("status", "unpaid")
     .select("id");
-  if (changed?.length) await notifyContractor(inv as InvoiceWithItems, owner as Profile, session.amount_total ?? inv.total_cents);
+  if (changed?.length) await notifyContractor(inv as InvoiceWithItems, owner as Profile, amount);
   return true;
 }
 
@@ -114,7 +141,7 @@ async function notifyContractor(inv: InvoiceWithItems, owner: Profile, amountCen
   const num = invoiceLabel(inv.number);
   const who = inv.customer_name || "Your customer";
   const amount = formatCents(amountCents);
-  const short = amountCents < inv.total_cents ? ` That's less than the invoice total of ${formatCents(inv.total_cents)}, because the invoice changed after they opened the payment page.` : "";
+  const short = amountCents < inv.total_cents ? ` The invoice total is ${formatCents(inv.total_cents)}; open it to see the remaining balance.` : "";
   try {
     await resend().emails.send({
       from: requireEnv("EMAIL_FROM"),
@@ -122,9 +149,9 @@ async function notifyContractor(inv: InvoiceWithItems, owner: Profile, amountCen
       subject: `💰 ${who} paid invoice ${num} (${amount})`,
       html: `<div style="font:16px/1.5 system-ui,sans-serif;color:#1c1c1a;max-width:560px">
 <p><b>${escapeHtml(who)}</b> paid invoice ${num} by card: <b>${amount}</b>.${escapeHtml(short)}</p>
-<p>The invoice is marked paid and any payment reminders have stopped. The money goes to your Stripe account; Stripe sends it to your bank on its usual payout schedule.</p>
+<p>The payment is recorded on the invoice. The money goes to your Stripe account; Stripe sends it to your bank on its usual payout schedule.</p>
 <p><a href="${appUrl()}/invoices/${inv.id}">Open the invoice</a></p></div>`,
-      text: `${who} paid invoice ${num} by card: ${amount}.${short}\n\nThe invoice is marked paid and any payment reminders have stopped. The money goes to your Stripe account; Stripe sends it to your bank on its usual payout schedule.\n\n${appUrl()}/invoices/${inv.id}`,
+      text: `${who} paid invoice ${num} by card: ${amount}.${short}\n\nThe payment is recorded on the invoice. The money goes to your Stripe account; Stripe sends it to your bank on its usual payout schedule.\n\n${appUrl()}/invoices/${inv.id}`,
     });
   } catch (err) {
     console.error("card payment: contractor email failed", err);

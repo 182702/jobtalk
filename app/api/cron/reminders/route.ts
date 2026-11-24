@@ -5,9 +5,10 @@ import { t } from "@/lib/i18n";
 import { businessName, formatDate, invoiceLabel, missingPriceCount, normalizeItems } from "@/lib/invoice";
 import { formatCents } from "@/lib/money";
 import { canPayByCard, syncCardPayment } from "@/lib/card-payments";
+import { balanceCents } from "@/lib/payments";
 import { MAX_REMINDERS, REMINDER_DAYS, reminderDue } from "@/lib/reminders";
 import { createAdminClient } from "@/lib/supabase/admin";
-import type { InvoiceWithItems, Profile } from "@/lib/types";
+import type { InvoiceWithItems, Payment, Profile } from "@/lib/types";
 
 export const maxDuration = 60;
 export const dynamic = "force-dynamic";
@@ -62,9 +63,14 @@ export async function GET(request: Request) {
     if (missingPriceCount(items) > 0) continue; // the total isn't final; don't chase it
     const count = row.reminders_sent ?? 0;
     if (!reminderDue(row.sent_at, count, row.last_reminder_at ?? null)) continue;
+    // Payments recorded so far (none before the 0011 migration).
+    const { data: pays } = await admin.from("invoice_payments").select("id, amount_cents, method, paid_on, note").eq("invoice_id", row.id);
+    const inv = { ...row, line_items: items, payments: (pays ?? []) as Payment[] } as InvoiceWithItems;
+    const owed = balanceCents(inv);
+    if (owed <= 0) continue; // fully paid by recorded payments
     // Paid by card but Stripe's notice hasn't arrived? Then don't remind.
-    if (await syncCardPayment({ ...row, line_items: items }, profile)) continue;
-    const cardOk = canPayByCard({ ...row, line_items: items }, profile);
+    if (await syncCardPayment(inv, profile)) continue;
+    const cardOk = canPayByCard(inv, profile);
 
     // Claim this reminder so a second run can't send it again.
     const now = new Date().toISOString();
@@ -85,7 +91,7 @@ export async function GET(request: Request) {
     const sentOn = formatDate(new Date(row.sent_at!).toLocaleDateString("en-CA", { timeZone: "America/Chicago" }), L.dateLocale);
     const html = `<div style="font:16px/1.5 system-ui,sans-serif;color:#1c1c1a;max-width:560px">
 <p>${escapeHtml(L.emailGreeting(row.customer_name))}</p>
-<p>${L.reminderBody(num, escapeHtml(biz), formatCents(row.total_cents), sentOn)}</p>
+<p>${L.reminderBody(num, escapeHtml(biz), formatCents(owed), sentOn)}</p>
 <p><a href="${link}" style="display:inline-block;background:#e8590c;color:#fff;padding:10px 16px;border-radius:8px;text-decoration:none;font-weight:600">${L.viewInvoice}</a></p>
 ${cardOk ? `<p>${L.payByCardNote}</p>` : ""}
 ${profile.payment_instructions ? `<p><b>${L.howToPay}</b><br>${escapeHtml(profile.payment_instructions).replace(/\n/g, "<br>")}</p>` : ""}
@@ -95,7 +101,7 @@ ${profile.payment_instructions ? `<p><b>${L.howToPay}</b><br>${escapeHtml(profil
     const text = [
       L.emailGreeting(row.customer_name),
       "",
-      L.reminderBody(num, biz, formatCents(row.total_cents), sentOn).replace(/<\/?b>/g, ""),
+      L.reminderBody(num, biz, formatCents(owed), sentOn).replace(/<\/?b>/g, ""),
       "",
       `${L.viewInvoice}: ${link}`,
       ...(cardOk ? [L.payByCardNote] : []),

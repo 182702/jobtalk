@@ -5,6 +5,7 @@ import { useState } from "react";
 import { InvoiceEditor } from "@/components/InvoiceEditor";
 import { InvoiceView } from "@/components/InvoiceView";
 import { LocalTime } from "@/components/LocalTime";
+import { PaymentsCard } from "@/components/PaymentsCard";
 import { QrSheet } from "@/components/QrSheet";
 import { SignSheet } from "@/components/SignSheet";
 import { invoiceLang } from "@/lib/i18n";
@@ -258,6 +259,7 @@ export function InvoiceActions({
         {msg.err && <div className="err" role="alert">{msg.err}</div>}
         {msg.ok && <div className="okmsg">{msg.ok}</div>}
       </div>
+      {invoice.payments !== undefined && !est && missing === 0 && <PaymentsCard invoice={invoice} uiLang={uiLang} />}
       <div className="card noprint">
         <h2 style={{ marginTop: 0 }}>{T("Customer signature")}</h2>
         <p className="muted small" style={{ marginTop: 0 }}>

@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { t } from "@/lib/i18n";
 import { formatCents } from "@/lib/money";
 import type { InvoiceWithItems } from "@/lib/types";
+import { balanceCents, paidCents } from "@/lib/payments";
 
 /**
  * Full-screen QR code the contractor shows the customer. It opens the invoice
@@ -46,7 +47,8 @@ export function QrSheet({
         <p className="qrBiz">{business}</p>
         <h2 id="qr-title">{canPay ? L.scanToPay : L.scanToView}</h2>
         <p className="qrTotal">
-          {L.totalDue}: <b>{formatCents(invoice.total_cents)}</b>
+          {paidCents(invoice.payments) > 0 ? L.balanceDue : L.totalDue}:{" "}
+          <b>{formatCents(paidCents(invoice.payments) > 0 ? balanceCents(invoice) : invoice.total_cents)}</b>
         </p>
         {/* eslint-disable-next-line react/no-danger -- SVG generated locally from our own link */}
         <div className="qrCode" aria-label={canPay ? L.scanToPay : L.scanToView} role="img" dangerouslySetInnerHTML={{ __html: svg }} />

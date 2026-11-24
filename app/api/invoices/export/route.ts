@@ -44,14 +44,19 @@ export async function GET(request: Request) {
     .map((r) => ({ ...r, line_items: normalizeItems([...r.line_items].sort((a, b) => a.position - b.position)) }));
 
   if (format === "csv") {
-    const header = ["Invoice #", "Date", "Customer", "Customer email", "Subtotal", "Tax rate %", "Tax", "Total", "Status", "Paid on", "Paid by"];
+    // Payments recorded per invoice (none before the 0011 migration).
+    const { data: payRows } = await supabase.from("invoice_payments").select("invoice_id, amount_cents").in("invoice_id", invoices.map((i) => i.id));
+    const paidBy = new Map<string, number>();
+    for (const r of (payRows ?? []) as { invoice_id: string; amount_cents: number }[]) paidBy.set(r.invoice_id, (paidBy.get(r.invoice_id) ?? 0) + r.amount_cents);
+    const received = (i: (typeof invoices)[number]) => (i.status === "paid" ? i.total_cents : Math.min(i.total_cents, paidBy.get(i.id) ?? 0));
+    const header = ["Invoice #", "Date", "Customer", "Customer email", "Subtotal", "Tax rate %", "Tax", "Total", "Amount paid", "Balance due", "Status", "Paid on", "Paid by"];
     const lines = [header.map(csvCell).join(",")];
     let sub = 0, tax = 0, total = 0, paid = 0;
     for (const i of invoices) {
       sub += i.subtotal_cents;
       tax += i.tax_cents;
       total += i.total_cents;
-      if (i.status === "paid") paid += i.total_cents;
+      paid += received(i);
       lines.push(
         [
           String(i.number).padStart(4, "0"),
@@ -62,6 +67,8 @@ export async function GET(request: Request) {
           bpsToPercentString(i.tax_rate_bps),
           centsToDollarString(i.tax_cents),
           centsToDollarString(i.total_cents),
+          centsToDollarString(received(i)),
+          centsToDollarString(i.total_cents - received(i)),
           i.status,
           i.paid_at ? i.paid_at.slice(0, 10) : "",
           i.paid_via === "card" ? "card" : i.status === "paid" ? "other" : "",
@@ -71,9 +78,9 @@ export async function GET(request: Request) {
       );
     }
     lines.push("");
-    lines.push([`TOTAL (${invoices.length} invoices)`, "", "", "", centsToDollarString(sub), "", centsToDollarString(tax), centsToDollarString(total), "", "", ""].map(csvCell).join(","));
-    lines.push(["Paid", "", "", "", "", "", "", centsToDollarString(paid), "", "", ""].map(csvCell).join(","));
-    lines.push(["Unpaid", "", "", "", "", "", "", centsToDollarString(total - paid), "", "", ""].map(csvCell).join(","));
+    lines.push([`TOTAL (${invoices.length} invoices)`, "", "", "", centsToDollarString(sub), "", centsToDollarString(tax), centsToDollarString(total), centsToDollarString(paid), centsToDollarString(total - paid), "", "", ""].map(csvCell).join(","));
+    lines.push(["Received", "", "", "", "", "", "", "", centsToDollarString(paid), "", "", "", ""].map(csvCell).join(","));
+    lines.push(["Still owed", "", "", "", "", "", "", "", "", centsToDollarString(total - paid), "", "", ""].map(csvCell).join(","));
     // The BOM makes Excel read the file as UTF-8 (names with accents stay correct).
     return new NextResponse("﻿" + lines.join("\r\n") + "\r\n", {
       headers: {

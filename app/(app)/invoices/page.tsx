@@ -3,6 +3,7 @@ import { TaxExport } from "@/components/TaxExport";
 import { requireProfile } from "@/lib/auth";
 import { formatDate, invoiceLabel } from "@/lib/invoice";
 import { formatCents } from "@/lib/money";
+import { balanceCents, paidCents } from "@/lib/payments";
 import { translator } from "@/lib/ui";
 import { getUiLang } from "@/lib/ui-server";
 
@@ -17,6 +18,7 @@ type Row = {
   total_cents: number;
   doc_type?: "invoice" | "estimate";
   line_items: { rate_cents: number }[];
+  invoice_payments?: { amount_cents: number }[];
 };
 const COLUMNS = "id, number, customer_name, issued_on, status, total_cents, line_items(rate_cents)";
 
@@ -30,13 +32,18 @@ export default async function InvoicesPage({ searchParams }: { searchParams: Pro
 
   // Totals always cover every invoice; the filter only changes the list.
   // doc_type needs the 0010 migration; fall back to the older columns without it.
-  const withType = await supabase.from("invoices").select(`${COLUMNS}, doc_type`).order("number", { ascending: false }).limit(500);
-  const rows = withType.error ? (await supabase.from("invoices").select(COLUMNS).order("number", { ascending: false }).limit(500)).data : withType.data;
-  const all = (rows ?? []) as Row[];
+  // Newer columns need later migrations; fall back step by step without them.
+  const list500 = (cols: string) => supabase.from("invoices").select(cols).order("number", { ascending: false }).limit(500);
+  let res = await list500(`${COLUMNS}, doc_type, invoice_payments(amount_cents)`);
+  if (res.error) res = await list500(`${COLUMNS}, doc_type`);
+  if (res.error) res = await list500(COLUMNS);
+  const rows = res.data;
+  const all = (rows ?? []) as unknown as Row[];
   const isEst = (i: Row) => i.doc_type === "estimate";
   // Estimates aren't owed yet, so they never count toward what's outstanding.
   const unpaid = all.filter((i) => i.status === "unpaid" && !isEst(i));
-  const outstanding = unpaid.reduce((s, i) => s + i.total_cents, 0);
+  const owed = (i: Row) => balanceCents({ status: i.status, total_cents: i.total_cents, payments: i.invoice_payments });
+  const outstanding = unpaid.reduce((s, i) => s + owed(i), 0);
   const hasEstimates = all.some(isEst);
   const taxYears = [...new Set(all.filter((i) => !isEst(i)).map((i) => Number(i.issued_on.slice(0, 4))))].sort((a, b) => b - a);
   const list =
@@ -97,13 +104,17 @@ export default async function InvoicesPage({ searchParams }: { searchParams: Pro
                 <span style={{ whiteSpace: "nowrap" }}>
                   {(i.line_items ?? []).some((l) => !(l.rate_cents > 0)) ? (
                     <span className="pill missing">{T("Price missing")}</span>
+                  ) : i.status === "unpaid" && paidCents(i.invoice_payments) > 0 && !isEst(i) ? (
+                    <span title={T("Balance due")}>{formatCents(owed(i))}</span>
                   ) : (
                     formatCents(i.total_cents)
                   )}
                   {isEst(i) ? (
                     <span className="pill estimate">{T("Estimate")}</span>
                   ) : (
-                    <span className={`pill ${i.status}`}>{i.status === "paid" ? T("Paid") : T("Unpaid")}</span>
+                    <span className={`pill ${i.status}`}>
+                      {i.status === "paid" ? T("Paid") : paidCents(i.invoice_payments) > 0 ? T("Partly paid") : T("Unpaid")}
+                    </span>
                   )}
                 </span>
               </Link>

@@ -58,7 +58,16 @@ export type Signature = {
   signed_on: string; // YYYY-MM-DD, the signer's local date
 };
 
-export type InvoiceWithItems = Invoice & { line_items: LineItem[]; signatures?: Signature[] };
+/** Money received for an invoice: a deposit, partial payment, or the rest. */
+export type Payment = {
+  id: number;
+  amount_cents: number;
+  method: "cash" | "check" | "zelle" | "venmo" | "cashapp" | "bank" | "card" | "other";
+  paid_on: string; // YYYY-MM-DD
+  note: string;
+};
+
+export type InvoiceWithItems = Invoice & { line_items: LineItem[]; signatures?: Signature[]; payments?: Payment[] };
 
 /** What the AI parser returns and the review screen edits before saving. */
 export type Draft = {

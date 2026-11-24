@@ -61,6 +61,8 @@ type Strings = {
   scanToPay: string;
   scanToView: string;
   scanHint: string;
+  amountPaid: string;
+  balanceDue: string;
 };
 
 export const INVOICE_STRINGS: Record<InvoiceLanguage, Strings> = {
@@ -123,6 +125,8 @@ export const INVOICE_STRINGS: Record<InvoiceLanguage, Strings> = {
     scanToPay: "Scan to view and pay",
     scanToView: "Scan to view online",
     scanHint: "Point your phone's camera at the code.",
+    amountPaid: "Paid",
+    balanceDue: "Balance due",
   },
   es: {
     invoice: "Factura",
@@ -183,6 +187,8 @@ export const INVOICE_STRINGS: Record<InvoiceLanguage, Strings> = {
     scanToPay: "Escanee para ver y pagar",
     scanToView: "Escanee para verla en línea",
     scanHint: "Apunte la cámara de su teléfono al código.",
+    amountPaid: "Pagado",
+    balanceDue: "Saldo pendiente",
   },
 };
 

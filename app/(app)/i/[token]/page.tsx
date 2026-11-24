@@ -8,6 +8,7 @@ import { businessName, docWords, invoiceLabel } from "@/lib/invoice";
 import { loadPublicInvoice } from "@/lib/load-invoice";
 import { formatCents } from "@/lib/money";
 import { stripe } from "@/lib/stripe";
+import { balanceCents } from "@/lib/payments";
 
 type Props = { params: Promise<{ token: string }>; searchParams: Promise<{ session_id?: string }> };
 
@@ -60,7 +61,7 @@ export default async function PublicInvoicePage({ params, searchParams }: Props)
       {justPaid && <div className="paidBanner noprint">✓ {L.paymentReceived}</div>}
       {pending && <div className="warn noprint">{L.paymentPending}</div>}
       {canPayByCard(found.invoice, found.profile) && !pending && (
-        <PayButton token={token} label={L.payByCard(formatCents(found.invoice.total_cents))} errorText={L.payUnavailable} />
+        <PayButton token={token} label={L.payByCard(formatCents(balanceCents(found.invoice)))} errorText={L.payUnavailable} />
       )}
       <InvoiceView invoice={found.invoice} profile={found.profile} />
       <div className="btns noprint">
