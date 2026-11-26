@@ -34,6 +34,8 @@
 .navText { text-decoration: none; font-size: 14px; font-weight: 600; color: var(--l-mute) !important; }
 .navText:hover { color: var(--l-ink) !important; }
 @media (max-width: 640px) { .navLinks a[href^="#"] { display: none; } .navLinks { gap: 12px; } }
+.navLinks a, .brand { white-space: nowrap; }
+@media (max-width: 640px) { .nav { flex-wrap: wrap; row-gap: 10px; } }
 
 /* Buttons */
 .btn, .btnGhost {
@@ -102,6 +104,15 @@
 .stepIcon.blue { color: var(--l-blue2); border-color: var(--l-blue2); }
 .steps h3 { margin: 0 0 4px; font-size: 26px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.02em; }
 .steps p { margin: 0; color: var(--l-mute); font-size: 15px; line-height: 1.5; }
+
+/* Lead Tracker */
+.leads { margin-top: 26px; display: grid; gap: 18px; align-items: center; padding: 22px 20px; border: 1px solid var(--l-line); border-left: 4px solid var(--l-orange); border-radius: 12px; background: rgba(10, 21, 51, 0.7); }
+@media (min-width: 760px) { .leads { grid-template-columns: 1fr auto; padding: 24px 30px; } }
+.leads h2 { font-family: var(--font-condensed), "Arial Narrow", sans-serif; font-size: clamp(28px, 4.6vw, 40px); line-height: 1.05; margin: 0 0 12px; font-weight: 800; text-wrap: balance; }
+.leads h2 em { font-style: normal; color: var(--l-orange); }
+.leads ul { margin: 0; padding: 0; list-style: none; color: var(--l-mute); font-size: 15px; display: grid; gap: 6px; }
+.leads li::before { content: "✓ "; color: var(--l-orange); font-weight: 700; }
+.leads .btnGhost { justify-self: start; }
 
 /* Math */
 .math { margin-top: 56px; text-align: center; }

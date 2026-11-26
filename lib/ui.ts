@@ -101,6 +101,7 @@ export const ES: Record<string, string> = {
   "Free for 5 job notes a month. No card needed.": "Gratis para 5 notas de trabajo al mes. No necesita tarjeta.",
   "Free plan": "Plan Gratis",
   "Go unlimited": "Pasar a ilimitado",
+  "Win more jobs: track leads, follow-ups and your sales pipeline": "Gana más trabajos: sigue tus clientes potenciales, seguimientos y ventas",
   "Happy": "Contento",
   "Here's how to make an invoice:": "Así se hace una factura:",
   "How customers pay you": "Cómo le pagan sus clientes",

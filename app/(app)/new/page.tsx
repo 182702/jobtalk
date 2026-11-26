@@ -33,6 +33,10 @@ export default async function NewPage() {
         </div>
       )}
       <NewInvoice taxRateBps={profile.tax_rate_bps} usage={usage} uiLang={lang} firstTime={!count} allowEstimate={!docTypeMissing} customers={customers} />
+      <a className="card leadCard" href="https://claude.ai/artifact/WHesSCdH1v3yWUa7TZE3is" target="_blank" rel="noopener noreferrer">
+        <b>📋 Lead Tracker</b>
+        <span className="muted small">{T("Win more jobs: track leads, follow-ups and your sales pipeline")}</span>
+      </a>
     </main>
   );
 }
