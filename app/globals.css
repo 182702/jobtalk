@@ -301,3 +301,26 @@ input::placeholder, textarea::placeholder { color: rgba(156, 173, 214, 0.55); fo
 .leadCard { display: grid; gap: 2px; margin-top: 14px; text-decoration: none; color: inherit; border-left: 4px solid var(--brand); }
 .leadCard:hover { border-color: var(--accent); border-left-color: var(--brand); }
 .leadCard b { font-size: 16px; }
+
+/* Lead Tracker */
+.leadHead { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.contactRow, .quickPicks { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; align-items: center; }
+.quickPicks { margin-top: 0; }
+.stageRow { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 8px; }
+.stageRow button { padding: 9px 6px; font-size: 14px; }
+.stageRow button.on { box-shadow: none !important; }
+.tabs.scroll { overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; padding-bottom: 2px; }
+.tabs.scroll::-webkit-scrollbar { display: none; }
+.tabs.scroll a { white-space: nowrap; flex: none; }
+.tabCount { opacity: 0.7; font-size: 12px; }
+.fuLate { border-color: rgba(255, 107, 107, 0.55); }
+.fuToday { border-color: rgba(255, 179, 71, 0.5); }
+.pill.stage-new { background: rgba(90, 160, 255, 0.14); color: #9cc4ff; border: 1px solid rgba(90, 160, 255, 0.4); }
+.pill.stage-contacted, .pill.stage-quoted { background: rgba(255, 179, 71, 0.14); color: #ffc163; border: 1px solid rgba(255, 179, 71, 0.4); }
+.pill.stage-scheduled { background: rgba(255, 122, 47, 0.16); color: #ffa36b; border: 1px solid rgba(255, 122, 47, 0.45); }
+.pill.stage-won { background: rgba(22, 163, 74, 0.14); color: #86efac; border: 1px solid rgba(22, 163, 74, 0.4); }
+.pill.stage-lost { border: 1px solid var(--line); color: var(--mute); }
+.topbar nav a { white-space: nowrap; }
+@media (max-width: 360px) { .topbar .in { gap: 10px; } .topbar nav { gap: 10px; } .topbar nav a { font-size: 14px; } }
+.stats.three { grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 520px) { .stats.three { gap: 6px; } .stats.three .stat { padding: 10px; } .stats.three .stat b { font-size: 17px; } .stats.three .stat .small { font-size: 12px; } }

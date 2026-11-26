@@ -2,7 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 // Pages that need a signed-in user.
-const PROTECTED = ["/start", "/new", "/invoices", "/settings", "/billing", "/admin"];
+const PROTECTED = ["/start", "/new", "/invoices", "/leads", "/settings", "/billing", "/admin"];
 
 // Signed-in visitors skip the log-in and sign-up pages.
 const GUEST_ONLY = ["/login", "/signup"];
@@ -41,7 +41,9 @@ export async function proxy(request: NextRequest) {
   }
   if (user && GUEST_ONLY.includes(path) && !request.nextUrl.searchParams.has("error")) {
     const url = request.nextUrl.clone();
-    url.pathname = "/invoices";
+    // Honor a safe ?next= (e.g. the home page's Lead Tracker button), else go to invoices.
+    const next = request.nextUrl.searchParams.get("next") ?? "";
+    url.pathname = next.startsWith("/") && !next.startsWith("//") && !next.startsWith("/\\") ? next.split("?")[0] : "/invoices";
     url.search = "";
     return NextResponse.redirect(url);
   }

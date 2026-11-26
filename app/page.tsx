@@ -61,8 +61,8 @@ const STEPS = [
   { title: "Send", text: "Email a PDF with your logo and payment details. Track what's paid.", d: "M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z", tone: "orange" },
 ];
 
-// Lead Tracker demo (opens in a new tab). Change it here when it moves to /leads.
-const LEAD_TRACKER_URL = "https://claude.ai/artifact/WHesSCdH1v3yWUa7TZE3is";
+// Lead Tracker lives in the app. Signed-out visitors sign up first, then land on it.
+const LEAD_TRACKER_URL = "/signup?next=%2Fleads";
 
 // Static: built once and served from the CDN. Signed-in visitors who tap
 // "Log in" are sent straight to their invoices by proxy.ts.
@@ -83,7 +83,7 @@ export default function Landing() {
           <div className={s.navLinks}>
             <a className={s.navText} href="#how">How it works</a>
             <a className={s.navText} href="#pricing">Pricing</a>
-            <a className={`${s.navText} ${s.navLead}`} href={LEAD_TRACKER_URL} target="_blank" rel="noopener noreferrer">Lead Tracker</a>
+            <Link className={s.navText} href={LEAD_TRACKER_URL}>Lead Tracker</Link>
             <Link className={s.navText} href="/login">Log in</Link>
             <Link className={`${s.btn} ${s.small}`} href="/signup">Start free</Link>
           </div>
@@ -213,7 +213,7 @@ export default function Landing() {
 
         <section className={s.leads} aria-labelledby="leads-title">
           <div>
-            <p className={s.eyebrow}>Free demo</p>
+            <p className={s.eyebrow}>Included free</p>
             <h2 id="leads-title">
               Win more jobs with <em>Lead Tracker</em>
             </h2>
@@ -223,9 +223,9 @@ export default function Landing() {
               <li>Ready-to-send texts and emails</li>
             </ul>
           </div>
-          <a className={s.btnGhost} href={LEAD_TRACKER_URL} target="_blank" rel="noopener noreferrer">
+          <Link className={s.btnGhost} href={LEAD_TRACKER_URL}>
             Try Lead Tracker <Arrow />
-          </a>
+          </Link>
         </section>
 
         <section className={s.math}>

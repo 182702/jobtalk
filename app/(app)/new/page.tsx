@@ -9,7 +9,7 @@ import { getUiLang } from "@/lib/ui-server";
 
 export const metadata = { title: "New invoice" };
 
-export default async function NewPage() {
+export default async function NewPage({ searchParams }: { searchParams: Promise<{ note?: string }> }) {
   const { supabase, profile } = await requireProfile();
   const usage = await getUsage(supabase, profile.id);
   if (isAdminEmail(profile.email)) usage.plan = "solo"; // owner: unlimited, hide the free-plan counter
@@ -20,6 +20,8 @@ export default async function NewPage() {
   // Estimates need the 0010 migration; hide the choice until it has run.
   const { error: docTypeMissing } = await supabase.from("invoices").select("doc_type").limit(1);
   const customers = await loadCustomers(supabase);
+  const { note } = await searchParams;
+  const initialNote = typeof note === "string" ? note.slice(0, 600) : "";
 
   return (
     <main>
@@ -32,11 +34,11 @@ export default async function NewPage() {
           <Link className="btn alt small" href="/start">{T("Start the 1-minute setup")}</Link>
         </div>
       )}
-      <NewInvoice taxRateBps={profile.tax_rate_bps} usage={usage} uiLang={lang} firstTime={!count} allowEstimate={!docTypeMissing} customers={customers} />
-      <a className="card leadCard" href="https://claude.ai/artifact/WHesSCdH1v3yWUa7TZE3is" target="_blank" rel="noopener noreferrer">
+      <NewInvoice taxRateBps={profile.tax_rate_bps} usage={usage} uiLang={lang} firstTime={!count} allowEstimate={!docTypeMissing} customers={customers} initialNote={initialNote} />
+      <Link className="card leadCard" href="/leads">
         <b>📋 Lead Tracker</b>
         <span className="muted small">{T("Win more jobs: track leads, follow-ups and your sales pipeline")}</span>
-      </a>
+      </Link>
     </main>
   );
 }

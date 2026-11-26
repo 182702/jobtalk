@@ -47,6 +47,7 @@ export function NewInvoice({
   firstTime = false,
   allowEstimate = false,
   customers = [],
+  initialNote = "",
 }: {
   taxRateBps: number;
   usage: { plan: "free" | "solo"; used: number; limit: number };
@@ -54,10 +55,12 @@ export function NewInvoice({
   firstTime?: boolean;
   allowEstimate?: boolean;
   customers?: Customer[];
+  /** Starts the note box with text, e.g. a lead's name and job from Lead Tracker. */
+  initialNote?: string;
 }) {
   const T = translator(uiLang);
   const router = useRouter();
-  const [note, setNote] = useState("");
+  const [note, setNote] = useState(initialNote);
   const [interim, setInterim] = useState("");
   const [recording, setRecording] = useState(false);
   const [micSupported, setMicSupported] = useState(false);

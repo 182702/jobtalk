@@ -29,6 +29,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             {user ? (
               <>
                 <Link href="/invoices">{T("Invoices")}</Link>
+                <Link href="/leads">{T("Leads")}</Link>
                 <Link href="/settings">{T("Settings")}</Link>
                 <Link className="btn small" href="/new">
                   {T("+ New")}
